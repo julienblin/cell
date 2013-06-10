@@ -1,0 +1,9 @@
+{
+  "name": "Cell",
+  "description": "Next generation estimation web application.",
+  "version": "0.0.1",
+  "private": true,
+  "dependencies": {
+    
+  }
+}
