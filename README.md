@@ -12,7 +12,7 @@ Just install [Vagrant](http://www.vagrantup.com/) and [VirtualBox](https://www.v
 	vagrant up
 	vagrant ssh
 	cd /cell
-	npm install
-	node cell.js
+	npm install --no-bin-links
+	npm start
 	
-Open a browser to [http://localhost:8080/](http://localhost:8080/).
+Open a browser to [http://localhost:3000/](http://localhost:3000/).
