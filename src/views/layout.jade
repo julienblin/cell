@@ -1,7 +1,24 @@
 doctype 5
-html
+html(lang='en')
   head
+    meta(charset='utf-8')
     title= title
-    link(rel='stylesheet', href='/stylesheets/cell.css')
+    meta(name='viewport',  content='width=device-width, initial-scale=1.0')
+    link(rel='stylesheet', href='/stylesheets/bootstrap.min.css')
+    style.
+      body { padding-top: 60px; }
+    block head
+
   body
-    block content
+    include includes/top-menu
+
+    .container
+      block container
+
+      hr
+      footer
+        p Copyright CGI 2013
+
+    script(src="/javascripts/jquery.min.js")
+    script(src="/javascripts/bootstrap.min.js")
+    block foot

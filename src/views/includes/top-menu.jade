@@ -1,0 +1,27 @@
+.navbar.navbar-fixed-top
+  .navbar-inner
+    .container
+      span.brand(href='#') Cell
+      ul.nav
+        li
+          button#btnNewProject.btn(href='#')
+            i.icon-file
+        li
+          | &nbsp;
+        li
+          button#btnOpenProject.btn(href='#')
+            i.icon-folder-open
+        li.divider-vertical
+
+      ul.nav.pull-right
+        li.divider-vertical
+        li.dropdown
+          a.dropdown-toggle(href='#', data-toggle="dropdown")
+            i.icon-user
+            |  Julien Blin
+            b.caret
+          ul.dropdown-menu
+            li
+              a(href='#')
+                i.icon-off
+                |  Logout
