@@ -10,13 +10,6 @@ var UserSchema = new Schema({
  ,  active:   { type: Boolean, required: true, default: true }
 });
 
-UserSchema.methods.comparePassword = function(candidatePassword, cb) {
-    bcrypt.compare(candidatePassword, this.password, function(err, isMatch) {
-        if (err) return cb(err);
-        cb(null, isMatch);
-    })
-};
-
 // mongoose plugins for hashing password on save.
 UserSchema.pre('save', function(next) {
     var user = this;
@@ -32,5 +25,25 @@ UserSchema.pre('save', function(next) {
         });
     });
 });
+
+UserSchema.methods.comparePassword = function(candidatePassword, callback) {
+    bcrypt.compare(candidatePassword, this.password, function(err, isMatch) {
+        if (err) return callback(err);
+        callback(null, isMatch);
+    })
+};
+
+UserSchema.statics.authenticate = function(username, password, callback) {
+    this.findOne({ 'username' : username, 'active' : true }, function(err, user) {
+        if (err) return callback(err, null);
+        if (!user) return callback(null, false);
+
+        user.comparePassword(password, function(err, isMatch) {
+            if (err) return callback(err, null);
+            if (!isMatch) return callback(null, false);
+            return callback(null, user);
+        });
+    });
+};
 
 module.exports = mongoose.model('User', UserSchema);
