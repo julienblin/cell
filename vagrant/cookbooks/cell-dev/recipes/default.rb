@@ -1,3 +1,4 @@
+include_recipe "build-essential"
 include_recipe "git"
 include_recipe "nodejs"
 include_recipe "mongodb::10gen_repo"

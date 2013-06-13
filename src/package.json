@@ -1,13 +1,16 @@
 {
-  "name": "cell",
-  "version": "0.0.1",
-  "private": true,
-  "main": "app.js",
-  "scripts": {
-    "start": "node app.js"
-  },
-  "dependencies": {
-    "express": "3.2.6",
-	"jade": "0.31.2"
-  }
+    "name": "cell",
+    "version": "0.0.1",
+    "private": true,
+    "main": "app.js",
+    "scripts": {
+        "start": "node app.js"
+    },
+    "dependencies": {
+        "express": "3.x",
+        "jade": "*",
+        "mongoose": "3.6.x",
+        "bcrypt": "0.7.x",
+        "should": "*"
+    }
 }
