@@ -24,12 +24,19 @@ app.use(express.methodOverride());
 app.use(app.router);
 app.use(express.static(path.join(__dirname, 'public')));
 
+app.locals({
+   appName : 'Cell',
+   appVersion: '0.0.1',
+   appCopyright: 'Copyright CGI 2013'
+});
+
 // development only
 if ('development' == app.get('env')) {
   app.use(express.errorHandler());
 }
 
 app.get('/', routes.index);
+app.get('/login', routes.login);
 app.get('/users', user.list);
 
 http.createServer(app).listen(app.get('port'), function(){
