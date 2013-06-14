@@ -82,4 +82,22 @@ describe("Users", function(){
             });
         });
     });
+
+    it('should ensure default user', function(done) {
+        User.ensureDefaultUser(function(err, user){
+            should.not.exists(err);
+            user.username.should.equal('Admin');
+            done();
+        });
+    });
+
+    it('should not ensure default user when a user already exists.', function(done) {
+        saveValidUser(function(user){
+            User.ensureDefaultUser(function(err, user){
+                should.not.exists(err);
+                should.not.exists(user);
+                done();
+            })
+        });
+    });
 });

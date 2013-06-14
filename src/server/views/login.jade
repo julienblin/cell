@@ -12,12 +12,12 @@ html(lang='en')
           .offset4.span3
             .loginBox
               h3= config.app.name
-              form(action='/')
+              form(action='/login', method='post')
                 .control-group
-                    input#username(type='text', placeholder='Username', autofocus)
+                    input#username(type='text', name="username", placeholder='Username', autofocus)
                 .control-group
-                    input#password(type='password', placeholder='Password')
+                    input#password(type='password', name="password", placeholder='Password')
                 .control-group
-                  button.btn.btn-primary(type='submit',) Login
+                  button.btn.btn-primary(type='submit') Login
 
     != renderJs()

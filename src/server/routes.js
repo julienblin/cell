@@ -2,10 +2,17 @@
  * Global routes configuration
  */
 
-module.exports = function (app) {
-    var index = require('./controllers/index.js');
-    app.get('/', index.index);
+var auth = require('./authorizations.js')
+    index = require('./controllers/index.js'),
+    login = require('./controllers/login.js');
 
-    var login = require('./controllers/login.js');
-    app.get('/login', login.login);
+module.exports = function (app, passport) {
+    app.get(auth.LOGIN_ROUTE, login.login);
+    app.post(auth.LOGIN_ROUTE, passport.authenticate('local', {
+        successRedirect: '/',
+        failureRedirect: auth.LOGIN_ROUTE
+    }));
+    app.get('/logout', login.logout);
+
+    app.get('/', auth.requiresLogin, index.index);
 };

@@ -18,10 +18,11 @@
         li.dropdown
           a.dropdown-toggle(href='#', data-toggle="dropdown")
             i.icon-user
-            |  Julien Blin
+            &nbsp;
+            != user.username
             b.caret
           ul.dropdown-menu
             li
-              a(href='#')
+              a(href='/logout')
                 i.icon-off
                 |  Logout

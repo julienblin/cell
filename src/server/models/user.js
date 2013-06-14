@@ -54,4 +54,27 @@ UserSchema.statics.authenticate = function(username, password, callback) {
     });
 };
 
+/**
+ * Ensure that a default user Admin/admin is present is no user in database
+ */
+UserSchema.statics.ensureDefaultUser = function(callback) {
+    this.count({}, function(err, count) {
+        if (err) return callback(err, null);
+        if (count === 0) {
+            var User = mongoose.model('User', UserSchema);
+            var defaultUser = new User({
+                username : "Admin",
+                email : "Admin@cell",
+                password: "admin"
+            });
+            defaultUser.save(function(err) {
+                if (err) callback(err, null);
+                return callback(null, defaultUser);
+            });
+        } else {
+            return callback(null, null);
+        }
+    });
+};
+
 module.exports = mongoose.model('User', UserSchema);

@@ -13,7 +13,8 @@ module.exports = {
     'env' : 'development',
 
     'web' : {
-        'port' : 3000
+        'port' : 3000,
+        'sessionSecret' : 'spoc6lu7than'
     },
 
     'db' : {
