@@ -1,0 +1,23 @@
+doctype 5
+html(lang='en')
+  head
+    meta(charset='utf-8')
+    title= title
+    meta(name='viewport',  content='width=device-width, initial-scale=1.0')
+    != renderStyles()
+
+  body.login
+    .container
+        .row
+          .offset4.span3
+            .loginBox
+              h3= config.app.name
+              form(action='/')
+                .control-group
+                    input#username(type='text', placeholder='Username', autofocus)
+                .control-group
+                    input#password(type='password', placeholder='Password')
+                .control-group
+                  button.btn.btn-primary(type='submit',) Login
+
+    != renderJs()

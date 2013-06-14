@@ -4,9 +4,7 @@ html(lang='en')
     meta(charset='utf-8')
     title= title
     meta(name='viewport',  content='width=device-width, initial-scale=1.0')
-    link(rel='stylesheet', href='/stylesheets/bootstrap.min.css')
-    style.
-      body { padding-top: 60px; }
+    != renderStyles()
     block head
 
   body
@@ -19,6 +17,5 @@ html(lang='en')
       footer
         p.text-right= config.app.copyright + ' - ' + config.app.version
 
-    script(src="/javascripts/jquery.min.js")
-    script(src="/javascripts/bootstrap.min.js")
+    != renderJs()
     block foot

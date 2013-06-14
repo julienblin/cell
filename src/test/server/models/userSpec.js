@@ -1,10 +1,11 @@
-var should = require("should")
-    , mongoose = require("mongoose")
+var should = require('should'),
+    mongoose = require('mongoose'),
+    config = require('../../config.js');
 
 mongoose.models = {};
 mongoose.modelSchemas = {};
 
-var User = require('../../app/models/user.js');
+var User = require('../../../server/models/user.js');
 
 var VALID_PASSWORD = '1234';
 var saveValidUser = function(callback) {
@@ -18,7 +19,7 @@ var saveValidUser = function(callback) {
 describe("Users", function(){
 
     beforeEach(function(done){
-        mongoose.connect('mongodb://localhost/cell_test', done);
+        mongoose.connect(config.db.url, done);
     });
 
     afterEach(function(done){

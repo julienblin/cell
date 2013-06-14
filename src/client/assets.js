@@ -1,0 +1,12 @@
+/**
+ * Assets configuration
+ */
+
+module.exports = function(assets) {
+    assets.root = __dirname;
+    assets.addJs('/javascripts/jquery.min.js');
+    assets.addJs('/javascripts/bootstrap.min.js');
+
+    assets.addCss('/stylesheets/bootstrap.min.css');
+    assets.addCss('/stylesheets/app.css');
+}
