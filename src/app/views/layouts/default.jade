@@ -10,14 +10,14 @@ html(lang='en')
     block head
 
   body
-    include includes/top-menu
+    include ../includes/top-menu
 
     .container
       block container
 
       hr
       footer
-        p.text-right= appCopyright + ' - ' + appVersion
+        p.text-right= config.app.copyright + ' - ' + config.app.version
 
     script(src="/javascripts/jquery.min.js")
     script(src="/javascripts/bootstrap.min.js")

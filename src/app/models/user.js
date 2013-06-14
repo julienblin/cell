@@ -10,7 +10,9 @@ var UserSchema = new Schema({
  ,  active:   { type: Boolean, required: true, default: true }
 });
 
-// mongoose plugins for hashing password on save.
+/**
+ * Hash the password using bcrypt on save.
+ */
 UserSchema.pre('save', function(next) {
     var user = this;
     if (!user.isModified('password'))return next();
@@ -26,6 +28,9 @@ UserSchema.pre('save', function(next) {
     });
 });
 
+/**
+ * Compare candidatePassword against the hash password.
+ */
 UserSchema.methods.comparePassword = function(candidatePassword, callback) {
     bcrypt.compare(candidatePassword, this.password, function(err, isMatch) {
         if (err) return callback(err);
@@ -33,6 +38,9 @@ UserSchema.methods.comparePassword = function(candidatePassword, callback) {
     })
 };
 
+/**
+ * Verify that a user can authenticate (good username/password combination + active === true.
+ */
 UserSchema.statics.authenticate = function(username, password, callback) {
     this.findOne({ 'username' : username, 'active' : true }, function(err, user) {
         if (err) return callback(err, null);

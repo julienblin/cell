@@ -4,7 +4,7 @@ var should = require("should")
 mongoose.models = {};
 mongoose.modelSchemas = {};
 
-var User = require('../../models/user.js');
+var User = require('../../app/models/user.js');
 
 var VALID_PASSWORD = '1234';
 var saveValidUser = function(callback) {
@@ -18,41 +18,12 @@ var saveValidUser = function(callback) {
 describe("Users", function(){
 
     beforeEach(function(done){
-        mongoose.connect('mongodb://localhost/cell_test');
-        User.ensureIndexes(function(err) {
-            if (err) throw err;
-            done();
-        });
+        mongoose.connect('mongodb://localhost/cell_test', done);
     });
 
-    afterEach(function(){
-        mongoose.connection.db.dropDatabase();
-        mongoose.disconnect();
-    });
-
-    it('should create a new user', function(done) {
-        saveValidUser(function(user){
-           done();
-        });
-    });
-
-    it('should not create user with the same name', function(done) {
-        saveValidUser(function(user){
-            var newUser = new User({ email:'foo@cgi.com', username:user.username, password: VALID_PASSWORD });
-            newUser.save(function(err){
-                should.exists(err);
-                done();
-            });
-        });
-    });
-
-    it('should not create user with the same email', function(done) {
-        saveValidUser(function(user){
-            var newUser = new User({ email:user.email, username:'Foo', password: '1234' });
-            newUser.save(function(err){
-                should.exists(err);
-                done();
-            });
+    afterEach(function(done){
+        mongoose.connection.db.dropDatabase(function() {
+            mongoose.disconnect(done);
         });
     });
 
