@@ -1,0 +1,28 @@
+extends ../../layouts/default
+
+block container
+  h3= title
+  hr
+
+  form.form-horizontal(action="#{action}", method='post')
+    input(type='hidden', name='_method', value=method)
+
+    .row
+      .span4
+        != editors.text(user, 'username', { autofocus: true })
+        != editors.text(user, 'email', { type: 'email' })
+
+      .span4
+        != editors.text(user, 'password', { type: 'password', value: '' })
+        != editors.text(user, 'confirm', { type: 'password', value: '' })
+
+    .row
+      .span4
+        != editors.bool(user, 'active')
+
+      .span4
+        != editors.bool(user, 'isAdmin', { label: 'Admin?', labelClass: 'text-error' })
+
+    .row
+      .span4
+        != editors.submitCancel('/admin/users', { submit: 'Save'})

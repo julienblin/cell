@@ -1,9 +1,11 @@
 {
     "name": "Cell",
     "description" : "Next generation estimation web application",
-    "readme" : "",
     "version": "0.0.1",
-    "author": "Julien Blin <julien.blin@cgi.com>",
+    "author": {
+        "name": "Julien Blin",
+        "email": "julien.blin@cgi.com"
+    },
     "repository": {
         "type": "git",
         "url": "https://github.com/julienblin/cell"
@@ -13,17 +15,21 @@
     "main": "server.js",
     "scripts": {
         "start": "node server.js",
+        "watch": "nodemon -L",
         "test": "mocha"
     },
     "dependencies": {
         "express": "3.x",
         "jade": "*",
+        "underscore" : "*",
+        "winston": "*",
         "mongoose": "3.6.x",
         "bcrypt": "0.7.x",
         "bundle-up" : "*",
         "passport" : "*",
         "passport-local" : "*",
-        "connect-mongo" : "*"
+        "connect-mongo" : "*",
+        "connect-flash" : "*"
     },
     "devDependencies": {
         "should": "*"

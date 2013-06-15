@@ -1,0 +1,42 @@
+extends ../../layouts/default
+
+block container
+  h3
+    != title
+    &nbsp;&nbsp;
+    a.btn.btn-success.btn-mini(href="/admin/users/new", data-behavior="tooltip", title="Create a user")
+      i.icon-plus.icon-white
+
+  section#search
+  .well
+
+
+  section#results
+    != paginate(req, pages, page)
+
+    table.table.table-hover.table-condensed
+      thead
+        tr
+          th
+          th Username
+          th Email
+          th Active?
+          th Admin?
+      tbody
+        each user in results
+          tr(class="#{user.isAdmin ? 'warning' : ''}", style="#{!user.active ? 'font-style: italic;' : ''}")
+            td.span1
+              .text-center
+                a.btn.btn-mini(href="/admin/users/#{user.id}/edit", data-behavior="tooltip", title="Edit")
+                  i.icon-edit
+            td= user.username
+            td= user.email
+            td.span1
+              if user.active
+                i.icon-ok
+            td.span1
+              if user.isAdmin
+                i.icon-ok
+
+    != paginate(req, pages, page)
+    p.text-right Total users: #{count}

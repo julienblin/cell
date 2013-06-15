@@ -4,6 +4,7 @@ Vagrant.configure("2") do |config|
 		cell.vm.box = "precise64"
 		cell.vm.box_url = "http://files.vagrantup.com/precise64.box"
 		cell.vm.network :forwarded_port, guest: 3000, host: 3000
+		cell.vm.network :forwarded_port, guest: 28017, host: 28017
 		cell.vm.synced_folder "../src", "/cell"
 		
 		cell.vm.provision :chef_solo do |chef|

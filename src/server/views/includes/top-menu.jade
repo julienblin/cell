@@ -1,7 +1,7 @@
 .navbar.navbar-fixed-top
   .navbar-inner
     .container
-      span.brand(href='#')= config.app.name
+      a.brand(href='/')= config.app.name
       ul.nav
         li
           button#btnNewProject.btn(href='#')
@@ -14,12 +14,19 @@
         li.divider-vertical
 
       ul.nav.pull-right
+        - if (req.user && req.user.isAdmin)
+          li.divider-vertical
+          li.dropdown
+            a.dropdown-toggle(href='#', data-toggle="dropdown") Admin
+            ul.dropdown-menu
+              li
+                a(href='/admin/users') Users
         li.divider-vertical
         li.dropdown
           a.dropdown-toggle(href='#', data-toggle="dropdown")
             i.icon-user
             &nbsp;
-            != user.username
+            != req.user.username
             b.caret
           ul.dropdown-menu
             li

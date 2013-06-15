@@ -3,6 +3,11 @@
  * Configuration parameters
  */
 
+var winston = require('winston');
+winston.remove(winston.transports.Console);
+winston.add(winston.transports.Console, { level: 'debug', colorize: true });
+
+
 module.exports = {
     'app' : {
         'name' : 'Cell',
@@ -18,6 +23,7 @@ module.exports = {
     },
 
     'db' : {
-        'url' : 'mongodb://localhost/cell'
+        'url' : 'mongodb://localhost/cell',
+        keepAlive : 1
     }
 };

@@ -1,0 +1,7 @@
+- var flashes = req.flash()
+
+each messages, level in flashes
+    each message in messages
+      div(class="alert alert-#{level}")
+        button.close(type="button", data-dismiss="alert") &times;
+        != message
