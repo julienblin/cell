@@ -18,13 +18,6 @@ app.set('view engine', 'jade');
 
 app.use(express.favicon());
 app.use(express.compress());
-/*app.use(express.logger({
-    stream:{
-        write: function(message, encoding){
-            winston.debug(message);
-        }
-    }
-}));*/
 app.use(express.logger('dev'));
 
 bundle(app, __dirname + '/../client/assets', {
@@ -50,21 +43,11 @@ app.use(express.session({
 app.use(require('connect-flash')());
 app.use(passport.initialize());
 app.use(passport.session());
-
-// Publish values to view
-app.use(function(req, res, next) {
-    res.locals.req = req;
-    res.locals.paginate = require('./views/helpers/paginate');
-    res.locals.editors = require('./views/helpers/editors.js');
-    next();
-});
-
+app.use(require('./middlewares/locals'));
 app.use(app.router);
 
 if(config.env === 'development') {
     app.use(express.errorHandler());
 }
-
-app.locals({ config : config });
 
 module.exports = app;

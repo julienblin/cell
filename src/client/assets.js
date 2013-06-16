@@ -6,7 +6,7 @@ module.exports = function(assets) {
     assets.root = __dirname;
     assets.addJs('/javascripts/jquery.min.js');
     assets.addJs('/javascripts/bootstrap.min.js');
-    assets.addJs('/javascripts/dom.components.js');
+    assets.addJs('/javascripts/behaviors.js');
 
     assets.addCss('/stylesheets/bootstrap.min.css');
     assets.addCss('/stylesheets/app.css');

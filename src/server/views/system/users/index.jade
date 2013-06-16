@@ -1,0 +1,45 @@
+extends ../../layouts/default
+
+block container
+  .row
+    .span8
+      h3
+        != title
+        &nbsp;&nbsp;
+        a.btn.btn-success.btn-mini(href="/system/users/new", data-behavior="tooltip pjax", title="Create a user")
+          i.icon-plus.icon-white
+
+    .title-action-box
+      form.form-search
+        .input-append
+          input#q.span2.search-query(type="text", name="q", value=q, autofocus)
+          button.btn(type="submit") Search
+
+  != paginate(req, pagination)
+  p.text-right Total: #{pagination.totalItems}
+
+  table.table.table-hover.table-condensed
+    thead
+      tr
+        th
+        th Username
+        th Email
+        th Active?
+        th Admin?
+    tbody
+      each user in results
+        tr(class="#{user.isAdmin ? 'warning' : ''}", style="#{!user.active ? 'font-style: italic;' : ''}")
+          td.span1
+            .text-center
+              a.btn.btn-mini(href="/system/users/#{user.id}/edit", data-behavior="tooltip pjax", title="Edit")
+                i.icon-edit
+          td= user.username
+          td= user.email
+          td.span1
+            if user.active
+              i.icon-ok
+          td.span1
+            if user.isAdmin
+              i.icon-ok
+
+  != paginate(req, pagination)

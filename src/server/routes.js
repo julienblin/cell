@@ -2,10 +2,10 @@
  * Global routes configuration
  */
 
-var auth = require('./authorizations.js')
-    index = require('./controllers/index.js'),
-    login = require('./controllers/login.js'),
-    users = require('./controllers/admin/users.js');
+var auth = require('./middlewares/authorizations')
+    index = require('./controllers/index'),
+    login = require('./controllers/login'),
+    users = require('./controllers/system/users');
 
 module.exports = function (app, passport) {
     app.get(auth.LOGIN_ROUTE, login.login);
@@ -17,11 +17,11 @@ module.exports = function (app, passport) {
 
 
     // Admin
-    app.get('/admin/users', auth.admin, users.index);
-    app.get('/admin/users/new', auth.admin, users.new);
-    app.post('/admin/users', auth.admin, users.create);
-    app.get('/admin/users/:id/edit', auth.admin, users.loadUser, users.edit);
-    app.put('/admin/users/:id', auth.admin, users.loadUser, users.update);
+    app.get('/system/users', auth.admin, users.index);
+    app.get('/system/users/new', auth.admin, users.new);
+    app.post('/system/users', auth.admin, users.create);
+    app.get('/system/users/:id/edit', auth.admin, users.loadUser, users.edit);
+    app.put('/system/users/:id', auth.admin, users.loadUser, users.update);
 
     app.get('/', auth.requiresLogin, index.index);
 };

@@ -7,14 +7,18 @@ var User = require('../../models/user'),
     _ = require('underscore');
 
 exports.index = function(req, res) {
-    User.paginate({}, req.query.page, 25, function(err, pages, count, results){
+    var searchCriteria = {};
+    var q = req.query.q;
+    if (q) {
+        searchCriteria = { $or: [{"username": new RegExp(q, 'i')}, {"email": new RegExp(q, 'i')}] };
+    }
+    User.paginate(searchCriteria, "username", { currentPage: req.query.page }, function(err, pagination, results){
         if (err) throw err;
-        res.render('admin/users/index', {
+        res.render('system/users/index', {
             title: 'Users',
-            page: req.query.page,
-            pages: pages,
-            count: count,
-            results: results
+            pagination: pagination,
+            results: results,
+            q: q
         });
     });
 };
@@ -45,11 +49,11 @@ var mapUser = function(user, req) {
 };
 
 exports.new = function(req, res) {
-    res.render('admin/users/edit', {
+    res.render('system/users/edit', {
         title: "New user",
         user: new User(),
         method: 'post',
-        action: '/admin/users'
+        action: '/system/users'
     });
 };
 
@@ -58,25 +62,25 @@ exports.create = function(req, res) {
     mapUser(user, req);
     user.save(function(err) {
         if (err) {
-            res.render('admin/users/edit', {
+            res.render('system/users/edit', {
                 title: "New user",
                 user: user,
                 method: 'post',
-                action: '/admin/users'
+                action: '/system/users'
             });
         } else {
             req.flash('success', util.format('User %s has been created successfully!', user.username));
-            res.redirect('/admin/users');
+            res.redirect('/system/users');
         }
     });
 };
 
 exports.edit = function(req, res) {
-    res.render('admin/users/edit', {
+    res.render('system/users/edit', {
         title: "Edit " + req.loadedUser.username,
         user: req.loadedUser,
         method: 'put',
-        action: util.format('/admin/users/%s', req.loadedUser.id)
+        action: util.format('/system/users/%s', req.loadedUser.id)
     });
 };
 
@@ -85,15 +89,15 @@ exports.update = function(req, res) {
     mapUser(user, req);
     user.save(function(err) {
        if (err) {
-           res.render('admin/users/edit', {
+           res.render('system/users/edit', {
                title: "Edit " + req.loadedUser.username,
                user: user,
                method: 'put',
-               action: util.format('/admin/users/%s', req.loadedUser.id)
+               action: util.format('/system/users/%s', req.loadedUser.id)
            });
        } else {
            req.flash('success', util.format('User %s has been updated successfully!', user.username));
-           res.redirect('/admin/users');
+           res.redirect('/system/users');
        }
     });
 };
