@@ -22,3 +22,12 @@ body.login {
     float: right;
     margin-top: 20px;
 }
+
+.largerModal {
+    width: 800px;
+    margin-left: -400px;
+}
+
+.no-margin {
+    margin: 0 !important;
+}

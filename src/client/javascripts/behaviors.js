@@ -5,4 +5,12 @@ var applyStaticBehaviors = function(context) {
 
 $(function() {
     applyStaticBehaviors();
+    $('#btnNewProject').on('click', function(e) {
+        modals.new();
+        e.preventDefault();
+    });
+    $('#btnOpenProject').on('click', function(e) {
+        modals.open();
+        e.preventDefault();
+    });
 });

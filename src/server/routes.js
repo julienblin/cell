@@ -5,6 +5,7 @@
 var auth = require('./middlewares/authorizations')
     index = require('./controllers/index'),
     login = require('./controllers/login'),
+    modals = require('./controllers/modals'),
     users = require('./controllers/system/users');
 
 module.exports = function (app, passport) {
@@ -15,6 +16,9 @@ module.exports = function (app, passport) {
     }));
     app.get('/logout', login.logout);
 
+    // Modals
+    app.get('/modals/new', modals.new);
+    app.get('/modals/open', modals.open);
 
     // Admin
     app.get('/system/users', auth.admin, users.index);

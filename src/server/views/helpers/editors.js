@@ -18,6 +18,8 @@ module.exports.text = function(obj, path, opt) {
         label: path.capitalize() + ':',
         type: 'text',
         value: obj[path] ? obj[path] : '',
+        inputClass: '',
+        placeholder: '',
         autofocus: false
     });
 
@@ -26,7 +28,13 @@ module.exports.text = function(obj, path, opt) {
 
     str += util.format('<label for="%s" class="control-label">%s</label>', path, options.label);
     str += '<div class="controls">';
-    str += util.format('<input type="%s" name="%s" value="%s" %s>', options.type, path, options.value, options.autofocus ? 'autofocus' : '');
+    str += util.format('<input type="%s" name="%s" value="%s" class="%s" placeholder="%s" %s>',
+        options.type,
+        path,
+        options.value,
+        options.inputClass,
+        options.placeholder,
+        options.autofocus ? 'autofocus' : '');
 
     if (hasErrors) {
         str += util.format('<span class="help-inline">%s', obj.errors[path].message);
