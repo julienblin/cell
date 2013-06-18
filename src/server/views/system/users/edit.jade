@@ -18,7 +18,7 @@ block container
 
     .row
       .span4
-        != editors.bool(user, 'active')
+        != editors.bool(user, 'isActive', { label: 'Active?'})
 
       .span4
         != editors.bool(user, 'isAdmin', { label: 'Admin?', labelClass: 'text-error' })

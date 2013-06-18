@@ -6,7 +6,7 @@ block container
       h3
         != title
         &nbsp;&nbsp;
-        a.btn.btn-success.btn-mini(href="/system/users/new", data-behavior="tooltip pjax", title="Create a user")
+        a.btn.btn-success.btn-mini(href="/system/users/new", data-behavior="tooltip", title="Create a user")
           i.icon-plus.icon-white
 
     .title-action-box
@@ -28,10 +28,10 @@ block container
         th Admin?
     tbody
       each user in results
-        tr(class="#{user.isAdmin ? 'warning' : ''}", style="#{!user.active ? 'font-style: italic;' : ''}")
+        tr(class="#{user.isAdmin ? 'warning' : ''}", style="#{!user.isActive ? 'font-style: italic;' : ''}")
           td.span1
             .text-center
-              a.btn.btn-mini(href="/system/users/#{user.id}/edit", data-behavior="tooltip pjax", title="Edit")
+              a.btn.btn-mini(href="/system/users/#{user.id}/edit", data-behavior="tooltip", title="Edit")
                 i.icon-edit
           td= user.username
           td= user.email

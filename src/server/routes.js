@@ -6,6 +6,7 @@ var auth = require('./middlewares/authorizations')
     index = require('./controllers/index'),
     login = require('./controllers/login'),
     modals = require('./controllers/modals'),
+    projects = require('./controllers/projects'),
     users = require('./controllers/system/users');
 
 module.exports = function (app, passport) {
@@ -18,7 +19,11 @@ module.exports = function (app, passport) {
 
     // Modals
     app.get('/modals/new', modals.new);
+    app.post('/modals/new', modals.createNew);
     app.get('/modals/open', modals.open);
+
+    // Projects
+    app.get('/projects/:id', auth.project, projects.show);
 
     // Admin
     app.get('/system/users', auth.admin, users.index);

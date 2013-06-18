@@ -7,11 +7,12 @@
   .modal-body
     ul.nav.nav-tabs
       li.active
-        a(href="#modalNewTabNew", data-toggle="tab") New
+        a(href="#modalNewTabNew", data-toggle="tab", data-form-type="new") New
       li
-        a(href="#modalNewTabCopy", data-toggle="tab") Copy from another project
+        a(href="#modalNewTabCopy", data-toggle="tab", data-form-type="copy") Copy from another project
 
-    form.form-horizontal.no-margin
+    form#modalNewForm.form-horizontal.no-margin(action="/modals/new", method="post")
+      input(type="hidden", name="type", value="new")
       != editors.text(project, 'clientName', { label: 'Client name:', placeholder: 'Complete name of the client', inputClass: 'input-xlarge', autofocus: true })
       != editors.text(project, 'projectName', { label: 'Project name:', placeholder: '(eventually including revision)', inputClass: 'input-xlarge' })
 
@@ -24,4 +25,9 @@
 
   .modal-footer
     button.btn(data-dismiss="modal", aria-hidden="true") Cancel
-    button.btn.btn-primary Create
+    a.btn.btn-primary(href="#modalNewForm", data-behavior="submit") Create
+
+  script(type="text/javascript").
+    $('#modalNew').on('shown', 'a[data-toggle="tab"]', function(e) {
+      $('input[name="type"]').val($(e.target).attr('data-form-type'));
+    });

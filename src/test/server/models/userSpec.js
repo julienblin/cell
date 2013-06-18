@@ -5,7 +5,7 @@ var should = require('should'),
 mongoose.models = {};
 mongoose.modelSchemas = {};
 
-var User = require('../../../server/models/user.js');
+var User = require('../../../server/models/user');
 
 var VALID_PASSWORD = '1234';
 var saveValidUser = function(callback) {
@@ -74,7 +74,7 @@ describe("Users", function(){
     });
 
     it('should not authenticate inactive users', function(done) {
-        var user = new User({ email:'julien.blin@cgi.com', username:'Julien Blin', password: VALID_PASSWORD, active: false });
+        var user = new User({ email:'julien.blin@cgi.com', username:'Julien Blin', password: VALID_PASSWORD, isActive: false });
         user.save(function(err){
             User.authenticate(user.username, '1234', function(err, authenticatedUser) {
                 authenticatedUser.should.not.be.ok;

@@ -38,7 +38,7 @@ exports.loadUser = function(req, res, next) {
 var mapUser = function(user, req) {
     user.username = req.body.username;
     user.email = req.body.email;
-    user.active = req.body.active == undefined ? false : true;
+    user.isActive = req.body.isActive == undefined ? false : true;
     user.isAdmin = req.body.isAdmin == undefined ? false : true;
 
     if (req.body.password) {

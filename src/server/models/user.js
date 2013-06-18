@@ -7,7 +7,7 @@ var UserSchema = new Schema({
     username: { type: String, required: true, index: { unique: true } },
     email:    { type: String, required: true, index: { unique: true } },
     password: { type: String, required: true },
-    active:   { type: Boolean, default: true },
+    isActive:   { type: Boolean, default: true },
     isAdmin: { type: Boolean, default: false }
 });
 
@@ -43,7 +43,7 @@ UserSchema.methods.comparePassword = function(candidatePassword, callback) {
  * Verify that a user can authenticate (good username/password combination + active === true.
  */
 UserSchema.statics.authenticate = function(username, password, callback) {
-    this.findOne({ 'username' : username, 'active' : true }, function(err, user) {
+    this.findOne({ 'username' : username, 'isActive' : true }, function(err, user) {
         if (err) return callback(err, null);
         if (!user) return callback(null, false);
 
