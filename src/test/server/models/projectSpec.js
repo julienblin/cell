@@ -1,11 +1,7 @@
 var should = require('should'),
     mongoose = require('mongoose'),
-    config = require('../../config.js');
-
-mongoose.models = {};
-mongoose.modelSchemas = {};
-
-var Project = require('../../../server/models/project'),
+    config = require('../../config.js'),
+    Project = require('../../../server/models/project'),
     User = require('../../../server/models/user');
 
 describe("Projects", function(){
@@ -50,6 +46,18 @@ describe("Projects", function(){
             should.not.exists(err);
             project.isAuth('write', user).should.be.ok;
             done();
+        });
+    });
+
+    it('should not create a project with the same client and the same project name', function(done) {
+        var user = new User();
+        Project.create({ clientName: 'CGI', projectName: 'Cell' }, user, function(err, project) {
+            should.not.exists(err);
+            Project.create({ clientName: project.clientName, projectName: project.projectName }, user, function(anotherErr, anotherProject) {
+                should.exists(anotherErr.errors);
+                should.not.exists(anotherProject);
+                done();
+            });
         });
     });
 });

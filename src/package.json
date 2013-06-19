@@ -29,7 +29,8 @@
         "passport" : "*",
         "passport-local" : "*",
         "connect-mongo" : "*",
-        "connect-flash" : "*"
+        "connect-flash" : "*",
+        "validator" : "*"
     },
     "devDependencies": {
         "should": "*"

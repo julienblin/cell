@@ -1,9 +1,10 @@
 var mongoose = require('mongoose'),
-    Schema = mongoose.Schema;
+    Schema = mongoose.Schema,
+    validations = require('./plugins/validations');
 
 var ProjectSchema = new Schema({
     clientName: { type: String, required: true, index: true },
-    projectName: { type: String, required: true, index: true },
+    projectName: { type: String, required: true, validate: [validations.uniqueFieldInsensitive('Project', 'projectName', 'clientName')], index: true },
 
     users: {
         read: [{ type: Schema.Types.ObjectId, ref: 'User' }],
@@ -50,11 +51,11 @@ ProjectSchema.methods.setAuth = function(auth, user) {
 };
 
 ProjectSchema.statics.create = function(values, user, callback) {
-    var Project = mongoose.model('Project', ProjectSchema);
+    var Project = mongoose.model('Project');
     var newProject = new Project(values);
     newProject.setAuth('write', user);
     newProject.save(function(err) {
-        if (err) callback(err, null);
+        if (err) return callback(err, null);
         callback(null, newProject);
     });
 };
