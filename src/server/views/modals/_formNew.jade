@@ -1,0 +1,9 @@
+form#modalNewForm.form-horizontal.no-margin(action="/modals/new", method="post", data-behavior="ajax")
+  input(type="hidden", name="type", value="new")
+  != editors.text(project, 'clientName', { label: 'Client name:', placeholder: 'Complete name of the client', inputClass: 'input-xlarge', autofocus: true })
+  != editors.text(project, 'projectName', { label: 'Project name:', placeholder: '(eventually including revision)', inputClass: 'input-xlarge' })
+  .tab-content
+    #modalNewTabNew.tab-pane.fade.in.active
+    #modalNewTabCopy.tab-pane.fade
+      hr.no-margin
+      | Here goes the select table

@@ -1,5 +1,3 @@
-- var project = { clientName: '', projectName: '' }
-
 #modalNew.modal.largerModal.hide.fade(role="dialog", aria-labelledby="modalNew", aria-hidden="true")
   .modal-header
     button.close(data-dismiss="modal", aria-hidden="true") x
@@ -11,17 +9,7 @@
       li
         a(href="#modalNewTabCopy", data-toggle="tab", data-form-type="copy") Copy from another project
 
-    form#modalNewForm.form-horizontal.no-margin(action="/modals/new", method="post")
-      input(type="hidden", name="type", value="new")
-      != editors.text(project, 'clientName', { label: 'Client name:', placeholder: 'Complete name of the client', inputClass: 'input-xlarge', autofocus: true })
-      != editors.text(project, 'projectName', { label: 'Project name:', placeholder: '(eventually including revision)', inputClass: 'input-xlarge' })
-
-    .tab-content
-      #modalNewTabNew.tab-pane.fade.in.active
-
-      #modalNewTabCopy.tab-pane.fade
-        hr.no-margin
-        | Here goes the select table
+    include _formNew
 
   .modal-footer
     button.btn(data-dismiss="modal", aria-hidden="true") Cancel

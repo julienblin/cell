@@ -8,6 +8,19 @@ window.behaviors = (function() {
                 target.submit();
                 e.preventDefault();
             });
+
+            $("form[data-behavior~='ajax']", context).on('submit', function(e) {
+                var form = $(this);
+                $.post(
+                    form.attr('action'),
+                    form.serialize(),
+                    function(data, textStatus, xhr) {
+                        form.replaceWith(data);
+                        behaviors.apply(data);
+                    }
+                );
+                e.preventDefault();
+            });
         }
     };
 })();

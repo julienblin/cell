@@ -1,7 +1,9 @@
 var Project = require('../models/project');
 
 exports.new = function(req, res) {
-    res.render('modals/new');
+    res.render('modals/new', {
+        project: new Project()
+    });
 };
 
 exports.createNew = function(req, res) {
@@ -13,15 +15,18 @@ exports.createNew = function(req, res) {
             },
             req.user,
             function(err, project) {
-                if (err) throw err;
-                res.redirect('/projects/' + project.id);
+                if (err) {
+                    res.render('modals/_formNew', {
+                        project: project
+                    });
+                    return;
+                }
+                res.ajaxRedirect('/projects/' + project.id);
             });
             break;
 
         case 'copy':
             break;
-        default:
-            throw new Error('Unrecognized type: ' + req.body.type);
     }
 };
 

@@ -55,7 +55,7 @@ describe("Projects", function(){
             should.not.exists(err);
             Project.create({ clientName: project.clientName, projectName: project.projectName }, user, function(anotherErr, anotherProject) {
                 should.exists(anotherErr.errors);
-                should.not.exists(anotherProject);
+                should.exists(anotherProject.errors.projectName);
                 done();
             });
         });

@@ -55,8 +55,7 @@ ProjectSchema.statics.create = function(values, user, callback) {
     var newProject = new Project(values);
     newProject.setAuth('write', user);
     newProject.save(function(err) {
-        if (err) return callback(err, null);
-        callback(null, newProject);
+        return callback(err, newProject);
     });
 };
 

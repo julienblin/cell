@@ -3,15 +3,12 @@
     .container
       a.brand(href='/')= config.app.name
       ul.nav
-        li
-          button#btnNewProject.btn(href='#')
-            i.icon-file
-        li
-          | &nbsp;
-        li
-          button#btnOpenProject.btn(href='#')
-            i.icon-folder-open
         li.divider-vertical
+        li
+          a#btnNewProject(href='#') New
+        li.divider-vertical
+        li
+          a#btnOpenProject(href='#') Open
 
       ul.nav.pull-right
         - if (req.user && req.user.isAdmin)
