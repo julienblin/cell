@@ -10,6 +10,9 @@ module.exports = function(assets) {
     assets.addJs('/javascripts/modals.js');
     assets.addJs('/javascripts/behaviors.js');
 
+    // Project specifics
+    assets.addJs('/javascripts/projectengine.js', 'project');
+
     assets.addCss('/stylesheets/bootstrap.min.css');
     assets.addCss('/stylesheets/app.css');
 }

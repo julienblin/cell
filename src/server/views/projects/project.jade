@@ -1,0 +1,40 @@
+extends ../layouts/default
+
+block container
+
+  ul.nav.nav-tabs
+    li.active
+      a(href="#info", data-toggle="tab", data-behavior="persistent") Info
+    li
+      a(href="#profiles", data-toggle="tab", data-behavior="persistent") Profiles
+    li
+      a(href="#scales", data-toggle="tab", data-behavior="persistent") Scales
+    li
+      a(href="#estimations", data-toggle="tab", data-behavior="persistent") Estimations
+    li
+      a(href="#summary", data-toggle="tab", data-behavior="persistent") Summary
+
+  #content.tab-content
+    #info.tab-pane.active
+      h3 Info
+
+    #profiles.tab-pane
+      h3 Profiles
+
+    #scales.tab-pane
+      h3 Scales
+
+    #estimations.tab-pane
+      h3 Estimations
+
+    #summary.tab-pane
+      h3 Summary
+
+block foot
+  != renderJs('project')
+
+  script(type="text/javascript").
+    $(function() {
+      var projectEngine = new ProjectEngine('#{project.id}');
+      projectEngine.init();
+    });

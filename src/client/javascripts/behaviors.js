@@ -1,4 +1,7 @@
 window.behaviors = (function() {
+
+    var _changingHash = false;
+
     return {
         apply: function(context) {
             context = context || $('body');
@@ -21,6 +24,15 @@ window.behaviors = (function() {
                 );
                 e.preventDefault();
             });
+
+            $("a[data-toggle='tab'][data-behavior~='persistent']", context).on('shown', function(e) {
+                _changingHash = true;
+                window.location.hash = '_' + e.target.href.substring(e.target.href.indexOf('#'));
+                _changingHash = false;
+            });
+        },
+        isChangingHash: function() {
+            return _changingHash;
         }
     };
 })();
@@ -34,5 +46,22 @@ $(function() {
     $('#btnOpenProject').on('click', function(e) {
         modals.open();
         e.preventDefault();
+    });
+
+    // Reload persistent tabs if any
+    if (window.location.hash && window.location.hash.length > 1) {
+        var tab = $("a[data-toggle='tab'][data-behavior~='persistent'][href='" + window.location.hash.substring(2) +  "']");
+        if (tab.length > 0) {
+            tab.tab('show');
+        }
+    }
+
+    $(window).on('hashchange', function(e) {
+        if(!behaviors.isChangingHash()) {
+            var tab = $("a[data-toggle='tab'][data-behavior~='persistent'][href='" + window.location.hash.substring(2) +  "']");
+            if (tab.length > 0) {
+                tab.tab('show');
+            }
+        }
     });
 });

@@ -11,7 +11,6 @@ Just install [Vagrant](http://www.vagrantup.com/) and [VirtualBox](https://www.v
 	cd vagrant
 	vagrant up
 	vagrant ssh
-	cd /cell
 	npm install --no-bin-links
 	npm start
 	
