@@ -30,9 +30,12 @@
         "passport-local" : "*",
         "connect-mongo" : "*",
         "connect-flash" : "*",
-        "validator" : "*"
+        "validator" : "*",
+        "async" : "*"
     },
     "devDependencies": {
-        "should": "*"
+        "should": "*",
+        "cucumber": "*",
+        "phantom": "*"
     }
 }

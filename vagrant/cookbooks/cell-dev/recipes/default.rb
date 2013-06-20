@@ -3,6 +3,7 @@ include_recipe "git"
 include_recipe "nodejs"
 include_recipe "mongodb::10gen_repo"
 include_recipe "mongodb"
+include_recipe "phantomjs"
 
 node["npm_packages"].each do |npm_package|
 	execute "install npm package #{npm_package}" do

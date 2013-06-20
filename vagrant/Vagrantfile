@@ -21,7 +21,11 @@ Vagrant.configure("2") do |config|
 					"package_version" => "2.4.4"
 				},
 				
-				"npm_packages" => [ "express@3.2.6", "mocha@1.11.0", "nodemon@0.7.8" ]
+				"npm_packages" => [ "express@3.2.6", "mocha@1.11.0", "cucumber@0.3.0", "nodemon@0.7.8" ],
+				
+				"phantomjs" => {
+					"version" => "1.9.0"
+				}
 			}
 		end
 	end
