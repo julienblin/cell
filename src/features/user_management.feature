@@ -4,8 +4,10 @@ Feature: User management
   I want to be able to manage users of the application
 
   Background:
-    Given an administrator named "Bob"
-      And I am logged in as "Bob"
+    Given the following "User" entity:
+      | username | email          | password | isAdmin | isActive |
+      | Bob      |  Bob@cgi.com   | password | true    | true     |
+      And I am logged in as "Bob", "password"
 
 
   Scenario: Listing existing users
@@ -31,3 +33,15 @@ Feature: User management
      And I press the "Save" button
     Then I should be on the "users management" page
      And The flash message should contain "Greg"
+
+  Scenario: Edit a user
+    When I visit the "users management" page
+     And I click the "#tableUsers tbody a" link
+    Then I should be on the "edit user" page
+    When I fill the following values:
+      | name     | value        |
+      | email    | Foo@bar.com  |
+     And I press the "Save" button
+    Then I should be on the "users management" page
+     And The flash message should contain "Bob"
+     And The page should contain "Foo@bar.com"

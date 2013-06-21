@@ -11,21 +11,13 @@ var User = require('../../server/models/user'),
 var sharedSteps = function() {
     this.World = require("../support/world").World;
 
-    this.Given(/^an administrator named "([^"]*)"$/, function(username, callback) {
-        var user = new User({ username: username, email: username + '@cell', password: username, isActive: true, isAdmin: true  });
-        user.save(function(err) {
-            if (err) return callback.fail(err);
-            callback();
-        });
-    });
-
-    this.Given(/^I am logged in as "([^"]*)"$/, function(username, callback) {
+    this.Given(/^I am logged in as "([^"]*)", "([^"]*)"$/, function(username, password, callback) {
         var world = this;
         world.visit('/login', function() {
             if(!world.browser.success) return callback.fail(new Error('Unable to reach login page.'));
 
             world.browser.fill('username', username)
-                         .fill('password', username)
+                         .fill('password', password)
                          .pressButton('Login', function() {
                     if(!world.browser.success) return callback.fail(new Error('Error while logging in.'));
                     callback();
@@ -91,10 +83,18 @@ var sharedSteps = function() {
             return callback.fail(new Error('Unknown page ' + page));
         }
 
-        if(world.browser.location.toString() === world.getUrl(path)) {
-            callback();
+        if (path instanceof RegExp) {
+            if(path.test(world.browser.location.toString())) {
+                callback();
+            } else {
+                callback.fail(new Error('Expected page to match regex ' + path + ', but is ' + world.browser.location));
+            }
         } else {
-            callback.fail(new Error('Expected page to be ' + world.getUrl(path) + ', but is ' + world.browser.location));
+            if(world.browser.location.toString() === world.getUrl(path)) {
+                callback();
+            } else {
+                callback.fail(new Error('Expected page to be ' + world.getUrl(path) + ', but is ' + world.browser.location));
+            }
         }
     });
 
@@ -103,6 +103,14 @@ var sharedSteps = function() {
         var alertElementText = world.browser.text('#flashes .alert');
         if(!alertElementText || alertElementText.length == 0) return callback.fail(new Error("Unable to find flash in page."));
         if (alertElementText.indexOf(text) == -1) return callback.fail(new Error("Expected flash text to contain " + text + " but got " + alertElementText));
+        callback();
+    });
+
+    this.Then(/^The page should contain "([^"]*)"$/, function(text, callback) {
+        var world = this;
+        var containerText = world.browser.text('#container');
+        if(!containerText || containerText.length == 0) return callback.fail(new Error("Unable to find #container in page."));
+        if (containerText.indexOf(text) == -1) return callback.fail(new Error("Expected page text to contain " + text));
         callback();
     });
 
