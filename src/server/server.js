@@ -12,7 +12,8 @@ module.exports = function(config, callback) {
         server: {
             socketOptions: {
                 keepAlive: config.db.keepAlive
-            }
+            },
+            poolSize: config.db.poolSize
         }
     });
 
@@ -32,13 +33,21 @@ module.exports = function(config, callback) {
         });
     }
 
-    http.createServer(app).listen(config.web.port, function(err){
+    var httpServer = http.createServer(app);
+
+    httpServer.listen(config.web.port, function(err){
         if (err) {
             winston.error(err);
         } else {
             winston.info('%s (%s) started on port %d.', config.app.name, config.app.version, config.web.port);
         }
 
-        callback(err);
+        callback(err, {
+            close: function(cb) {
+                httpServer.close(function() {
+                    mongoose.connection.close(cb);
+                });
+            }
+        });
     });
 };

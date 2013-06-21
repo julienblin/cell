@@ -4,7 +4,9 @@
 
 var User = require('../../server/models/user'),
     mongoose = require('mongoose'),
-    async = require('async');
+    async = require('async'),
+    _ = require('underscore'),
+    pages = require('./pages');
 
 var sharedSteps = function() {
     this.World = require("../support/world").World;
@@ -44,21 +46,64 @@ var sharedSteps = function() {
             });
     });
 
+    this.When(/^I fill the following values:$/, function(table, callback) {
+        var world = this;
+        _.each(table.hashes(), function(element) {
+            world.browser.fill(element.name, element.value);
+        });
+        callback();
+    });
+
     this.When(/^I visit the "([^"]*)" page$/, function(page, callback) {
         var world = this;
-        var path = '';
-        switch(page) {
-            case 'users management':
-                path = '/system/users';
-                break;
-            default:
-                return callback.fail(new Error('Unknown page ' + page));
+        var path = pages[page];
+
+        if(!path) {
+            return callback.fail(new Error('Unknown page ' + page));
         }
 
         world.visit(path, function() {
             if(!world.browser.success) return callback.fail(new Error("Error while loading path " + path));
             callback();
         });
+    });
+
+    this.When(/^I press the "([^"]*)" button$/, function(selector, callback) {
+        var world = this;
+        world.browser.pressButton(selector, function() {
+            if(!world.browser.success) return callback.fail(new Error('Error while pressing button ' + selector));
+            callback();
+        });
+    });
+
+    this.When(/^I click the "([^"]*)" link/, function(selector, callback) {
+        var world = this;
+        world.browser.clickLink(selector, function() {
+            if(!world.browser.success) return callback.fail(new Error('Error while clicking link ' + selector));
+            callback();
+        });
+    });
+
+    this.Then(/^I should be on the "([^"]*)" page$/, function(page, callback) {
+        var world = this;
+        var path = pages[page];
+        if(!path) {
+            return callback.fail(new Error('Unknown page ' + page));
+        }
+
+        if(world.browser.location.toString() === world.getUrl(path)) {
+            callback();
+        } else {
+            callback.fail(new Error('Expected page to be ' + world.getUrl(path) + ', but is ' + world.browser.location));
+        }
+    });
+
+    this.Then(/^The flash message should contain "([^"]*)"$/, function(text, callback) {
+        var world = this;
+        var alertElementText = world.browser.text('#flashes .alert');
+        if(!alertElementText || alertElementText.length == 0) return callback.fail(new Error("Unable to find flash in page."));
+        if (alertElementText.indexOf(text) == -1) return callback.fail(new Error("Expected flash text to contain " + text + " but got " + alertElementText));
+        callback();
     });
 
     this.Then(/^I should see (\d+) lines in the table "([^"]*)"$/, function(numLines, tableSelector, callback) {

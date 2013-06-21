@@ -25,6 +25,7 @@ module.exports = {
     db: {
         url: 'mongodb://localhost/cell',
         keepAlive: 1,
+        poolSize: 10,
         seed: true
     }
 };

@@ -3,10 +3,10 @@
  */
 
 var config = require('./config'),
-    server = require('../../server/server'),
     http = require('http'),
     mongoose = require('mongoose'),
-    Browser = require('zombie');
+    Browser = require('zombie'),
+    server = require('../../server/server');
 
 var World = function World(callback) {
     var that = this;
@@ -14,22 +14,25 @@ var World = function World(callback) {
     this.dropDatabase = function(cb) {
         mongoose.connection.close(function() {
             mongoose.connect(config.db.url, function() {
-                mongoose.connection.db.dropDatabase(cb);
+                mongoose.connection.db.dropDatabase(function() {
+                    cb();
+                });
             });
         });
     };
 
-    this.openBrowser = function(cb) {
+    this.openBrowser = function() {
         that.browser = new Browser();
     };
 
-    this.closeBrowser = function(cb) {
+    this.dispose = function(cb) {
         that.browser.close();
+        cb();
     };
 
     this.getUrl = function(path) {
         return 'http://localhost:' + config.web.port + path;
-    }
+    };
 
     this.visit = function(path, cb) {
         that.browser.visit(that.getUrl(path), function() {
@@ -37,9 +40,14 @@ var World = function World(callback) {
         });
     };
 
-    server(config, function() {
+    if(GLOBAL.runningServer) {
         callback();
-    });
+    } else {
+        server(config, function(err, runningServer) {
+            GLOBAL.runningServer = runningServer;
+            callback();
+        });
+    }
 };
 
 exports.World = World;

@@ -11,8 +11,7 @@ var hooks = function() {
         world.dropDatabase(function() {
             world.openBrowser();
             runScenario(function(callback) {
-                world.closeBrowser();
-                callback();
+                world.dispose(callback);
             });
         });
     });
