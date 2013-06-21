@@ -14,12 +14,13 @@ window.behaviors = (function() {
 
             $("form[data-behavior~='ajax']", context).on('submit', function(e) {
                 var form = $(this);
+                var formContainer = form.parent();
                 $.post(
                     form.attr('action'),
                     form.serialize(),
                     function(data, textStatus, xhr) {
                         form.replaceWith(data);
-                        behaviors.apply(data);
+                        behaviors.apply(formContainer);
                     }
                 );
                 e.preventDefault();

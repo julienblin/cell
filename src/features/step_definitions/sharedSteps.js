@@ -114,6 +114,13 @@ var sharedSteps = function() {
         callback();
     });
 
+    this.Then(/^The page title should contain "([^"]*)"$/, function(title, callback) {
+        var world = this;
+        var pageTitle = world.browser.text('title');
+        if(pageTitle.indexOf(pageTitle) == -1) return callback.fail(new Error("Expected page title to contain " + title + ', but got ' + pageTitle));
+        callback();
+    });
+
     this.Then(/^I should see (\d+) lines in the table "([^"]*)"$/, function(numLines, tableSelector, callback) {
         var world = this;
         var count = world.browser.queryAll(tableSelector + " tbody tr").length;
