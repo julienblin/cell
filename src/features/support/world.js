@@ -3,15 +3,10 @@
  */
 
 var config = require('./config'),
+    server = require('../../server/server'),
     http = require('http'),
     mongoose = require('mongoose'),
     phantom = require('phantom');
-
-mongoose.connect(config.db.url);
-
-var passport = require('../../server/passport.js');
-var app = require('../../server/express.js');
-require('../../server/routes.js')(app, passport);
 
 var World = function World(callback) {
     var that = this;
@@ -98,7 +93,7 @@ var World = function World(callback) {
         cb();
     };
 
-    http.createServer(app).listen(config.web.port, function(){
+    server(config, function() {
         callback();
     });
 };
