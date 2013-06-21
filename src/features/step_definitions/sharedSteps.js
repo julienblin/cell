@@ -19,17 +19,15 @@ var sharedSteps = function() {
 
     this.Given(/^I am logged in as "([^"]*)"$/, function(username, callback) {
         var world = this;
-        world.visit('/login', function(status) {
-            if (status !== 'success') {
-                return callback.fail(new Error("Unable to login as " + username));
-            };
+        world.visit('/login', function() {
+            if(!world.browser.success) return callback.fail(new Error('Unable to reach login page.'));
 
-            world.fill('username', username, function() {
-                world.fill('password', username, function() {
-                    world.submit("form", function() {});
-                    world.pollForPathChange('/', callback);
+            world.browser.fill('username', username)
+                         .fill('password', username)
+                         .pressButton('Login', function() {
+                    if(!world.browser.success) return callback.fail(new Error('Error while logging in.'));
+                    callback();
                 });
-            });
         });
     });
 
@@ -57,20 +55,17 @@ var sharedSteps = function() {
                 return callback.fail(new Error('Unknown page ' + page));
         }
 
-        world.visit(path, function(status) {
-            if (status !== 'success') {
-                return callback.fail(new Error("Error while loading path " + path + ". Status: " + status));
-            };
+        world.visit(path, function() {
+            if(!world.browser.success) return callback.fail(new Error("Error while loading path " + path));
             callback();
         });
     });
 
     this.Then(/^I should see (\d+) lines in the table "([^"]*)"$/, function(numLines, tableSelector, callback) {
         var world = this;
-        world.count(tableSelector + " tbody tr", function(count) {
-            if(count != numLines) return callback.fail(new Error("Expected "+ numLines + " users, found: " + count));
-            callback();
-        });
+        var count = world.browser.queryAll(tableSelector + " tbody tr").length;
+        if(count != numLines) return callback.fail(new Error("Expected "+ numLines + " users, found: " + count));
+        callback();
     });
 };
 

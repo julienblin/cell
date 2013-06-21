@@ -35,6 +35,6 @@
     "devDependencies": {
         "should": "*",
         "cucumber": "*",
-        "phantom": "*"
+        "zombie": "*"
     }
 }

@@ -15,13 +15,13 @@ var saveValidUser = function(callback) {
 describe("Users", function(){
 
     beforeEach(function(done){
-        mongoose.connect(config.db.url, done);
+        mongoose.connect(config.db.url, function() {
+            mongoose.connection.db.dropDatabase(done);
+        });
     });
 
     afterEach(function(done){
-        mongoose.connection.db.dropDatabase(function() {
-            mongoose.disconnect(done);
-        });
+        mongoose.disconnect(done);
     });
 
     it('should not create a user with the same username', function(done) {

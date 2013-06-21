@@ -21,7 +21,7 @@ module.exports = {
     },
 
     db: {
-        url: 'mongodb://localhost/cell_features',
+        url: 'mongodb://localhost/cell_test',
         keepAlive: 1,
         seed: false
     }
