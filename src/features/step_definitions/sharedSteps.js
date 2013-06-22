@@ -11,7 +11,7 @@ var User = require('../../server/models/user'),
 var sharedSteps = function() {
     this.World = require("../support/world").World;
 
-    this.Given(/^I am logged in as "([^"]*)", "([^"]*)"$/, function(username, password, callback) {
+    this.Given(/^I am logged in as (")?([^"]*)\1 using (")?([^"]*)\1$/, function(ignore1, username, ignore2, password, callback) {
         var world = this;
         world.visit('/login', function() {
             if(!world.browser.success) return callback.fail(new Error('Unable to reach login page.'));
@@ -25,7 +25,7 @@ var sharedSteps = function() {
         });
     });
 
-    this.Given(/^the following "([^"]*)" (entities|entity):$/, function(model, ignore, table, callback) {
+    this.Given(/^the following (")?([^"]*)\1 (?:entities|entity|models|model|objects|object)?:$/, function(ignore, model, table, callback) {
         async.each(table.hashes(),
             function(definition, saved) {
                 var Model = mongoose.model(model);
@@ -46,7 +46,7 @@ var sharedSteps = function() {
         callback();
     });
 
-    this.When(/^I visit the "([^"]*)" page$/, function(page, callback) {
+    this.When(/^I visit the (")?([^"]*)\1 page$/, function(ignore, page, callback) {
         var world = this;
         var path = pages[page];
 
@@ -60,7 +60,7 @@ var sharedSteps = function() {
         });
     });
 
-    this.When(/^I press the "([^"]*)" button$/, function(selector, callback) {
+    this.When(/^I press the (")?([^"]*)\1 button$/, function(ignore, selector, callback) {
         var world = this;
         world.browser.pressButton(selector, function() {
             if(!world.browser.success) return callback.fail(new Error('Error while pressing button ' + selector));
@@ -68,7 +68,7 @@ var sharedSteps = function() {
         });
     });
 
-    this.When(/^I click the "([^"]*)" link/, function(selector, callback) {
+    this.When(/^I click the (")?([^"]*)\1 link/, function(ignore, selector, callback) {
         var world = this;
         world.browser.clickLink(selector, function() {
             if(!world.browser.success) return callback.fail(new Error('Error while clicking link ' + selector));
@@ -76,7 +76,7 @@ var sharedSteps = function() {
         });
     });
 
-    this.Then(/^I should be on the "([^"]*)" page$/, function(page, callback) {
+    this.Then(/^I should be on the (")?([^"]*)\1 page$/, function(ignore, page, callback) {
         var world = this;
         var path = pages[page];
         if(!path) {
@@ -98,7 +98,7 @@ var sharedSteps = function() {
         }
     });
 
-    this.Then(/^The flash message should contain "([^"]*)"$/, function(text, callback) {
+    this.Then(/^the flash message should contain (")?([^"]*)\1$/, function(ignore, text, callback) {
         var world = this;
         var alertElementText = world.browser.text('#flashes .alert');
         if(!alertElementText || alertElementText.length == 0) return callback.fail(new Error("Unable to find flash in page."));
@@ -106,7 +106,7 @@ var sharedSteps = function() {
         callback();
     });
 
-    this.Then(/^The page should contain "([^"]*)"$/, function(text, callback) {
+    this.Then(/^the page should contain (")?([^"]*)\1$/, function(ignore, text, callback) {
         var world = this;
         var containerText = world.browser.text('#container');
         if(!containerText || containerText.length == 0) return callback.fail(new Error("Unable to find #container in page."));
@@ -114,7 +114,7 @@ var sharedSteps = function() {
         callback();
     });
 
-    this.Then(/^The page title should contain "([^"]*)"$/, function(title, callback) {
+    this.Then(/^the page title should contain (")?([^"]*)\1$/, function(ignore, title, callback) {
         var world = this;
         var pageTitle = world.browser.text('title');
         if(pageTitle.indexOf(pageTitle) == -1) return callback.fail(new Error("Expected page title to contain " + title + ', but got ' + pageTitle));

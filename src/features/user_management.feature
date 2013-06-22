@@ -4,14 +4,14 @@ Feature: User management
   I want to be able to manage users of the application
 
   Background:
-    Given the following "User" entity:
+    Given the following User model:
       | username | email          | password | isAdmin | isActive |
-      | Bob      |  Bob@cgi.com   | password | true    | true     |
-      And I am logged in as "Bob", "password"
+      | Bob      |  Bob@cgi.com   | secret   | true    | true     |
+      And I am logged in as Bob using secret
 
 
   Scenario: Listing existing users
-    Given the following "User" entities:
+    Given the following User models:
       | username | email          | password | isAdmin | isActive |
       | Greg     | Greg@cgi.com   | password | true    | true     |
       | Martin   | Martin@cgi.com | password | false   | false    |
@@ -20,7 +20,7 @@ Feature: User management
 
   Scenario: Create a new user
     When I visit the "users management" page
-     And I click the "#linkNewUser" link
+     And I click the #linkNewUser link
     Then I should be on the "new user" page
     When I fill the following values:
       | name     | value        |
@@ -30,9 +30,9 @@ Feature: User management
       | confirm  | password     |
       | isAdmin  | false        |
       | isActive | true         |
-     And I press the "Save" button
+     And I press the Save button
     Then I should be on the "users management" page
-     And The flash message should contain "Greg"
+     And the flash message should contain Greg
 
   Scenario: Edit a user
     When I visit the "users management" page
@@ -41,7 +41,7 @@ Feature: User management
     When I fill the following values:
       | name     | value        |
       | email    | Foo@bar.com  |
-     And I press the "Save" button
+     And I press the Save button
     Then I should be on the "users management" page
-     And The flash message should contain "Bob"
-     And The page should contain "Foo@bar.com"
+     And the flash message should contain Bob
+     And the page should contain Foo@bar.com
