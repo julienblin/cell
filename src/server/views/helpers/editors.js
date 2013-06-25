@@ -20,6 +20,7 @@ module.exports.text = function(obj, path, opt) {
         value: obj[path] ? obj[path] : '',
         inputClass: '',
         placeholder: '',
+        autocomplete: '',
         autofocus: false
     });
 
@@ -28,11 +29,13 @@ module.exports.text = function(obj, path, opt) {
 
     str += util.format('<label for="%s" class="control-label">%s</label>', path, options.label);
     str += '<div class="controls">';
-    str += util.format('<input type="%s" name="%s" value="%s" class="%s" placeholder="%s" %s>',
+    str += util.format('<input type="%s" name="%s" value="%s" class="%s" data-behavior="%s" %s placeholder="%s" %s>',
         options.type,
         path,
         options.value,
         options.inputClass,
+        options.autocomplete ? 'autocomplete' : '',
+        options.autocomplete ? ('data-autocomplete-source="' + options.autocomplete + '" autocomplete="off"') : '',
         options.placeholder,
         options.autofocus ? 'autofocus' : '');
 

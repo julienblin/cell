@@ -31,6 +31,18 @@ window.behaviors = (function() {
                 window.location.hash = '_' + e.target.href.substring(e.target.href.indexOf('#'));
                 _changingHash = false;
             });
+
+            $("input[data-behavior~='autocomplete']", context).typeahead({
+                source: function(query, process) {
+                    $.get(
+                        $(this.$element).attr('data-autocomplete-source'),
+                        { q: query },
+                        function(data, textStatus, xhr) {
+                            process(data);
+                        }
+                    );
+                }
+            });
         },
         isChangingHash: function() {
             return _changingHash;

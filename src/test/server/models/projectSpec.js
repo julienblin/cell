@@ -1,5 +1,6 @@
 var should = require('should'),
     mongoose = require('mongoose'),
+    async = require('async'),
     config = require('../../config.js'),
     Project = require('../../../server/models/project'),
     User = require('../../../server/models/user');
@@ -57,6 +58,37 @@ describe("Projects", function(){
                 should.exists(anotherErr.errors);
                 should.exists(anotherProject.errors.projectName);
                 done();
+            });
+        });
+    });
+
+    it('should retrieve client names that are accessible by the user', function(done) {
+        var user1 = new User();
+        var user2 = new User();
+        async.parallel([
+            function(callback) {
+                Project.create({ clientName: 'CGI', projectName: 'Cell' }, user1, function(err, project) { callback(err); });
+            },
+            function(callback) {
+                Project.create({ clientName: 'Foo', projectName: 'Foo' }, user1, function(err, project) { callback(err); });
+            },
+            function(callback) {
+                Project.create({ clientName: 'Bar', projectName: 'Foo' }, user2, function(err, project) { callback(err); });
+            }
+        ], function(err) {
+            should.not.exists(err);
+            Project.queries.getAccessibleClientNames('CGI', user1, function(err, clientNames) {
+                clientNames.should.have.length(1);
+                clientNames.should.include('CGI');
+                clientNames.should.not.include('Foo');
+                Project.queries.getAccessibleClientNames('B', user2, function(err, clientNames) {
+                    clientNames.should.have.length(1);
+                    clientNames.should.include('Bar');
+                    Project.queries.getAccessibleClientNames('asdf', user2, function(err, clientNames) {
+                        clientNames.should.have.length(0);
+                        done();
+                    });
+                });
             });
         });
     });

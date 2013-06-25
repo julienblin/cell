@@ -59,6 +59,22 @@ ProjectSchema.statics.create = function(values, user, callback) {
     });
 };
 
+/**
+ * Queries on projects
+ */
+ProjectSchema.statics.queries = {};
+
+ProjectSchema.statics.queries.getAccessibleClientNames = function(filter, user, callback) {
+    var Project = mongoose.model('Project');
+    Project.where('clientName').equals(new RegExp(filter))
+           .or([
+                { 'users.read': user.id },
+                { 'users.write': user.id }
+            ])
+        .sort('clientName')
+        .distinct('clientName', callback);
+};
+
 ProjectSchema.plugin(require('./plugins/paginate'));
 
 module.exports = mongoose.model('Project', ProjectSchema);

@@ -21,6 +21,7 @@ module.exports = function (app, passport) {
     app.get('/modals/new', modals.new);
     app.post('/modals/new', modals.createNew);
     app.get('/modals/open', modals.open);
+    app.get('/modals/clientNames', modals.clientNames);
 
     // Projects
     app.get('/projects/:id', auth.project, projects.show);

@@ -35,7 +35,8 @@ var sharedSteps = function() {
             function(err) {
                 if (err) callback.fail(err);
                 callback();
-            });
+            }
+        );
     });
 
     this.When(/^I fill the following values:$/, function(table, callback) {
@@ -43,7 +44,7 @@ var sharedSteps = function() {
         _.each(table.hashes(), function(element) {
             world.browser.fill(element.name, element.value);
         });
-        callback();
+        world.browser.wait(callback);
     });
 
     this.When(/^I visit the (")?([^"]*)\1 page$/, function(ignore, page, callback) {
@@ -111,6 +112,14 @@ var sharedSteps = function() {
         var containerText = world.browser.text('#container');
         if(!containerText || containerText.length == 0) return callback.fail(new Error("Unable to find #container in page."));
         if (containerText.indexOf(text) == -1) return callback.fail(new Error("Expected page text to contain " + text));
+        callback();
+    });
+
+    this.Then(/^the page should not contain (")?([^"]*)\1$/, function(ignore, text, callback) {
+        var world = this;
+        var containerText = world.browser.text('#container');
+        if(!containerText || containerText.length == 0) return callback.fail(new Error("Unable to find #container in page."));
+        if (containerText.indexOf(text) != -1) return callback.fail(new Error("Expected page text to not contain " + text));
         callback();
     });
 

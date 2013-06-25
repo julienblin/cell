@@ -33,3 +33,9 @@ exports.createNew = function(req, res) {
 exports.open = function(req, res) {
     res.render('modals/open');
 };
+
+exports.clientNames = function(req, res) {
+    Project.queries.getAccessibleClientNames(req.query.q, req.user, function(err, clientNames) {
+        res.json(clientNames);
+    });
+};
