@@ -31,3 +31,35 @@ body.login {
 .no-margin {
     margin: 0 !important;
 }
+
+table form p {
+    margin: 0;
+    position: relative;
+}
+table .dropdown {
+    margin: 0px;
+}
+.input-dropdown .dropdown-menu li {
+    padding:10px;
+    white-space: nowrap;
+}
+.input-dropdown .dropdown-menu {
+    padding: 0px;
+}
+.input-dropdown .dropdown-menu input.input-first {
+    -webkit-border-radius: 4px 0 0 4px;
+    -moz-border-radius:    4px 0 0 4px;
+    border-radius: 4px 0 0 4px;
+    border-right-width: 0px;
+}
+.input-dropdown .dropdown-menu button {
+    -webkit-border-radius: 0 4px 4px 0;
+    -moz-border-radius:    0 4px 4px 0;
+    border-radius: 0 4px 4px 0;
+}
+
+a.cellLink {
+    display:block;
+    height:100%;
+    width:100%;
+}

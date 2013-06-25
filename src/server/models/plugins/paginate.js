@@ -29,10 +29,7 @@ module.exports = function paginatePlugin (schema, options) {
                     if (err) {
                         callback(err, null, null);
                     } else {
-                        var pageCount = Math.floor(totalItems / pagination.pageSize);
-                        if (pageCount == 0) {
-                            pageCount = 1;
-                        };
+                        var pageCount = Math.floor(totalItems / pagination.pageSize) + 1;
                         callback(null, {
                             currentPage: pagination.currentPage,
                             pageSize: pagination.pageSize,

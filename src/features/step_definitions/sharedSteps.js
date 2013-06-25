@@ -130,7 +130,7 @@ var sharedSteps = function() {
         callback();
     });
 
-    this.Then(/^I should see (\d+) lines in the table "([^"]*)"$/, function(numLines, tableSelector, callback) {
+    this.Then(/^I should see (\d+) line(?:s)? in the table "([^"]*)"$/, function(numLines, tableSelector, callback) {
         var world = this;
         var count = world.browser.queryAll(tableSelector + " tbody tr").length;
         if(count != numLines) return callback.fail(new Error("Expected "+ numLines + " users, found: " + count));

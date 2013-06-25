@@ -92,4 +92,27 @@ describe("Projects", function(){
             });
         });
     });
+
+    it('should find projects that are accessible by the user', function(done) {
+        var user1 = new User();
+        var user2 = new User();
+        async.parallel([
+            function(callback) {
+                Project.create({ clientName: 'CGI', projectName: 'Cell' }, user1, function(err, project) { callback(err); });
+            },
+            function(callback) {
+                Project.create({ clientName: 'Foo', projectName: 'Foo' }, user1, function(err, project) { callback(err); });
+            },
+            function(callback) {
+                Project.create({ clientName: 'CGI', projectName: 'Foo' }, user2, function(err, project) { callback(err); });
+            }
+        ], function(err) {
+            should.not.exists(err);
+            Project.queries.findPaginate({ clientName: 'CGI' }, 'clientName', user1, {}, function(err, pagination, projects) {
+                pagination.totalItems.should.equal(1);
+                projects[0].projectName.should.equal('Cell');
+                done();
+            });
+        });
+    })
 });

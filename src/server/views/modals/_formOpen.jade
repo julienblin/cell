@@ -1,0 +1,39 @@
+form#formOpenProject(action="/modals/open", method="get", data-behavior="ajax")
+  input(type="hidden", name="search", value="search")
+  table#tableProjects.table.table-hover.table-condensed
+    thead
+      th
+        .dropdown.inline-dropdown.input-dropdown
+          a.dropdown-toggle(data-toggle="dropdown")
+            span
+              | Client
+              if clientName
+                |  (#{clientName})
+
+            span.caret
+          ul.dropdown-menu.input-dropdown-menu
+            li
+              input.pull-left.input-first(type="search", name="clientName", placeholder="(filter)", value=clientName, data-behavior="autocomplete", data-autocomplete-source="/modals/clientNames", autocomplete="off", autofocus)
+              button.btn(type="submit") Search
+
+      th
+        .dropdown.inline-dropdown.input-dropdown
+          a.dropdown-toggle(data-toggle="dropdown")
+            span
+              | Project
+              if projectName
+                |  (#{projectName})
+            span.caret
+          ul.dropdown-menu.input-dropdown-menu
+            li
+              input.pull-left.input-first(type="search", name="projectName", placeholder="(filter)", value=projectName, autocomplete="off", autofocus)
+              button.btn(type="submit") Search
+
+    tbody
+      each project in results
+        tr
+          td.span2
+            a.cellLink(href="/projects/#{project.id}")= project.clientName
+          td
+            a.cellLink(href="/projects/#{project.id}")= project.projectName
+  != paginate(req, pagination, { ajaxTarget: "#formOpenProject" })

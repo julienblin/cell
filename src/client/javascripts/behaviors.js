@@ -14,15 +14,35 @@ window.behaviors = (function() {
 
             $("form[data-behavior~='ajax']", context).on('submit', function(e) {
                 var form = $(this);
-                var formContainer = form.parent();
-                $.post(
-                    form.attr('action'),
-                    form.serialize(),
-                    function(data, textStatus, xhr) {
-                        form.replaceWith(data);
-                        behaviors.apply(formContainer);
+                var ajaxTarget = form;
+                if(form.data('ajax-target')) {
+                    ajaxTarget = $(form.data('ajax-target'));
+                }
+                var ajaxTargetContainer = ajaxTarget.parent();
+                $.ajax({
+                    url: form.attr('action'),
+                    type: form.attr('method') || 'POST',
+                    data: form.serialize(),
+                    success: function(data, textStatus, xhr) {
+                        ajaxTarget.replaceWith(data);
+                        behaviors.apply(ajaxTargetContainer);
                     }
-                );
+                });
+                e.preventDefault();
+            });
+
+            $("a[data-behavior~='ajax']", context).on('click', function(e) {
+                var link = $(this);
+                var ajaxTarget = $(link.data('ajax-target'));
+                var ajaxTargetContainer = ajaxTarget.parent();
+                $.ajax({
+                    url: link.attr('href'),
+                    type: 'GET',
+                    success: function(data, textStatus, xhr) {
+                        ajaxTarget.replaceWith(data);
+                        behaviors.apply(ajaxTargetContainer);
+                    }
+                });
                 e.preventDefault();
             });
 
@@ -59,6 +79,11 @@ $(function() {
     $('#btnOpenProject').on('click', function(e) {
         modals.open();
         e.preventDefault();
+    });
+
+    // Prevents dropdown from closing on click (in tables normally).
+    $('#container').on('click', '.input-dropdown-menu', function(e) {
+        e.stopPropagation();
     });
 
     // Reload persistent tabs if any

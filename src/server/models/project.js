@@ -1,6 +1,7 @@
 var mongoose = require('mongoose'),
     Schema = mongoose.Schema,
-    validations = require('./plugins/validations');
+    validations = require('./plugins/validations'),
+    _ = require('underscore');
 
 var ProjectSchema = new Schema({
     clientName: { type: String, required: true, index: true },
@@ -71,8 +72,24 @@ ProjectSchema.statics.queries.getAccessibleClientNames = function(filter, user, 
                 { 'users.read': user.id },
                 { 'users.write': user.id }
             ])
-        .sort('clientName')
-        .distinct('clientName', callback);
+            .sort('clientName')
+            .distinct('clientName', callback);
+};
+
+ProjectSchema.statics.queries.findPaginate = function(q, sort, user, paginationOptions, callback) {
+    var Project = mongoose.model('Project');
+    var finalQuery = {
+        $and: [
+            q,
+            {
+                $or: [
+                    { 'users.read': user.id },
+                    { 'users.write': user.id }
+                ]
+            }
+        ]
+    };
+    Project.paginate(finalQuery, sort, paginationOptions, callback);
 };
 
 ProjectSchema.plugin(require('./plugins/paginate'));
