@@ -18,7 +18,9 @@ module.exports = function(config) {
 
     app.use(express.favicon());
     app.use(express.compress());
-    app.use(express.logger('dev'));
+    if(config.env === 'development') {
+        app.use(express.logger('dev'));
+    }
 
     bundle(app, __dirname + '/../client/assets', {
         staticRoot: __dirname + '/../public/',
@@ -28,6 +30,7 @@ module.exports = function(config) {
         minifyJs: true
     });
 
+    app.use(require('./middlewares/staticExpiration'));
     app.use(express.static(path.join(__dirname, '../public')));
 
     app.use(express.bodyParser());

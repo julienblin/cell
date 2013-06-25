@@ -67,7 +67,7 @@ ProjectSchema.statics.queries = {};
 
 ProjectSchema.statics.queries.getAccessibleClientNames = function(filter, user, callback) {
     var Project = mongoose.model('Project');
-    Project.where('clientName').equals(new RegExp(filter))
+    Project.where('clientName').equals(new RegExp(filter, 'i'))
            .or([
                 { 'users.read': user.id },
                 { 'users.write': user.id }
