@@ -8,6 +8,7 @@ var ProjectSchema = new Schema({
     clientName: { type: String, required: true, index: true },
     projectName: { type: String, required: true, validate: [validations.uniqueFieldInsensitive('Project', 'projectName', 'clientName')], index: true },
     description: { type: String },
+    created: { type: Date, required: true, default: Date.now },
 
     users: {
         read: [{ type: Schema.Types.ObjectId, ref: 'User' }],

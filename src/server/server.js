@@ -5,7 +5,8 @@
 var winston = require('winston'),
     http = require('http'),
     mongoose = require('mongoose'),
-    seeds = require('./seeds');
+    seeds = require('./seeds'),
+    socket = require('./socket');
 
 module.exports = function(config, callback) {
     mongoose.connect(config.db.url, {
@@ -34,6 +35,7 @@ module.exports = function(config, callback) {
     }
 
     var httpServer = http.createServer(app);
+    socket(config, app, httpServer);
 
     httpServer.listen(config.web.port, function(err){
         if (err) {

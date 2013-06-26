@@ -1,23 +1,10 @@
 window.ProjectEngine = function(id) {
     var that = this;
-    this.id = id;
-    this.data = {
-        estimations: [
-            {
-                isActive: true,
-                title: 'here is the first line',
-                scale: 'Umbraco',
-                complexity: 'Medium',
-                coefficient: 1.0,
-                baseline: 25,
-                overBaseline: 20,
-                total: 6,
-                totalMoney: 3300
-            }
-        ]
-    };
-    this.gridContainers = {};
-    this.renderers = {
+    that.id = id;
+    that.state = "init";
+    that.data = {};
+    that.gridContainers = {};
+    that.renderers = {
         computed: function(instance, td, row, col, prop, value, cellProperties) {
             Handsontable.NumericCell.renderer.apply(this, arguments);
             if(!value) {
@@ -33,11 +20,22 @@ window.ProjectEngine = function(id) {
 
 ProjectEngine.prototype.init = function() {
     var that = this;
-    var loadingAlert = alerts.info('Loading project...');
+    that.loadingAlert = alerts.info('Loading project...');
+
+    if (navigator.userAgent.indexOf('Zombie.js') === -1) {
+        var socketUrl = window.location.protocol + '//' + window.location.hostname;
+        if (window.location.port) {
+            socketUrl += ':' + window.location.port;
+        }
+        that.socket = window.socket = io.connect(socketUrl + '/project');
+        that.socket.on('disconnect', function() {
+            that.state = "disconnected";
+            alerts.error("You've been disconnected from the server. Please try to <strong><a href='" + window.location.href + "'>reload the page</a></strong>.");
+        });
+    }
 
     this.gridContainers.estimations = $('#estimationsGrid');
     this.gridContainers.estimations.handsontable({
-        data: that.data.estimations,
         colHeaders: [ "Act.", "Title", "Scale", "Complexity", "Coeff.", "Baseline", "Over-baseline", "Total", "Total $"  ],
         colWidths:  [30,        600,     80,     80,        40,       80,         80,              80,      80],
         stretchH: 'all',
@@ -69,6 +67,27 @@ ProjectEngine.prototype.init = function() {
         }
     });
 
-    loadingAlert.dismiss();
+    if (navigator.userAgent.indexOf('Zombie.js') === -1) {
+        that.socket.emit('getDataAndSubscribe', that.id, function(err, data) {
+            if (err) {
+                that.loadingAlert.dismiss();
+                alerts.error("There has been an error while loading project data. Reason: " + err);
+                return;
+            }
+            that.data = data;
+            that.loadInitialData();
+        });
+    }
+};
+
+ProjectEngine.prototype.loadInitialData = function() {
+    var that = this;
+
+    $('#projectName').text(that.data.projectName);
+    $('#clientName').text(that.data.clientName);
+    $('#createdAt').text('Created:' + new Date(that.data.created).toLocaleString());
+
+    that.loadingAlert.dismiss();
     alerts.success('Project loaded - good to go!', 3000);
+    that.state = "ready";
 };

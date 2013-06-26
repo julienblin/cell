@@ -19,6 +19,7 @@
     },
     "dependencies": {
         "express": "3.x",
+        "socket.io": ">0.9",
         "jade": "*",
         "underscore" : "*",
         "winston": "*",
@@ -27,6 +28,7 @@
         "bundle-up" : "*",
         "passport" : "*",
         "passport-local" : "*",
+        "passport.socketio" : "*",
         "connect-mongo" : "*",
         "connect-flash" : "*",
         "validator" : "*",

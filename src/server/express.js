@@ -36,12 +36,16 @@ module.exports = function(config) {
     app.use(express.bodyParser());
     app.use(express.methodOverride());
     app.use(express.cookieParser());
+
+    var sessionStore = new mongoStore({
+        url: config.db.url,
+        collection : 'sessions'
+    });
+    app.set('sessionStore', sessionStore);
+
     app.use(express.session({
         secret: config.web.sessionSecret,
-        store: new mongoStore({
-            url: config.db.url,
-            collection : 'sessions'
-        })
+        store: sessionStore
     }));
     app.use(require('connect-flash')());
     app.use(passport.initialize());

@@ -16,7 +16,12 @@ block container
 
   #content.tab-content
     #info.tab-pane.active
-      h3 Info
+      .row
+        .span9
+          h1#projectName
+          h3#clientName
+        .span3
+          p#createdAt.text-right.muted
 
     #profiles.tab-pane
       h3 Profiles
@@ -33,10 +38,11 @@ block container
       h3 Summary
 
 block foot
+  script(type="text/javascript", src="/socket.io/socket.io.js")
   != renderJs('project')
 
   script(type="text/javascript").
     $(function() {
-      var projectEngine = new ProjectEngine('#{project.id}');
-      projectEngine.init();
+      window.projectEngine = new ProjectEngine('#{project.id}');
+      window.projectEngine.init();
     });
