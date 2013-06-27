@@ -18,8 +18,8 @@ block container
     #info.tab-pane.active
       .row
         .span9
-          h1#projectName
-          h3#clientName
+          h1(contenteditable, data-property="projectName")
+          h3(contenteditable, data-property="clientName")
         .span3
           p#createdAt.text-right.muted
 

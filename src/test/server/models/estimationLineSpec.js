@@ -25,6 +25,7 @@ describe("EstimationLines", function(){
                 should.not.exists(err);
                 var modificationLot = {
                     projectId: project.id,
+                    user: user,
                     modifications: [
                         {
                             model: 'EstimationLine',
@@ -58,7 +59,7 @@ describe("EstimationLines", function(){
                         }
                     ]
                 };
-                Project.applyModifications(modificationLot, user, function(err, response) {
+                Project.applyModifications(modificationLot, function(err, response) {
                     should.not.exists(err);
                     response.results.should.have.length(4);
                     response.results[0].status.should.equal('success');

@@ -11,7 +11,7 @@ winston.add(winston.transports.Console, { level: 'debug', colorize: true });
 module.exports = {
     app: {
         name: 'Cell',
-        version: '0.0.1',
+        version: '0.1.0',
         copyright: 'Copyright Julien Blin 2013'
     },
 

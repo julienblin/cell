@@ -19,6 +19,10 @@ window.alerts = (function() {
             return _createAlert('error', message, dismissTimeout);
         },
 
+        warning: function(message, dismissTimeout) {
+            return _createAlert('warning', message, dismissTimeout);
+        },
+
         info: function(message, dismissTimeout) {
             return _createAlert('info', message, dismissTimeout);
         },

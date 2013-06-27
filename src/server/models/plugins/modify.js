@@ -5,7 +5,7 @@
 var util = require('util');
 
 module.exports = function modifyPlugin (schema, options) {
-    schema.statics.modify = function(modificationLot, user, modification, callback) {
+    schema.statics.modify = function(modificationLot, modification, callback) {
         var Model = this;
         if(modification.action === 'create') {
             var obj = new Model(modification);
@@ -32,7 +32,7 @@ module.exports = function modifyPlugin (schema, options) {
                             obj.set(modification.property, modification.newValue);
                             obj.save(function(err) {
                                 if (err) return callback(null, { status: 'error', statusMessage: err.message });
-                                return callback(null, { status: 'success', statusMessage: util.format("Successfully updated %s(%s)", obj.modelName, obj.id) });
+                                return callback(null, { status: 'success', statusMessage: util.format("Successfully updated %s(%s)", Model.name, obj.id) });
                             });
                         } else {
                             return callback(null, { status: 'concurrencyError', statusMessage: util.format("Unable to update %s(%s) because the oldValue (%s) doesn't match the current value (%s)", obj.modelName, obj.id, modification.oldValue, obj.get(modification.property)) });

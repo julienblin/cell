@@ -86,6 +86,25 @@ $(function() {
         e.stopPropagation();
     });
 
+    // Bind change event on contenteditable
+    $('body').on('focus', '[contenteditable]', function() {
+        var $this = $(this);
+        $this.data('before', $this.html());
+        return $this;
+    }).on('blur', '[contenteditable]', function(e) {
+            var $this = $(this);
+            if ($this.data('before') !== $this.html()) {
+                $this.trigger('change');
+            }
+            return $this;
+        })
+      .on('keydown', '[contenteditable]', function(e) {
+            if(e.keyCode == 13) {
+                e.preventDefault();
+                $(this).blur();
+            }
+        });
+
     // Reload persistent tabs if any
     if (window.location.hash && window.location.hash.length > 1) {
         var tab = $("a[data-toggle='tab'][data-behavior~='persistent'][href='" + window.location.hash.substring(2) +  "']");

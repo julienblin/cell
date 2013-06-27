@@ -69,12 +69,12 @@ ProjectSchema.statics.create = function(values, user, callback) {
  * @param user
  * @param callback
  */
-ProjectSchema.statics.applyModifications = function(modificationLot, user, callback) {
+ProjectSchema.statics.applyModifications = function(modificationLot, callback) {
     mongoose.model('Project').findById(modificationLot.projectId, function(err, project) {
         if (err) return callback(err, null);
         if (!project) return callback(new Error("Unable to find project with id " + modificationLot.projectId));
-        if (!project.isAuth('write', user)) {
-            return callback(new Error("User " + user.username + " is not authorized for project with id " + modificationLot.projectId));
+        if (!project.isAuth('write', modificationLot.user)) {
+            return callback(new Error("User " + modificationLot.user.username + " is not authorized for project with id " + modificationLot.projectId));
         };
 
         var responses = _.clone(modificationLot);
@@ -84,10 +84,11 @@ ProjectSchema.statics.applyModifications = function(modificationLot, user, callb
             function(modification, eachCallback) {
                 try {
                     var Model = mongoose.model(modification.model);
-                    Model.modify(modificationLot, user, modification, function(modifyErr, response) {
+                    Model.modify(modificationLot, modification, function(modifyErr, response) {
                         if (modifyErr) {
                             responses.results.push({ status: 'error', statusMessage: modifyErr.message });
                         } else {
+                            response.userId = modificationLot.user.id;
                             responses.results.push(response);
                         }
                         eachCallback();
