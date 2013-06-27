@@ -2,13 +2,14 @@
  * All the socket.io actions related to projects.
  */
 
-var Project = require('../models/project');
+var Project = require('../models/project'),
+    _ = require('underscore');
 
 module.exports = function(io) {
     io.of('/project').on('connection', function (socket) {
 
         socket.on('getDataAndSubscribe', function(projectId, callback) {
-            Project.findById(projectId, function(err, project) {
+            Project.findById(projectId).populate('profiles').exec(function(err, project) {
                 if (err) return callback("internal error.", null);
                 if (!project) return callback("unknown project id.", null);
                 if (!project.isAuth('read', socket.handshake.user)) {
@@ -18,9 +19,14 @@ module.exports = function(io) {
                 socket.set('projectId', project.id);
                 socket.join('project/' + project.id);
                 callback(null, {
+                    id: project.id,
                     clientName: project.clientName,
                     projectName: project.projectName,
-                    created: project.created
+                    description: project.description,
+                    created: project.created,
+                    profiles: _.map(project.profiles, function(profile) {
+                        return profile.toObject()
+                    })
                 });
             });
         });

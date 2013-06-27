@@ -13,7 +13,10 @@ var ProjectSchema = new Schema({
     users: {
         read: [{ type: Schema.Types.ObjectId, ref: 'User' }],
         write: [{ type: Schema.Types.ObjectId, ref: 'User' }]
-    }
+    },
+
+    profiles: [{ type: Schema.Types.ObjectId, ref: 'Profile' }],
+    estimationLines: [{ type: Schema.Types.ObjectId, ref: 'EstimationLine' }]
 });
 
 ProjectSchema.methods.isAuth = function(auth, user) {

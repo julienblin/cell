@@ -3,6 +3,7 @@
  */
 
 var winston = require('winston'),
+    fs = require('fs'),
     http = require('http'),
     mongoose = require('mongoose'),
     seeds = require('./seeds'),
@@ -17,6 +18,12 @@ module.exports = function(config, callback) {
             poolSize: config.db.poolSize
         }
     });
+
+    // Preload all the models.
+    fs.readdirSync(__dirname + '/models').forEach(function (file) {
+        if (file != 'plugins')
+            require(__dirname + '/models/' + file);
+    })
 
     var passport = require('./passport');
     var app = require('./express')(config);
