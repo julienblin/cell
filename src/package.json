@@ -1,7 +1,7 @@
 {
     "name": "Cell",
     "description" : "Next generation estimation web application",
-    "version": "0.0.1",
+    "version": "0.1.0",
     "author": {
         "name": "Julien Blin",
         "email": "julien.blin@cgi.com"
@@ -16,6 +16,9 @@
     "scripts": {
         "start": "node cell.js",
         "test": "mocha && cucumber.js"
+    },
+    "engines": {
+        "node": ">0.10.11"
     },
     "dependencies": {
         "express": "3.x",

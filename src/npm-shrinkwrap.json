@@ -1,6 +1,6 @@
 {
   "name": "Cell",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "dependencies": {
     "express": {
       "version": "3.3.1",
@@ -100,9 +100,9 @@
               "resolved": "https://registry.npmjs.org/uglify-js/-/uglify-js-1.2.5.tgz"
             },
             "ws": {
-              "version": "0.4.25",
-              "from": "ws@0.4.x",
-              "resolved": "https://registry.npmjs.org/ws/-/ws-0.4.25.tgz",
+              "version": "0.4.27",
+              "from": "ws@0.4.27",
+              "resolved": "https://registry.npmjs.org/ws/-/ws-0.4.27.tgz",
               "dependencies": {
                 "commander": {
                   "version": "0.6.1",
@@ -116,7 +116,7 @@
                 },
                 "options": {
                   "version": "0.0.5",
-                  "from": "options@latest",
+                  "from": "options@>=0.0.5",
                   "resolved": "https://registry.npmjs.org/options/-/options-0.0.5.tgz"
                 }
               }
@@ -219,9 +219,9 @@
               "resolved": "https://registry.npmjs.org/uglify-js/-/uglify-js-2.2.5.tgz",
               "dependencies": {
                 "source-map": {
-                  "version": "0.1.24",
-                  "from": "source-map@0.1.24",
-                  "resolved": "https://registry.npmjs.org/source-map/-/source-map-0.1.24.tgz",
+                  "version": "0.1.25",
+                  "from": "source-map@0.1.25",
+                  "resolved": "https://registry.npmjs.org/source-map/-/source-map-0.1.25.tgz",
                   "dependencies": {
                     "amdefine": {
                       "version": "0.0.5",
@@ -570,9 +570,9 @@
           "resolved": "https://registry.npmjs.org/uglify-js/-/uglify-js-2.3.6.tgz",
           "dependencies": {
             "source-map": {
-              "version": "0.1.24",
-              "from": "source-map@0.1.24",
-              "resolved": "https://registry.npmjs.org/source-map/-/source-map-0.1.24.tgz",
+              "version": "0.1.25",
+              "from": "source-map@0.1.25",
+              "resolved": "https://registry.npmjs.org/source-map/-/source-map-0.1.25.tgz",
               "dependencies": {
                 "amdefine": {
                   "version": "0.0.5",
