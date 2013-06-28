@@ -25,7 +25,9 @@ module.exports = function(io) {
                     description: project.description,
                     created: project.created,
                     profiles: _.map(project.profiles, function(profile) {
-                        return profile.toObject()
+                        var profileObject = profile.toObject();
+                        profileObject.id = profile.id;
+                        return _.omit(profileObject, '_id', '__v', 'project');
                     })
                 });
             });

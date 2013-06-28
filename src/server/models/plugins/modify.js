@@ -40,6 +40,7 @@ module.exports = function modifyPlugin (schema, options) {
                         if (err) return callback(null, { status: 'error', statusMessage: err.message });
                         obj.save(function(err) {
                             if (err) return callback(null, { status: 'error', statusMessage: err.message });
+                            modification.id = obj.id;
                             return callback(null, { status: 'success', statusMessage: util.format("Successfully created %s(%s).", Model.modelName, obj.id), id: obj.id });
                         })
                     });
@@ -57,7 +58,9 @@ module.exports = function modifyPlugin (schema, options) {
                     });
                 } else {
                     if (modification.action === 'update') {
-                        if(obj.get(modification.property) === modification.oldValue) {
+                        var oldValue = obj.get(modification.property);
+                        if((oldValue === modification.oldValue)
+                        || (!oldValue && !modification.oldValue)) {
                             obj.set(modification.property, modification.newValue);
                             obj.save(function(err) {
                                 if (err) return callback(null, { status: 'error', statusMessage: err.message });

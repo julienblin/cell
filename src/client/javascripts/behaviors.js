@@ -71,6 +71,8 @@ window.behaviors = (function() {
 })();
 
 $(function() {
+    numeral.language($('html').attr('lang'));
+
     behaviors.apply();
     $('#btnNewProject').on('click', function(e) {
         modals.new();

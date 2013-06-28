@@ -57,9 +57,9 @@ describe("Profiles", function(){
                     should.not.exists(err);
                     refProfile.percentageSenior.should.equal(25);
                     Project.findById(project.id).populate('profiles').exec(function(err, refProject) {
-                        refProject.profiles.should.have.length(2);
-                        refProject.profiles[0].title.should.equal(refProfile.title);
-                        refProject.profiles[1].title.should.equal('Test profile 2');
+                        refProject.profiles.should.have.length(3);
+                        refProject.profiles[1].title.should.equal(refProfile.title);
+                        refProject.profiles[2].title.should.equal('Test profile 2');
 
                         modificationLot.modifications = [
                             {
@@ -76,10 +76,10 @@ describe("Profiles", function(){
                         Project.applyModifications(modificationLot, function(err, response) {
                             should.not.exists(err);
                             Project.findById(project.id).populate('profiles').exec(function(err, refProject) {
-                                refProject.profiles.should.have.length(3);
-                                refProject.profiles[0].title.should.equal('Test profile');
-                                refProject.profiles[1].title.should.equal('Test profile insert after');
-                                refProject.profiles[2].title.should.equal('Test profile 2');
+                                refProject.profiles.should.have.length(4);
+                                refProject.profiles[1].title.should.equal('Test profile');
+                                refProject.profiles[2].title.should.equal('Test profile insert after');
+                                refProject.profiles[3].title.should.equal('Test profile 2');
                                 done();
                             });
                         });
