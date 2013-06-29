@@ -4,9 +4,9 @@ var mongoose = require('mongoose'),
     util = require('util');
 
 var ProfileSchema = new Schema({
-    project: { type: Schema.Types.ObjectId, ref: 'Project' },
+    project: { type: Schema.Types.ObjectId, ref: 'Project', index: true },
     isActive: { type: Boolean },
-    title: { type: String },
+    title: { type: String, validate: [validations.uniqueFieldInsensitive('Profile', 'title', 'project')], index: true },
     percentageJunior: { type: Number },
     percentageIntermediary: { type: Number },
     percentageSenior: { type: Number },

@@ -45,6 +45,6 @@ block foot
 
   script(type="text/javascript").
     $(function() {
-      window.projectEngine = new ProjectEngine('#{project.id}');
-      window.projectEngine.init();
+      window.engine = new ProjectEngine('#{project.id}');
+      window.engine.init();
     });

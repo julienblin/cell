@@ -17,7 +17,11 @@ module.exports = function(assets) {
     assets.addJs('/javascripts/jquery.ui.position.js', 'project');
     assets.addJs('/javascripts/underscore.min.js', 'project');
     assets.addJs('/javascripts/handsontableExtensions.js', 'project');
+    assets.addJs('/javascripts/eventEmitter.js', 'project');
     assets.addJs('/javascripts/projectCalculator.js', 'project');
+    assets.addJs('/javascripts/renderers/baseRenderer.js', 'project');
+    assets.addJs('/javascripts/renderers/infoRenderer.js', 'project');
+    assets.addJs('/javascripts/renderers/profilesRenderer.js', 'project');
     assets.addJs('/javascripts/projectEngine.js', 'project');
 
     assets.addCss('/stylesheets/bootstrap.min.css');

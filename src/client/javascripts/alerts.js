@@ -15,6 +15,10 @@ window.alerts = (function() {
     };
 
     return {
+        fatal: function(message) {
+            return _createAlert('error', message + " Please try to <strong><a href='javascript: location.reload();'>reload the page</a></strong>.");
+        },
+
         error: function(message, dismissTimeout) {
             return _createAlert('error', message, dismissTimeout);
         },
