@@ -57,9 +57,9 @@ describe("Profiles", function(){
                     should.not.exists(err);
                     refProfile.percentageSenior.should.equal(25);
                     Project.findById(project.id).populate('profiles').exec(function(err, refProject) {
-                        refProject.profiles.should.have.length(3);
-                        refProject.profiles[1].title.should.equal(refProfile.title);
-                        refProject.profiles[2].title.should.equal('Test profile 2');
+                        refProject.profiles.should.have.length(2);
+                        refProject.profiles[0].title.should.equal(refProfile.title);
+                        refProject.profiles[1].title.should.equal('Test profile 2');
 
                         modificationLot.modifications = [
                             {
@@ -76,10 +76,10 @@ describe("Profiles", function(){
                         Project.applyModifications(modificationLot, function(err, response) {
                             should.not.exists(err);
                             Project.findById(project.id).populate('profiles').exec(function(err, refProject) {
-                                refProject.profiles.should.have.length(4);
-                                refProject.profiles[1].title.should.equal('Test profile');
-                                refProject.profiles[2].title.should.equal('Test profile insert after');
-                                refProject.profiles[3].title.should.equal('Test profile 2');
+                                refProject.profiles.should.have.length(3);
+                                refProject.profiles[0].title.should.equal('Test profile');
+                                refProject.profiles[1].title.should.equal('Test profile insert after');
+                                refProject.profiles[2].title.should.equal('Test profile 2');
                                 done();
                             });
                         });
@@ -147,5 +147,60 @@ describe("Profiles", function(){
                 });
             });
         });
-    })
+    });
+
+    it("should integrate delete modifications", function(done) {
+        var user = new User();
+        Project.create({ clientName: 'CGI', projectName: 'Cell' }, user, function(err, project) {
+            should.not.exists(err);
+            var modificationLot = {
+                projectId: project.id,
+                user: user,
+                modifications: [
+                    {
+                        model: 'Profile',
+                        action: 'create',
+                        values: {
+                            isActive: true,
+                            title: 'Test profile',
+                            percentageSenior: 25
+                        }
+                    },
+                    {
+                        model: 'Profile',
+                        action: 'create',
+                        values: {
+                            isActive: false,
+                            title: 'Test profile 2',
+                            percentageSenior: 50
+                        }
+                    }
+                ]
+            };
+            Project.applyModifications(modificationLot, function(err, response) {
+                should.not.exists(err);
+                var profileIdToDelete = response.results[1].id;
+                modificationLot.modifications = [
+                    {
+                        model: 'Profile',
+                        action: 'delete',
+                        id: profileIdToDelete
+                    }
+                ];
+                Project.applyModifications(modificationLot, function(err, response) {
+                    should.not.exists(err);
+                    response.results.should.have.length(1);
+                    response.results[0].status.should.equal('success');
+                    Project.findById(project.id).populate('profiles').exec(function(err, refProject) {
+                        refProject.profiles.should.have.length(1);
+                        Profile.findById(profileIdToDelete, function(err, refProfile) {
+                            should.not.exists(err);
+                            should.not.exists(refProfile);
+                            done();
+                        });
+                    });
+                });
+            });
+        });
+    });
 });

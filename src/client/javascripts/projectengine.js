@@ -2,6 +2,7 @@ window.ProjectEngine = function(id) {
     this.id = id;
     this.state = "init";
     this.data = {};
+    this.shadowData = {}; // Used for delete detection - could not find a better way :-(
     this.grids = {};
     this.updatesReceivers = {};
 };
@@ -105,6 +106,7 @@ ProjectEngine.prototype.initProfiles = function() {
             { data: 'priceSenior',            type: 'price' },
             { data: 'priceAverage',           type: 'price', readOnly: true }
         ],
+        contextMenu: ['row_above', 'row_below', 'remove_row'],
         cells: function (row, col, prop) {
             var profile = that.data.profiles[row];
             var cellProperties = {};
@@ -141,6 +143,7 @@ ProjectEngine.prototype.initProfiles = function() {
         },
         beforeRender: function() {
             that.projectCalculator.performCalculations();
+            that.shadowData.profiles = _.clone(that.data.profiles);
         },
         beforeChange: function(changes, operation) {
             if((that.data.profiles.length > 0) && !(_.last(that.data.profiles).id))
@@ -206,6 +209,10 @@ ProjectEngine.prototype.initProfiles = function() {
 
                     break;
             }
+        },
+        afterRemoveRow: function(index, amount) {
+            var profilesToDelete = that.shadowData.profiles.slice(index, amount + 1);
+            console.log(profilesToDelete);
         }
     });
 

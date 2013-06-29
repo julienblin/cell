@@ -2,8 +2,7 @@ var mongoose = require('mongoose'),
     Schema = mongoose.Schema,
     validations = require('./plugins/validations'),
     _ = require('underscore'),
-    async = require('async'),
-    Profile = require('./profile');
+    async = require('async');
 
 var ProjectSchema = new Schema({
     clientName: { type: String, required: true, index: true },
@@ -62,22 +61,8 @@ ProjectSchema.statics.create = function(values, user, callback) {
     var Project = mongoose.model('Project');
     var newProject = new Project(values);
     newProject.setAuth('write', user);
-    Profile.create({
-        project: newProject,
-        isActive: true,
-        title: 'Developer',
-        percentageJunior: 25,
-        percentageIntermediary: 50,
-        percentageSenior: 25,
-        priceJunior: 450,
-        priceIntermediary: 650,
-        priceSenior: 850
-    }, function(err, profile) {
-        if (err) callback(err, null);
-        newProject.profiles.push(profile);
-        newProject.save(function(err) {
-            return callback(err, newProject);
-        });
+    newProject.save(function(err) {
+        return callback(err, newProject);
     });
 };
 

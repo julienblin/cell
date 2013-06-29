@@ -52,10 +52,27 @@ module.exports = function modifyPlugin (schema, options) {
                 if (!obj) return callback(null, { status: 'error', statusMessage: util.format("Unable to find %s(%s)", Model.modelName, modification.id) });
 
                 if (modification.action === 'delete') {
-                    obj.remove(function(err) {
-                        if (err) return callback(null, { status: 'error', statusMessage: err.message });
-                        return callback(null, { status: 'success', statusMessage: util.format("Successfully deleted %s(%s)", Model.modelName, obj.id) });
-                    });
+                    if(!options.projectProperty) {
+                        obj.remove(function(err) {
+                            if (err) return callback(null, { status: 'error', statusMessage: err.message });
+                            return callback(null, { status: 'success', statusMessage: util.format("Successfully deleted %s(%s)", Model.modelName, obj.id) });
+                        });
+                    } else {
+                        mongoose.model('Project').findById(modificationLot.projectId, function(err, project) {
+                            if (err) return callback(null, { status: 'error', statusMessage: err.message });
+                            if (!project) return callback(null, { status: 'error', statusMessage: 'Unable to find project with id ' + modificationLot.projectId });
+                            var projectReferences = project.get(options.projectProperty);
+                            projectReferences = _.filter(projectReferences, function(objId) { return objId != modification.id });
+                            project.set(options.projectProperty, projectReferences);
+                            project.save(function(err) {
+                                if (err) return callback(null, { status: 'error', statusMessage: err.message });
+                                obj.remove(function(err) {
+                                    if (err) return callback(null, { status: 'error', statusMessage: err.message });
+                                    return callback(null, { status: 'success', statusMessage: util.format("Successfully deleted %s(%s)", Model.modelName, obj.id) });
+                                });
+                            });
+                        });
+                    }
                 } else {
                     if (modification.action === 'update') {
                         var oldValue = obj.get(modification.property);
