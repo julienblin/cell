@@ -5,9 +5,9 @@ var should = require('should'),
     config = require('../../config.js'),
     Project = require('../../../server/models/project'),
     User = require('../../../server/models/user'),
-    Profile = require('../../../server/models/profile');
+    Scale = require('../../../server/models/scale');
 
-describe("Profiles", function(){
+describe("Scales", function(){
     beforeEach(function(done){
         mongoose.connect(config.db.url, function() {
             mongoose.connection.db.dropDatabase(done);
@@ -27,21 +27,19 @@ describe("Profiles", function(){
                 user: user,
                 modifications: [
                     {
-                        model: 'Profile',
+                        model: 'Scale',
                         action: 'create',
                         values: {
                             isActive: true,
-                            title: 'Test profile',
-                            percentageSenior: 25
+                            title: 'Test scale'
                         }
                     },
                     {
-                        model: 'Profile',
+                        model: 'Scale',
                         action: 'create',
                         values: {
                             isActive: false,
-                            title: 'Test profile 2',
-                            percentageSenior: 50
+                            title: 'Test scale 2'
                         }
                     }
                 ]
@@ -53,33 +51,32 @@ describe("Profiles", function(){
                 response.results[1].status.should.equal('success');
                 should.exists(response.results[0].id);
                 should.exists(response.results[1].id);
-                Profile.findById(response.results[0].id, function(err, refProfile) {
+                Scale.findById(response.results[0].id, function(err, refScale) {
                     should.not.exists(err);
-                    refProfile.percentageSenior.should.equal(25);
-                    Project.findById(project.id).populate('profiles').exec(function(err, refProject) {
-                        refProject.profiles.should.have.length(2);
-                        refProject.profiles[0].title.should.equal(refProfile.title);
-                        refProject.profiles[1].title.should.equal('Test profile 2');
+                    refScale.title.should.equal('Test scale');
+                    Project.findById(project.id).populate('scales').exec(function(err, refProject) {
+                        refProject.scales.should.have.length(2);
+                        refProject.scales[0].title.should.equal(refScale.title);
+                        refProject.scales[1].title.should.equal('Test scale 2');
 
                         modificationLot.modifications = [
                             {
-                                model: 'Profile',
+                                model: 'Scale',
                                 action: 'create',
-                                insertAfter: refProfile.id,
+                                insertAfter: refScale.id,
                                 values: {
-                                    title: 'Test profile insert after',
-                                    priceJunior: 20
+                                    title: 'Test scale insert after'
                                 }
                             }
                         ];
 
                         Project.applyModifications(modificationLot, function(err, response) {
                             should.not.exists(err);
-                            Project.findById(project.id).populate('profiles').exec(function(err, refProject) {
-                                refProject.profiles.should.have.length(3);
-                                refProject.profiles[0].title.should.equal('Test profile');
-                                refProject.profiles[1].title.should.equal('Test profile insert after');
-                                refProject.profiles[2].title.should.equal('Test profile 2');
+                            Project.findById(project.id).populate('scales').exec(function(err, refProject) {
+                                refProject.scales.should.have.length(3);
+                                refProject.scales[0].title.should.equal('Test scale');
+                                refProject.scales[1].title.should.equal('Test scale insert after');
+                                refProject.scales[2].title.should.equal('Test scale 2');
                                 done();
                             });
                         });
@@ -93,28 +90,28 @@ describe("Profiles", function(){
         var user = new User();
         Project.create({ clientName: 'CGI', projectName: 'Cell' }, user, function(err, project) {
             should.not.exists(err);
-            Profile.create({ project: project.id }, function(err, line) {
+            Scale.create({ project: project.id }, function(err, line) {
                 should.not.exists(err);
                 var modificationLot = {
                     projectId: project.id,
                     user: user,
                     modifications: [
                         {
-                            model: 'Profile',
+                            model: 'Scale',
                             id: line.id,
                             action: 'update',
                             property: 'isActive',
                             newValue: true
                         },
                         {
-                            model: 'Profile',
+                            model: 'Scale',
                             id: line.id,
                             action: 'update',
                             property: 'title',
                             newValue: 'Here is the first title'
                         },
                         {
-                            model: 'Profile',
+                            model: 'Scale',
                             id: line.id,
                             action: 'update',
                             property: 'title',
@@ -122,7 +119,7 @@ describe("Profiles", function(){
                             oldValue: 'Here is the first title'
                         },
                         {
-                            model: 'Profile',
+                            model: 'Scale',
                             id: line.id,
                             action: 'update',
                             property: 'title',
@@ -138,10 +135,10 @@ describe("Profiles", function(){
                     response.results[1].status.should.equal('success');
                     response.results[2].status.should.equal('success');
                     response.results[3].status.should.equal('concurrencyError');
-                    Profile.findById(line.id, function(err, refProfile) {
+                    Scale.findById(line.id, function(err, refScale) {
                         should.not.exists(err);
-                        refProfile.isActive.should.be.ok;
-                        refProfile.title.should.equal('Here is the last title');
+                        refScale.isActive.should.be.ok;
+                        refScale.title.should.equal('Here is the last title');
                         done();
                     });
                 });
@@ -158,7 +155,7 @@ describe("Profiles", function(){
                 user: user,
                 modifications: [
                     {
-                        model: 'Profile',
+                        model: 'Scale',
                         action: 'create',
                         values: {
                             isActive: true,
@@ -167,7 +164,7 @@ describe("Profiles", function(){
                         }
                     },
                     {
-                        model: 'Profile',
+                        model: 'Scale',
                         action: 'create',
                         values: {
                             isActive: false,
@@ -182,7 +179,7 @@ describe("Profiles", function(){
                 var profileIdToDelete = response.results[1].id;
                 modificationLot.modifications = [
                     {
-                        model: 'Profile',
+                        model: 'Scale',
                         action: 'delete',
                         id: profileIdToDelete
                     }
@@ -191,11 +188,11 @@ describe("Profiles", function(){
                     should.not.exists(err);
                     response.results.should.have.length(1);
                     response.results[0].status.should.equal('success');
-                    Project.findById(project.id).populate('profiles').exec(function(err, refProject) {
-                        refProject.profiles.should.have.length(1);
-                        Profile.findById(profileIdToDelete, function(err, refProfile) {
+                    Project.findById(project.id).populate('scales').exec(function(err, refProject) {
+                        refProject.scales.should.have.length(1);
+                        Scale.findById(profileIdToDelete, function(err, refScale) {
                             should.not.exists(err);
-                            should.not.exists(refProfile);
+                            should.not.exists(refScale);
                             done();
                         });
                     });
@@ -205,10 +202,10 @@ describe("Profiles", function(){
     });
 
     it("should not serialize internal properties", function() {
-        var profile = new Profile({ title: "Scale title"});
-        var profileObj = profile.toObject();
-        should.not.exists(profileObj._id);
-        should.not.exists(profileObj.__v);
-        should.not.exists(profileObj.project);
+        var scale = new Scale({ title: "Scale title"});
+        var scaleObj = scale.toObject();
+        should.not.exists(scaleObj._id);
+        should.not.exists(scaleObj.__v);
+        should.not.exists(scaleObj.project);
     });
 });

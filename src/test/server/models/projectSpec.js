@@ -115,4 +115,12 @@ describe("Projects", function(){
             });
         });
     })
+
+    it("should not serialize internal properties", function() {
+        var project = new Project({ projectName: "Cell"});
+        var projectObj = project.toObject();
+        should.not.exists(projectObj._id);
+        should.not.exists(projectObj.__v);
+        should.not.exists(projectObj.users);
+    });
 });

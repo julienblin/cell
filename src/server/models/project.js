@@ -16,8 +16,17 @@ var ProjectSchema = new Schema({
     },
 
     profiles: [{ type: Schema.Types.ObjectId, ref: 'Profile' }],
+    scales: [{ type: Schema.Types.ObjectId, ref: 'Scale' }],
     estimationLines: [{ type: Schema.Types.ObjectId, ref: 'EstimationLine' }]
 });
+
+// Serialization settings
+ProjectSchema.set('toObject', { transform: function (doc, project, options) {
+    project.id = project._id;
+    delete project._id;
+    delete project.__v;
+    delete project.users;
+}});
 
 ProjectSchema.methods.isAuth = function(auth, user) {
     var readIndex = this.users.read.indexOf(user.id);

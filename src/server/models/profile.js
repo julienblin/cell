@@ -18,4 +18,12 @@ var ProfileSchema = new Schema({
 ProfileSchema.plugin(require('./plugins/paginate'));
 ProfileSchema.plugin(require('./plugins/modify'), { projectProperty: 'profiles' });
 
+// Serialization settings
+ProfileSchema.set('toObject', { transform: function (doc, profile, options) {
+    profile.id = profile._id;
+    delete profile._id;
+    delete profile.__v;
+    delete profile.project;
+}});
+
 module.exports = mongoose.model('Profile', ProfileSchema);

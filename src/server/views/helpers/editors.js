@@ -14,6 +14,7 @@ String.prototype.capitalize = function() {
  */
 module.exports.text = function(obj, path, opt) {
     if(!opt) opt = {};
+    if(!obj) obj = {};
     var options = _.defaults(opt, {
         label: path.capitalize() + ':',
         type: 'text',

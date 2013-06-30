@@ -11,7 +11,8 @@ var ProjectEngine = (function() {
         self.projectId = projectId;
         self.renderers = {
             info: new InfoRenderer(self),
-            profiles: new ProfilesRenderer(self)
+            profiles: new ProfilesRenderer(self),
+            scales: new ScalesRenderer(self)
         };
         _projectCalculator = new ProjectCalculator();
 
@@ -27,6 +28,11 @@ var ProjectEngine = (function() {
                     var profile = _.findWhere(self.data.profiles, { id: id });
                     if(!profile) return null;
                     return [profile, self.data.profiles];
+                case 'Scale':
+                    if(!id) return [null, self.data.scales];
+                    var scale = _.findWhere(self.data.scales, { id: id });
+                    if(!scale) return null;
+                    return [scale, self.data.scales];
             }
             return null;
         };
@@ -113,17 +119,19 @@ var ProjectEngine = (function() {
                         return;
                     }
 
-                    var failedModifications = [];
+                    var mustNotifyAgain = false;
                     _.each(results, function(result, index) {
                         if(result.status === "success") {
                             if (result.id) {
                                 modifications[index].localInfo.target.id = result.id;
+                                mustNotifyAgain = true;
                             }
                         }
                     });
 
                     var failedModifications = _.compact(_.map(results, function(result, index) {
                         if(result.status != "success") {
+                            mustNotifyAgain = true;
                             return {
                                 modification: modifications[index],
                                 result: result
@@ -159,6 +167,9 @@ var ProjectEngine = (function() {
                             }
 
                         });
+                    }
+
+                    if(mustNotifyAgain) {
                         _projectCalculator.performCalculations(self.data);
                         self.emit('modified');
                     }

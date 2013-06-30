@@ -9,7 +9,7 @@ module.exports = function(io) {
     io.of('/project').on('connection', function (socket) {
 
         socket.on('getDataAndSubscribe', function(projectId, callback) {
-            Project.findById(projectId).populate('profiles').exec(function(err, project) {
+            Project.findById(projectId).populate('profiles scales').exec(function(err, project) {
                 if (err) return callback("internal error.", null);
                 if (!project) return callback("unknown project id.", null);
                 if (!project.isAuth('read', socket.handshake.user)) {
@@ -18,18 +18,7 @@ module.exports = function(io) {
 
                 socket.set('projectId', project.id);
                 socket.join('project/' + project.id);
-                callback(null, {
-                    id: project.id,
-                    clientName: project.clientName,
-                    projectName: project.projectName,
-                    description: project.description,
-                    created: project.created,
-                    profiles: _.map(project.profiles, function(profile) {
-                        var profileObject = profile.toObject();
-                        profileObject.id = profile.id;
-                        return _.omit(profileObject, '_id', '__v', 'project');
-                    })
-                });
+                callback(null, project.toObject());
             });
         });
 
