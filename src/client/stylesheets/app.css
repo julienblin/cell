@@ -77,3 +77,7 @@ a.cellLink {
     height:100%;
     width:100%;
 }
+
+.colHeader {
+    font-weight: bold;
+}

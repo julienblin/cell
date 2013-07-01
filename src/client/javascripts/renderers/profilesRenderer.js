@@ -17,8 +17,17 @@ var ProfilesRenderer = (function() {
             if(!_cachedGrid) {
                 $(self.gridSelector).handsontable({
                     data: self.engine.data.profiles,
-                    colHeaders: [ "Act.", "Title", "Junior %", "Junior $", "Int. %", "Int. $", "Senior %", "Senior $", "Average $" ],
-                    colWidths:  [30,        600,   60,         60,         60,       60,       60,         60,         60],
+                    colHeaders: [ "Act.", "Title", "Junior", "Intermediary", "Senior", "Average $" ],
+                    colWidths:  [30, 600, 30, 30, 30, 30, 30, 30, 30],
+                    afterGetColHeader: function (col, TH) {
+                        switch(col) {
+                            case 2:
+                            case 3:
+                            case 4:
+                                $(TH).attr('colspan', 2);
+                                break;
+                        };
+                    },
                     stretchH: 'all',
                     rowHeaders: true,
                     minSpareRows: 1,
@@ -98,9 +107,15 @@ var ProfilesRenderer = (function() {
                                             }
                                         };
                                         createModif.values[change[1]] = change[3];
-                                        if(change[1] != 'isActive') {
+                                        if(change[1] === 'title') {
                                             profile.isActive = true;
+                                            profile.percentageJunior = 25;
+                                            profile.percentageIntermediary = 50;
+                                            profile.percentageSenior = 25;
                                             createModif.values.isActive = true;
+                                            createModif.values.percentageJunior = 25;
+                                            createModif.values.percentageIntermediary = 50;
+                                            createModif.values.percentageSenior = 25;
                                         }
                                         if(change[0] > 0) {
                                             createModif.insertAfter = self.engine.data.profiles[change[0] - 1].id;
