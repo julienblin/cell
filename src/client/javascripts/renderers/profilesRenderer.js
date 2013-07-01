@@ -23,7 +23,7 @@ var ProfilesRenderer = (function() {
                     rowHeaders: true,
                     minSpareRows: 1,
                     columns: [
-                        { data: 'isActive',               type: 'checkbox' },
+                        { data: 'isActive',               type: 'cellCheckbox' },
                         { data: 'title',                  type: 'title' },
                         { data: 'percentageJunior',       type: 'percent' },
                         { data: 'priceJunior',            type: 'price' },

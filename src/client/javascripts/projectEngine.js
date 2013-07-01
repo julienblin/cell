@@ -17,22 +17,24 @@ var ProjectEngine = (function() {
         _projectCalculator = new ProjectCalculator();
 
         /**
-         * Find the target document in data using the model name and id, and returns [it, parent];
+         * Find the target document in data using the model name and id; Can also retrieve the parent collection only
+         * Returns an array containing : [the document, the parent collection, the insertion offset]
+         * Returns null if not found.
          */
         _findTargetDoc = function(model, id) {
             switch(model) {
                 case 'Project':
-                    return [self.data, null];
+                    return [self.data, null, null];
                 case 'Profile':
-                    if(!id) return [null, self.data.profiles];
+                    if(!id) return [null, self.data.profiles, -1];
                     var profile = _.findWhere(self.data.profiles, { id: id });
                     if(!profile) return null;
-                    return [profile, self.data.profiles];
+                    return [profile, self.data.profiles, -1];
                 case 'Scale':
-                    if(!id) return [null, self.data.scales];
+                    if(!id) return [null, self.data.scales, 0];
                     var scale = _.findWhere(self.data.scales, { id: id });
                     if(!scale) return null;
-                    return [scale, self.data.scales];
+                    return [scale, self.data.scales, 0];
             }
             return null;
         };
@@ -69,7 +71,7 @@ var ProjectEngine = (function() {
                                     alerts.fatal("Unable to apply changes. Reason: unable to find collection for model " + modification.model);
                                     return;
                                 }
-                                parentCollection[1].splice(parentCollection[1].length, 0, newDoc);
+                                parentCollection[1].splice(parentCollection[1].length + parentCollection[2], 0, newDoc);
                             }
                             modification.localInfo = modification.localInfo || {};
                             modification.localInfo.target = newDoc;
