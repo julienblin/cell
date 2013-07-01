@@ -6,11 +6,12 @@ var mongoose = require('mongoose'),
 var ScaleSchema = new Schema({
     project: { type: Schema.Types.ObjectId, ref: 'Project', index: true },
     isActive: { type: Boolean },
-    title: { type: String, validate: [validations.uniqueFieldInsensitive('Scale', 'title', 'project')], index: true }
+    title: { type: String, validate: [validations.uniqueFieldInsensitive('Scale', 'title', 'project')], index: true },
+    lines: [{ type: Schema.Types.ObjectId, ref: 'ScaleLine' }]
 });
 
 ScaleSchema.plugin(require('./plugins/paginate'));
-ScaleSchema.plugin(require('./plugins/modify'), { projectProperty: 'scales' });
+ScaleSchema.plugin(require('./plugins/modify'), { parentModel: 'Project', parentProperty: 'scales' });
 
 // Serialization settings
 ScaleSchema.set('toObject', { transform: function (doc, scale, options) {

@@ -16,7 +16,7 @@ var ProfileSchema = new Schema({
 });
 
 ProfileSchema.plugin(require('./plugins/paginate'));
-ProfileSchema.plugin(require('./plugins/modify'), { projectProperty: 'profiles' });
+ProfileSchema.plugin(require('./plugins/modify'), { parentModel: 'Project', parentProperty: 'profiles' });
 
 // Serialization settings
 ProfileSchema.set('toObject', { transform: function (doc, profile, options) {

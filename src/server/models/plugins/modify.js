@@ -10,33 +10,38 @@ var mongoose = require('mongoose'),
 module.exports = function modifyPlugin (schema, options) {
     schema.statics.modify = function(modificationLot, modification, callback) {
         var Model = this;
-        if(modification.action === 'create') {
-            var obj = new Model(_.omit(modification.values, 'id', 'project'));
-            if (Model.modelName != 'Project') {
-                obj.project = modificationLot.projectId;
-            }
 
-            if(!options.projectProperty) {
+        if(modification.action === 'create') {
+            var obj = new Model(_.omit(modification.values, 'id', 'parent'));
+
+            if(!options.parentProperty) {
                 obj.save(function(err) {
                     if (err) return callback(null, { status: 'error', statusMessage: err.message });
                     return callback(null, { status: 'success', statusMessage: util.format("Successfully created %s(%s).", Model.modelName, obj.id), id: obj.id });
                 });
             } else {
-                mongoose.model('Project').findById(modificationLot.projectId, function(err, project) {
+                var parentId = modificationLot.projectId;
+                if (options.parentIdProperty) {
+                    parentId = modification[options.parentIdProperty];
+                }
+                mongoose.model(options.parentModel).findById(parentId, function(err, parent) {
                     if (err) return callback(null, { status: 'error', statusMessage: err.message });
-                    if (!project) return callback(null, { status: 'error', statusMessage: 'Unable to find project with id ' + modificationLot.projectId });
+                    if (!parent) return callback(null, { status: 'error', statusMessage: 'Unable to find parent with id ' + modificationLot.parentId });
 
-                    var projectReferences = project.get(options.projectProperty);
+                    var parentReferences = parent.get(options.parentProperty);
                     if(modification.insertAfter) {
-                        var indexOfPrevious = projectReferences.indexOf(modification.insertAfter);
-                        if (indexOfPrevious == -1) return callback(null, { status: 'error', statusMessage: 'Unable to create because the insertAfterId was not found on the project.' });
-                        projectReferences.splice(indexOfPrevious + 1, 0, obj);
+                        var indexOfPrevious = parentReferences.indexOf(modification.insertAfter);
+                        if (indexOfPrevious == -1) return callback(null, { status: 'error', statusMessage: 'Unable to create because the insertAfterId was not found on the parent.' });
+                        parentReferences.splice(indexOfPrevious + 1, 0, obj);
                     } else {
-                        projectReferences.push(obj);
+                        parentReferences.push(obj);
                     }
-                    project.set(options.projectProperty, projectReferences);
+                    parent.set(options.parentProperty, parentReferences);
+                    if (Model.modelName != 'Project') {
+                        obj.set(options.parentIdProperty || 'project', parent.id);
+                    }
 
-                    project.save(function(err) {
+                    parent.save(function(err) {
                         if (err) return callback(null, { status: 'error', statusMessage: err.message });
                         obj.save(function(err) {
                             if (err) return callback(null, { status: 'error', statusMessage: err.message });
@@ -52,19 +57,23 @@ module.exports = function modifyPlugin (schema, options) {
                 if (!obj) return callback(null, { status: 'error', statusMessage: util.format("Unable to find %s(%s)", Model.modelName, modification.id) });
 
                 if (modification.action === 'delete') {
-                    if(!options.projectProperty) {
+                    if(!options.parentProperty) {
                         obj.remove(function(err) {
                             if (err) return callback(null, { status: 'error', statusMessage: err.message });
                             return callback(null, { status: 'success', statusMessage: util.format("Successfully deleted %s(%s)", Model.modelName, obj.id) });
                         });
                     } else {
-                        mongoose.model('Project').findById(modificationLot.projectId, function(err, project) {
+                        var parentId = modificationLot.projectId;
+                        if (options.parentIdProperty) {
+                            parentId = obj.get(options.parentIdProperty);
+                        }
+                        mongoose.model(options.parentModel).findById(parentId, function(err, parent) {
                             if (err) return callback(null, { status: 'error', statusMessage: err.message });
-                            if (!project) return callback(null, { status: 'error', statusMessage: 'Unable to find project with id ' + modificationLot.projectId });
-                            var projectReferences = project.get(options.projectProperty);
-                            projectReferences = _.filter(projectReferences, function(objId) { return objId != modification.id });
-                            project.set(options.projectProperty, projectReferences);
-                            project.save(function(err) {
+                            if (!parent) return callback(null, { status: 'error', statusMessage: 'Unable to find parent with id ' + modificationLot.parentId });
+                            var parentReferences = parent.get(options.parentProperty);
+                            parentReferences = _.filter(parentReferences, function(objId) { return objId != modification.id });
+                            parent.set(options.parentProperty, parentReferences);
+                            parent.save(function(err) {
                                 if (err) return callback(null, { status: 'error', statusMessage: err.message });
                                 obj.remove(function(err) {
                                     if (err) return callback(null, { status: 'error', statusMessage: err.message });
@@ -76,8 +85,13 @@ module.exports = function modifyPlugin (schema, options) {
                 } else {
                     if (modification.action === 'update') {
                         var oldValue = obj.get(modification.property);
-                        if((oldValue === modification.oldValue)
-                        || (!oldValue && !modification.oldValue)) {
+                        if((oldValue instanceof Array) && (oldValue.length === 0)) oldValue = null;
+                        var oldValueModif = modification.oldValue;
+                        if((oldValueModif instanceof Array) && (oldValueModif.length === 0)) oldValueModif = null;
+
+                        if((oldValue === oldValueModif)
+                        || (!oldValue && !oldValueModif)
+                        || ((oldValue instanceof Array) && (oldValueModif instanceof Array) && (_.difference(oldValue, oldValueModif).length === 0))) {
                             obj.set(modification.property, modification.newValue);
                             obj.save(function(err) {
                                 if (err) return callback(null, { status: 'error', statusMessage: err.message });
