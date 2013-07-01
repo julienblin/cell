@@ -1,0 +1,59 @@
+#modalNewScale.modal.hide.fade(role="dialog", aria-labelledby="modalNewScale", aria-hidden="true", data-backdrop="static")
+  .modal-header
+    button.close(data-dismiss="modal", aria-hidden="true") x
+    h3 New scale
+  .modal-body
+    form#modalNewScaleForm.form-horizontal.no-margin
+      != editors.text(null, 'title', { label: 'Name:', placeholder: '(ex. Java, Sharepoint, etc.)', inputClass: 'input-xlarge', autofocus: true })
+  .modal-footer
+    button.btn(data-dismiss="modal", aria-hidden="true") Cancel
+    button.btn.btn-primary(href="#modalNewScaleForm", data-behavior="submit") Create
+
+#modalRenameScale.modal.hide.fade(role="dialog", aria-labelledby="modalRenameScale", aria-hidden="true", data-backdrop="static")
+  .modal-header
+    button.close(data-dismiss="modal", aria-hidden="true") x
+    h3 Rename scale
+  .modal-body
+    form#modalRenameScaleForm.form-horizontal.no-margin
+      input(type="hidden", name="id")
+      input(type="hidden", name="oldValue")
+      != editors.text(null, 'title', { label: 'Name:', placeholder: '(ex. Java, Sharepoint, etc.)', inputClass: 'input-xlarge', autofocus: true })
+  .modal-footer
+    button.btn(data-dismiss="modal", aria-hidden="true") Cancel
+    button.btn.btn-primary(href="#modalRenameScaleForm", data-behavior="submit") Rename
+
+#modalDeleteScale.modal.hide.fade(role="dialog", aria-labelledby="modalDeleteScale", aria-hidden="true", data-backdrop="static")
+  .modal-header
+    button.close(data-dismiss="modal", aria-hidden="true") x
+    h3 Delete scale
+  .modal-body
+    | Are you sure you want to delete&nbsp;
+    span#deleteScaleName
+    | ?
+    form#modalDeleteScaleForm.form-horizontal.no-margin
+      input(type="hidden", name="id")
+  .modal-footer
+    button.btn(data-dismiss="modal", aria-hidden="true") Cancel
+    button.btn.btn-danger(href="#modalDeleteScaleForm", data-behavior="submit") Delete
+
+script#scale-tab-template(type="text/x-handlebars-template")
+  li
+    a(href="#scale{{id}}", data-toggle="tab", data-id="{{id}}")
+      {{title}}
+
+script#scale-tab-content-template(type="text/x-handlebars-template")
+  .tab-pane(id="scale{{id}}", style="min-height: 200px;", data-id="{{id}}")
+    .row-fluid
+      .span10-5
+      .span1-5.pull-right.text-right
+        .btn-group
+          a.btn.btn-primary.dropdown-toggle(href="#", data-toggle="dropdown")
+            | Actions&nbsp;
+            span.caret
+          ul.dropdown-menu.pull-right.text-left
+            li
+              a(href="#", data-behavior="renameScale") Rename
+            li.divider
+            li
+              a(href="#", data-behavior="deleteScale")
+                span.label.label-important Delete

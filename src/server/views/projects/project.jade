@@ -43,43 +43,7 @@ block container
 
 block foot
 
-  #modalNewScale.modal.hide.fade(role="dialog", aria-labelledby="modalNewScale", aria-hidden="true", data-backdrop="static")
-    .modal-header
-      button.close(data-dismiss="modal", aria-hidden="true") x
-      h3 New scale
-    .modal-body
-      form#modalNewScaleForm.form-horizontal.no-margin
-        != editors.text(null, 'title', { label: 'Name:', placeholder: '(ex. Java, Sharepoint, etc.)', inputClass: 'input-xlarge', autofocus: true })
-    .modal-footer
-      button.btn(data-dismiss="modal", aria-hidden="true") Cancel
-      button.btn.btn-primary(href="#modalNewScaleForm", data-behavior="submit") Create
-
-  #modalRenameScale.modal.hide.fade(role="dialog", aria-labelledby="modalRenameScale", aria-hidden="true", data-backdrop="static")
-    .modal-header
-      button.close(data-dismiss="modal", aria-hidden="true") x
-      h3 Rename scale
-    .modal-body
-      form#modalRenameScaleForm.form-horizontal.no-margin
-        input(type="hidden", name="id")
-        input(type="hidden", name="oldValue")
-        != editors.text(null, 'title', { label: 'Name:', placeholder: '(ex. Java, Sharepoint, etc.)', inputClass: 'input-xlarge', autofocus: true })
-    .modal-footer
-      button.btn(data-dismiss="modal", aria-hidden="true") Cancel
-      button.btn.btn-primary(href="#modalRenameScaleForm", data-behavior="submit") Rename
-
-  #modalDeleteScale.modal.hide.fade(role="dialog", aria-labelledby="modalDeleteScale", aria-hidden="true", data-backdrop="static")
-    .modal-header
-      button.close(data-dismiss="modal", aria-hidden="true") x
-      h3 Delete scale
-    .modal-body
-      | Are you sure you want to delete&nbsp;
-      span#deleteScaleName
-      | ?
-      form#modalDeleteScaleForm.form-horizontal.no-margin
-        input(type="hidden", name="id")
-    .modal-footer
-      button.btn(data-dismiss="modal", aria-hidden="true") Cancel
-      button.btn.btn-danger(href="#modalDeleteScaleForm", data-behavior="submit") Delete
+  include _scales
 
   script(type="text/javascript", src="/socket.io/socket.io.js")
   != renderJs('project')
