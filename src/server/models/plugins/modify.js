@@ -89,9 +89,8 @@ module.exports = function modifyPlugin (schema, options) {
                         var oldValueModif = modification.oldValue;
                         if((oldValueModif instanceof Array) && (oldValueModif.length === 0)) oldValueModif = null;
 
-                        if((oldValue === oldValueModif)
-                        || (!oldValue && !oldValueModif)
-                        || ((oldValue instanceof Array) && (oldValueModif instanceof Array) && (_.difference(oldValue, oldValueModif).length === 0))) {
+                        if((_.isEqual(oldValue, oldValueModif))
+                        || (!oldValue && !oldValueModif)) {
                             obj.set(modification.property, modification.newValue);
                             obj.save(function(err) {
                                 if (err) return callback(null, { status: 'error', statusMessage: err.message });

@@ -5,7 +5,7 @@
 var InfoRenderer = (function() {
     return function(engine) {
         var self = {};
-        self.__proto__ = BaseRenderer("#info", engine);
+        self.__proto__ = BaseTabRenderer("#info", engine);
 
         // Event subscriptions
         self.on('render', function() {

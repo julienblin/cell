@@ -40,10 +40,13 @@ var ProjectEngine = (function() {
         };
 
         /**
-         * Checks equality of two values, considering that null, undefined, etc are equals.
+         * Checks equality of two values, considering that null, undefined, etc are equals, and matching arrays.
          */
         _valueEquals = function(value1, value2) {
-            if (value1 === value2) return true;
+            if (_.isEqual(value1, value2)) return true;
+
+            if((value1 instanceof Array) && (value1.length === 0)) value1 = null;
+            if((value2 instanceof Array) && (value2.length === 0)) value2 = null;
             return (!value1 && !value2);
         };
 

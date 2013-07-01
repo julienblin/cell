@@ -31,7 +31,7 @@ describe("Scales", function(){
                         action: 'create',
                         values: {
                             isActive: true,
-                            title: 'Test scale'
+                            name: 'Test scale'
                         }
                     },
                     {
@@ -39,7 +39,7 @@ describe("Scales", function(){
                         action: 'create',
                         values: {
                             isActive: false,
-                            title: 'Test scale 2'
+                            name: 'Test scale 2'
                         }
                     }
                 ]
@@ -53,11 +53,11 @@ describe("Scales", function(){
                 should.exists(response.results[1].id);
                 Scale.findById(response.results[0].id, function(err, refScale) {
                     should.not.exists(err);
-                    refScale.title.should.equal('Test scale');
+                    refScale.name.should.equal('Test scale');
                     Project.findById(project.id).populate('scales').exec(function(err, refProject) {
                         refProject.scales.should.have.length(2);
-                        refProject.scales[0].title.should.equal(refScale.title);
-                        refProject.scales[1].title.should.equal('Test scale 2');
+                        refProject.scales[0].name.should.equal(refScale.name);
+                        refProject.scales[1].name.should.equal('Test scale 2');
 
                         modificationLot.modifications = [
                             {
@@ -65,7 +65,7 @@ describe("Scales", function(){
                                 action: 'create',
                                 insertAfter: refScale.id,
                                 values: {
-                                    title: 'Test scale insert after'
+                                    name: 'Test scale insert after'
                                 }
                             }
                         ];
@@ -74,9 +74,9 @@ describe("Scales", function(){
                             should.not.exists(err);
                             Project.findById(project.id).populate('scales').exec(function(err, refProject) {
                                 refProject.scales.should.have.length(3);
-                                refProject.scales[0].title.should.equal('Test scale');
-                                refProject.scales[1].title.should.equal('Test scale insert after');
-                                refProject.scales[2].title.should.equal('Test scale 2');
+                                refProject.scales[0].name.should.equal('Test scale');
+                                refProject.scales[1].name.should.equal('Test scale insert after');
+                                refProject.scales[2].name.should.equal('Test scale 2');
                                 done();
                             });
                         });
@@ -107,23 +107,23 @@ describe("Scales", function(){
                             model: 'Scale',
                             id: line.id,
                             action: 'update',
-                            property: 'title',
-                            newValue: 'Here is the first title'
+                            property: 'name',
+                            newValue: 'Here is the first name'
                         },
                         {
                             model: 'Scale',
                             id: line.id,
                             action: 'update',
-                            property: 'title',
-                            newValue: 'Here is the last title',
-                            oldValue: 'Here is the first title'
+                            property: 'name',
+                            newValue: 'Here is the last name',
+                            oldValue: 'Here is the first name'
                         },
                         {
                             model: 'Scale',
                             id: line.id,
                             action: 'update',
-                            property: 'title',
-                            newValue: 'Here is the wrong title',
+                            property: 'name',
+                            newValue: 'Here is the wrong name',
                             oldValue: 'Foo'
                         }
                     ]
@@ -138,7 +138,7 @@ describe("Scales", function(){
                     Scale.findById(line.id, function(err, refScale) {
                         should.not.exists(err);
                         refScale.isActive.should.be.ok;
-                        refScale.title.should.equal('Here is the last title');
+                        refScale.name.should.equal('Here is the last name');
                         done();
                     });
                 });
@@ -159,7 +159,7 @@ describe("Scales", function(){
                         action: 'create',
                         values: {
                             isActive: true,
-                            title: 'Test profile',
+                            name: 'Test profile',
                             percentageSenior: 25
                         }
                     },
@@ -168,7 +168,7 @@ describe("Scales", function(){
                         action: 'create',
                         values: {
                             isActive: false,
-                            title: 'Test profile 2',
+                            name: 'Test profile 2',
                             percentageSenior: 50
                         }
                     }
@@ -202,7 +202,7 @@ describe("Scales", function(){
     });
 
     it("should not serialize internal properties", function() {
-        var scale = new Scale({ title: "Scale title"});
+        var scale = new Scale({ name: "Scale name"});
         var scaleObj = scale.toObject();
         should.not.exists(scaleObj._id);
         should.not.exists(scaleObj.__v);

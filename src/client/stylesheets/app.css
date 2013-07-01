@@ -81,3 +81,19 @@ a.cellLink {
 .colHeader {
     font-weight: bold;
 }
+
+.headersBottom table th {
+    vertical-align: bottom;
+}
+
+.text-vertical {
+    -webkit-transform: rotate(-90deg);
+    -ms-transform: rotate(-90deg);
+    transform: rotate(-90deg);
+}
+
+.clear-text-vertical {
+    -webkit-transform: rotate(90deg);
+    -ms-transform: rotate(90deg);
+    transform: rotate(90deg);
+}

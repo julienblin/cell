@@ -23,8 +23,10 @@ module.exports = function(assets) {
     assets.addJs('/javascripts/eventEmitter.js', 'project');
     assets.addJs('/javascripts/projectCalculator.js', 'project');
     assets.addJs('/javascripts/renderers/baseRenderer.js', 'project');
+    assets.addJs('/javascripts/renderers/baseTabRenderer.js', 'project');
     assets.addJs('/javascripts/renderers/infoRenderer.js', 'project');
     assets.addJs('/javascripts/renderers/profilesRenderer.js', 'project');
+    assets.addJs('/javascripts/renderers/scaleLinesRenderer.js', 'project');
     assets.addJs('/javascripts/renderers/scalesRenderer.js', 'project');
     assets.addJs('/javascripts/projectEngine.js', 'project');
 

@@ -4,7 +4,7 @@
     h3 New scale
   .modal-body
     form#modalNewScaleForm.form-horizontal.no-margin
-      != editors.text(null, 'title', { label: 'Name:', placeholder: '(ex. Java, Sharepoint, etc.)', inputClass: 'input-xlarge', autofocus: true })
+      != editors.text(null, 'name', { label: 'Name:', placeholder: '(ex. Java, Sharepoint, etc.)', inputClass: 'input-xlarge', autofocus: true })
   .modal-footer
     button.btn(data-dismiss="modal", aria-hidden="true") Cancel
     button.btn.btn-primary(href="#modalNewScaleForm", data-behavior="submit") Create
@@ -17,7 +17,7 @@
     form#modalRenameScaleForm.form-horizontal.no-margin
       input(type="hidden", name="id")
       input(type="hidden", name="oldValue")
-      != editors.text(null, 'title', { label: 'Name:', placeholder: '(ex. Java, Sharepoint, etc.)', inputClass: 'input-xlarge', autofocus: true })
+      != editors.text(null, 'name', { label: 'Name:', placeholder: '(ex. Java, Sharepoint, etc.)', inputClass: 'input-xlarge', autofocus: true })
   .modal-footer
     button.btn(data-dismiss="modal", aria-hidden="true") Cancel
     button.btn.btn-primary(href="#modalRenameScaleForm", data-behavior="submit") Rename
@@ -39,12 +39,13 @@
 script#scale-tab-template(type="text/x-handlebars-template")
   li
     a(href="#scale{{id}}", data-toggle="tab", data-id="{{id}}")
-      {{title}}
+      {{name}}
 
 script#scale-tab-content-template(type="text/x-handlebars-template")
   .tab-pane(id="scale{{id}}", style="min-height: 200px;", data-id="{{id}}")
     .row-fluid
       .span10-5
+        div.headersBottom(id="gridScale{{id}}")
       .span1-5.pull-right.text-right
         .btn-group
           a.btn.btn-primary.dropdown-toggle(href="#", data-toggle="dropdown")
@@ -57,3 +58,22 @@ script#scale-tab-content-template(type="text/x-handlebars-template")
             li
               a(href="#", data-behavior="deleteScale")
                 span.label.label-important Delete
+
+script#scale-colheader-template(type="text/x-handlebars-template")
+  .relative.text-vertical(style="margin-bottom: 20px; text-align: left")
+    .colHeader
+        <input type="checkbox" data-behavior="checkBaseline" data-column="{{column}}" class="htCheckboxRendererInput" {{#if baseline}}checked{{/if}} style="margin-top: 0; margin-right: 5px;">
+        .dropdown
+          a.dropdown-toggle(href="#", role="button", data-toggle="dropdown")
+            | {{name}}&nbsp;
+            span.caret
+          ul.dropdown-menu.text-left.clear-text-vertical
+            {{#each profiles}}
+            li
+              a(href="#", data-behavior="selectProfileColumn", data-column="{{../column}}")
+                {{this}}
+            {{/each}}
+            li.divider
+            li
+              a(href="#", data-behavior="selectProfileColumn", data-column="remove")
+                Remove

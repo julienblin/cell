@@ -3,6 +3,7 @@
  */
 
 var Project = require('../models/project'),
+    Scale = require('../models/scale'),
     _ = require('underscore');
 
 module.exports = function(io) {
@@ -18,7 +19,10 @@ module.exports = function(io) {
 
                 socket.set('projectId', project.id);
                 socket.join('project/' + project.id);
-                callback(null, project.toObject());
+
+                Scale.populate(project.scales, [{ path: 'lines'}], function(err, scales) {
+                    callback(err, project.toObject());
+                });
             });
         });
 
