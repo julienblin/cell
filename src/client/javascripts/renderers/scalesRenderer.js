@@ -23,11 +23,11 @@ var ScalesRenderer = (function() {
                     var newScaleContent = $(
                         '<div class="tab-pane" style="min-height: 200px;" id="scale' + scale.id + '" data-id="' + scale.id + '">' +
                             '<div class="row-fluid">' +
-                                '<div class="span9"></div>' +
-                                '<div class="span3">' +
+                                '<div class="span10-5"></div>' +
+                                '<div class="span1-5 pull-right text-right">' +
                                     '<div class="btn-group">' +
                                         '<a href="#" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">Actions <span class="caret"></span></a>' +
-                                        '<ul class="dropdown-menu">' +
+                                        '<ul class="dropdown-menu pull-right text-left">' +
                                             '<li><a href="#" data-behavior="renameScale">Rename</a></li>' +
                                             '<li class="divider"></li>' +
                                             '<li><a href="#" data-behavior="deleteScale"><span class="label label-important">Delete</span></a></li>' +

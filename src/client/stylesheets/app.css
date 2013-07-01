@@ -38,6 +38,14 @@ body.login {
     margin: 0 !important;
 }
 
+.row-fluid .span10-5 {
+    width: 86.90598290598291%;
+}
+
+.row-fluid .span1-5 {
+    width: 10.52991452991453%;
+}
+
 table form p {
     margin: 0;
     position: relative;
