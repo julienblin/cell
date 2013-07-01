@@ -193,6 +193,10 @@ var ProjectEngine = (function() {
             alerts.fatal('Execution error. Reason: ' + msg + '.');
         };
 
+        $(window).unload(function() {
+            alerts.clear();
+        });
+
         // Public functions
         self.init = function() {
             if (navigator.userAgent.indexOf('Zombie.js') != -1) {

@@ -1,8 +1,10 @@
 window.alerts = (function() {
 
+    var _flashesSelector = '#flashes div div';
+
     var _createAlert = function(level, message, dismissTimeout) {
         var alert = $('<div class="alert alert-' + level + '"><button type="button" class="close" data-dismiss="alert">&times;</button>' + message + '</div>');
-        $('#flashes div div').append(alert);
+        $(_flashesSelector).append(alert);
         alert.dismiss = function() {
             alert.alert('close');
         };
@@ -16,6 +18,7 @@ window.alerts = (function() {
 
     return {
         fatal: function(message) {
+            $(_flashesSelector).empty();
             return _createAlert('error', message + " Please try to <strong><a href='javascript: location.reload();'>reload the page</a></strong>.");
         },
 
@@ -33,6 +36,10 @@ window.alerts = (function() {
 
         success: function(message, dismissTimeout) {
             return _createAlert('success', message, dismissTimeout);
+        },
+
+        clear: function() {
+            $(_flashesSelector).empty();
         }
     };
 })();
