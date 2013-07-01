@@ -1,8 +1,8 @@
 window.alerts = (function() {
 
     var _createAlert = function(level, message, dismissTimeout) {
-        var alert = $('<div class="alert alert-' + level + ' fade in"><button type="button" class="close" data-dismiss="alert">&times;</button>' + message + '</div>');
-        $('#flashes').append(alert);
+        var alert = $('<div class="alert alert-' + level + '"><button type="button" class="close" data-dismiss="alert">&times;</button>' + message + '</div>');
+        $('#flashes div div').append(alert);
         alert.dismiss = function() {
             alert.alert('close');
         };
