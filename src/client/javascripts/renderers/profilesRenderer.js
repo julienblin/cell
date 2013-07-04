@@ -22,7 +22,7 @@ var ProfilesRenderer = (function() {
             $(self.gridSelector).handsontable({
                 data: self.engine.data.profiles,
                 colHeaders: [ "Act.", "Title", "Junior", "Intermediary", "Senior", "$ / UT" ],
-                colWidths:  [30, 600, 30, 30, 30, 30, 30, 30, 30],
+                colWidths:  [15, 600, 30, 30, 30, 30, 30, 30, 30],
                 afterGetColHeader: function (col, TH) {
                     switch(col) {
                         case 2:

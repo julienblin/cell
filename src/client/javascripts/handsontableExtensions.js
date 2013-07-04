@@ -75,6 +75,8 @@ Handsontable.CellCheckboxRenderer = function (instance, TD, row, col, prop, valu
         });
     }
 
+    $(TD).css({ 'text-align': 'center' });
+
     return TD;
 };
 
@@ -108,6 +110,23 @@ Handsontable.cellTypes.percent = {
     renderer: function (instance, TD, row, col, prop, value, cellProperties) {
         if (Handsontable.helper.isNumeric(value)) {
             value = numeral(value / 100).format('0 %');
+            instance.view.wt.wtDom.addClass(TD, 'htNumeric');
+        }
+        Handsontable.TextRenderer(instance, TD, row, col, prop, value, cellProperties);
+        Handsontable.CustomCellPropertiesRenderer(instance, TD, row, col, prop, value, cellProperties);
+    },
+    validator: function (value, callback) {
+        if(!value) return callback(true);
+        callback(/^-?\d*\.?\d*$/.test(value));
+    },
+    dataType: 'number'
+};
+
+Handsontable.cellTypes.ut = {
+    editor: Handsontable.TextEditor,
+    renderer: function (instance, TD, row, col, prop, value, cellProperties) {
+        if (Handsontable.helper.isNumeric(value)) {
+            value = numeral(value).format('0.[00]') + ' ut';
             instance.view.wt.wtDom.addClass(TD, 'htNumeric');
         }
         Handsontable.TextRenderer(instance, TD, row, col, prop, value, cellProperties);

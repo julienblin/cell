@@ -32,22 +32,28 @@ describe("ScaleLines", function(){
                     modifications: [
                         {
                             model: 'ScaleLine',
-                            scale: scale.id,
+                            parentId: scale.id,
                             action: 'create',
                             values: {
                                 isActive: true,
-                                title: 'Test scale line',
-                                values: [1.0]
+                                complexity: 'Test scale line',
+                                values: {
+                                    'Developer': 1.0,
+                                    'Analyst' : 0.5
+                                }
                             }
                         },
                         {
                             model: 'ScaleLine',
-                            scale: scale.id,
+                            parentId: scale.id,
                             action: 'create',
                             values: {
                                 isActive: false,
-                                title: 'Test scale line 2',
-                                values: [1.0, 2.0]
+                                complexity: 'Test scale line 2',
+                                values: {
+                                    'Developer': 1.0,
+                                    'Analyst' : 2.0
+                                }
                             }
                         }
                     ]
@@ -61,21 +67,26 @@ describe("ScaleLines", function(){
                     should.exists(response.results[1].id);
                     ScaleLine.findById(response.results[0].id, function(err, refScaleLine) {
                         should.not.exists(err);
-                        _.difference(refScaleLine.values, [1.0]).should.have.length(0);
+                        refScaleLine.values.Developer.should.equal(1.0);
                         Scale.findById(scale.id).populate('lines').exec(function(err, refScale) {
                             refScale.lines.should.have.length(2);
-                            refScale.lines[0].title.should.equal(refScaleLine.title);
-                            refScale.lines[1].title.should.equal('Test scale line 2');
+                            refScale.lines[0].complexity.should.equal(refScaleLine.complexity);
+                            refScale.lines[0].values.Analyst.should.equal(0.5);
+                            refScale.lines[1].complexity.should.equal('Test scale line 2');
+                            refScale.lines[1].values.Developer.should.equal(1.0);
 
                             modificationLot.modifications = [
                                 {
                                     model: 'ScaleLine',
-                                    scale: scale.id,
+                                    parentId: scale.id,
                                     action: 'create',
                                     insertAfter: refScaleLine.id,
                                     values: {
-                                        title: 'Test scale insert after',
-                                        values: [2.0, 3.0]
+                                        complexity: 'Test scale insert after',
+                                        values: {
+                                            'Developer': 1.0,
+                                            'Analyst' : 2.0
+                                        }
                                     }
                                 }
                             ];
@@ -84,9 +95,9 @@ describe("ScaleLines", function(){
                                 should.not.exists(err);
                                 Scale.findById(scale.id).populate('lines').exec(function(err, refScale) {
                                     refScale.lines.should.have.length(3);
-                                    refScale.lines[0].title.should.equal('Test scale line');
-                                    refScale.lines[1].title.should.equal('Test scale insert after');
-                                    refScale.lines[2].title.should.equal('Test scale line 2');
+                                    refScale.lines[0].complexity.should.equal('Test scale line');
+                                    refScale.lines[1].complexity.should.equal('Test scale insert after');
+                                    refScale.lines[2].complexity.should.equal('Test scale line 2');
                                     done();
                                 });
                             });
@@ -103,7 +114,7 @@ describe("ScaleLines", function(){
             should.not.exists(err);
             Scale.create({ project: project.id, title: 'Test scale' }, function(err, scale) {
                 should.not.exists(err);
-                ScaleLine.create({ scale: scale.id, title: 'Simple' }, function(err, scaleLine) {
+                ScaleLine.create({ scale: scale.id, complexity: 'Simple' }, function(err, scaleLine) {
                     should.not.exists(err);
                     var modificationLot = {
                         projectId: project.id,
@@ -120,24 +131,24 @@ describe("ScaleLines", function(){
                                 model: 'ScaleLine',
                                 id: scaleLine.id,
                                 action: 'update',
-                                property: 'values',
-                                newValue: [1.0, 2.0]
-                            },
-                            {
-                                model: 'ScaleLine',
-                                id: scaleLine.id,
-                                action: 'update',
-                                property: 'values',
-                                newValue: [1.5, 2.0],
-                                oldValue: [1.0, 2.0]
+                                property: 'values.Developer',
+                                newValue: 1.0
                             },
                             {
                                 model: 'ScaleLine',
                                 id: scaleLine.id,
                                 action: 'update',
                                 property: 'values.Developer',
-                                newValue: [1.0, 2.5],
-                                oldValue: [1.0, 2.0]
+                                newValue: 1.5,
+                                oldValue: 1.0
+                            },
+                            {
+                                model: 'ScaleLine',
+                                id: scaleLine.id,
+                                action: 'update',
+                                property: 'values.Developer',
+                                newValue: 2.5,
+                                oldValue: 1.0
                             }
                         ]
                     };
@@ -151,7 +162,7 @@ describe("ScaleLines", function(){
                         ScaleLine.findById(scaleLine.id, function(err, refScale) {
                             should.not.exists(err);
                             refScale.isActive.should.be.ok;
-                            _.difference(refScale.values, [1.5, 2.0]).should.have.length(0);
+                            refScale.values.Developer.should.equal(1.5);
                             done();
                         });
                     });
@@ -172,20 +183,20 @@ describe("ScaleLines", function(){
                     modifications: [
                         {
                             model: 'ScaleLine',
-                            scale: scale.id,
+                            parentId: scale.id,
                             action: 'create',
                             values: {
                                 isActive: true,
-                                title: 'Test scale line'
+                                complexity: 'Test scale line'
                             }
                         },
                         {
                             model: 'ScaleLine',
-                            scale: scale.id,
+                            parentId: scale.id,
                             action: 'create',
                             values: {
                                 isActive: false,
-                                title: 'Test scale line 2'
+                                complexity: 'Test scale line 2'
                             }
                         }
                     ]
@@ -219,7 +230,7 @@ describe("ScaleLines", function(){
     });
 
     it("should not serialize internal properties", function() {
-        var scaleLine = new ScaleLine({ title: "Scale title"});
+        var scaleLine = new ScaleLine({ complexity: "Simple"});
         var scaleLineObj = scaleLine.toObject();
         should.not.exists(scaleLineObj._id);
         should.not.exists(scaleLineObj.__v);

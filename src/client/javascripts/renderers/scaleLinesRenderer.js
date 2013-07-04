@@ -8,6 +8,8 @@ var ScaleLinesRenderer = (function() {
 
         self.__proto__ = BaseRenderer(engine);
         self.scale = scale;
+        if(!self.scale.lines) self.scale.lines = [];
+        if(!self.scale.columns) self.scale.columns = [];
         self.gridSelector = '#gridScale' + scale.id;
         var _cachedGrid = null;
 
@@ -17,8 +19,8 @@ var ScaleLinesRenderer = (function() {
 
         var _getColHeaders = function() {
             var headers = [ "Act.", "Complexity" ];
-            _.each(scale.columns, function(column) { headers.push(column[0]); });
-            headers.push("[choose]");
+            _.each(self.scale.columns, function(column) { headers.push(column[0]); });
+            headers.push("");
             headers.push("Total UT");
             headers.push("Total $");
             return headers;
@@ -26,19 +28,21 @@ var ScaleLinesRenderer = (function() {
 
         var _getColumns = function() {
             var columns = [
-                { data: 0, type: 'cellCheckbox' },
-                { data: 1, type: 'title' }
+                { data: 'isActive', type: 'cellCheckbox' },
+                { data: 'complexity', type: 'title' }
             ];
 
-            _.each(scale.columns, function(column) { columns.push({ type: 'text' }); });
-            columns.push({ type: 'text' });
-            columns.push({ type: 'text', readOnly: true });
-            columns.push({ type: 'price', readOnly: true });
+            _.each(self.scale.columns, function(column, index) {
+                columns.push({ data: 'values.' + column[0], type: column[1] ? 'ut' : 'percent' });
+            });
+            columns.push({ type: 'ut' });
+            columns.push({ data: 'totalUT', type: 'ut', readOnly: true });
+            columns.push({ data: 'totalPrice', type: 'price', readOnly: true });
             return columns;
         };
 
         var _getColWidths = function() {
-            var colWidths = [30, 600];
+            var colWidths = [15, 600];
             _.each(scale.columns, function(column) { colWidths.push(20); });
             colWidths.push(20);
             colWidths.push(30);
@@ -58,20 +62,17 @@ var ScaleLinesRenderer = (function() {
             }
 
             $(self.gridSelector).handsontable({
+                data: self.scale.lines,
                 colHeaders: _getColHeaders(),
                 columns: _getColumns(),
                 colWidths: _getColWidths(),
                 minSpareRows: 1,
                 stretchH: 'all',
                 afterGetColHeader: function(col, TH) {
-                    var numberOfDefinedColumns = 0;
-                    if(scale.columns && (scale.columns.length > 0)) {
-                        numberOfDefinedColumns += scale.columns.length;
-                    }
-                    if((col > 1) && (col < numberOfDefinedColumns + 3)) {
+                    if((col > 1) && (col < self.scale.columns.length + 3)) {
                         var th = $(TH);
                         baseline = false;
-                        if(col != numberOfDefinedColumns + 2) {
+                        if(col != self.scale.columns.length + 2) {
                             baseline = scale.columns[col - 2][1];
                         }
                         var content = self.getTemplate('#scale-colheader-template')({ name: th.text(), profiles: _getProfiles(), column: col - 2, baseline: baseline });
@@ -79,10 +80,75 @@ var ScaleLinesRenderer = (function() {
                         th.css('overflow','initial');
                         th.css('height', '150px');
                     }
+                },
+                cells: function (row, col, prop) {
+                    var cellProperties = {};
+                    var scaleLine = self.scale.lines[row];
+                    switch(prop) {
+                        case 'complexity':
+                            if(scaleLine.id) {
+                                cellProperties.invalid = !(scaleLine.complexity);
+                            }
+                            break;
+                        case 'totalUT':
+                        case 'totalPrice':
+                            cellProperties.computed = true;
+                            break;
+                    }
+                    cellProperties.muted = !scaleLine.isActive;
+                    return cellProperties;
+                },
+                afterChange: function(changes, operation) {
+                    switch(operation) {
+                        case 'edit':
+                        case 'autofill':
+                        case 'paste':
+                            var modifications = [];
+                            _.each(changes, function(change) {
+                                var scaleLine = self.scale.lines[change[0]];
+                                if (scaleLine.id) {
+                                    modifications.push({
+                                        model: 'ScaleLine',
+                                        id: scaleLine.id,
+                                        parentId: self.scale.id,
+                                        action: 'update',
+                                        property: change[1],
+                                        oldValue: change[2],
+                                        newValue: change[3],
+                                        localInfo: {
+                                            alreadyApplied: true,
+                                            target: scaleLine
+                                        }
+                                    });
+                                } else {
+                                    var createModif = {
+                                        model: 'ScaleLine',
+                                        action: 'create',
+                                        parentId: self.scale.id,
+                                        values: {},
+                                        localInfo: {
+                                            alreadyApplied: true,
+                                            target: scaleLine
+                                        }
+                                    };
+                                    createModif.values[change[1]] = change[3];
+                                    if(change[1] !== 'isActive') {
+                                        scaleLine.isActive = true;
+                                        scaleLine.values = {};
+                                        createModif.values.isActive = true;
+                                    }
+                                    if(change[0] > 0) {
+                                        createModif.insertAfter = self.scale.lines[change[0] - 1].id;
+                                    }
+                                    modifications.push(createModif);
+                                }
+                            });
+                            self.emit('applyModifications', modifications);
+                            break;
+                    }
                 }
             });
             _cachedGrid = $(self.gridSelector).data('handsontable');
-
         });
 
         // Prevents clipping of dropdowns inside the grid
@@ -99,9 +165,13 @@ var ScaleLinesRenderer = (function() {
 
             var oldColumns = _.clone(scale.columns);
 
-            if(scale.columns.length < column)
-                scale.columns.length = column + 1;
-            scale.columns[column] = [profile, checked];
+            if(profile === "Remove") {
+                scale.columns.splice(column, 1);
+            } else {
+                if(scale.columns.length < column)
+                    scale.columns.length = column + 1;
+                scale.columns[column] = [profile, checked];
+            }
 
             var modifications = [{
                 model: 'Scale',

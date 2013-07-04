@@ -21,7 +21,7 @@ var ProjectEngine = (function() {
          * Returns an array containing : [the document, the parent collection, the insertion offset]
          * Returns null if not found.
          */
-        _findTargetDoc = function(model, id) {
+        _findTargetDoc = function(model, id, parentId) {
             switch(model) {
                 case 'Project':
                     return [self.data, null, null];
@@ -35,6 +35,14 @@ var ProjectEngine = (function() {
                     var scale = _.findWhere(self.data.scales, { id: id });
                     if(!scale) return null;
                     return [scale, self.data.scales, 0];
+                case 'ScaleLine':
+                    var parentScale = _.findWhere(self.data.scales, { id: parentId });
+                    if (!parentScale) return null;
+                    if (!parentScale.lines) parentScale.lines = [];
+                    if(!id) return [null, parentScale.lines, -1];
+                    var scaleLine = _.findWhere(parentScale.lines, { id: id });
+                    if(!scaleLine) return null;
+                    return [scaleLine, parentScale.lines, -1];
             }
             return null;
         };
@@ -50,6 +58,31 @@ var ProjectEngine = (function() {
             return (!value1 && !value2);
         };
 
+        _getValueAtPath = function(obj, path) {
+            if (path.indexOf('.') === -1) {
+                return obj[path];
+            } else {
+                var firstLevelProperty = path.substring(0, path.indexOf('.'));
+                var secondLevelProperty = path.substring(path.indexOf('.') + 1);
+                var firstLevelValue = obj[firstLevelProperty];
+                if (!firstLevelValue) return null;
+                return firstLevelValue[secondLevelProperty];
+            }
+        };
+
+        _setValueAtPath = function(obj, path, value) {
+            if (path.indexOf('.') === -1) {
+                obj[path] = value;
+            } else {
+                var firstLevelProperty = path.substring(0, path.indexOf('.'));
+                var secondLevelProperty = path.substring(path.indexOf('.') + 1);
+                var firstLevelValue = obj[firstLevelProperty];
+                if (!firstLevelValue) firstLevelValue = {};
+                firstLevelValue[secondLevelProperty] = value;
+                obj[firstLevelProperty] = firstLevelValue;
+            }
+        };
+
         /**
          * Apply modifications to local data.
          * @param modifications
@@ -63,13 +96,13 @@ var ProjectEngine = (function() {
                             var newDoc = modification.values;
                             newDoc.id = modification.id;
                             if(modification.insertAfter) {
-                                var previousDoc = _findTargetDoc(modification.model, modification.insertAfter);
+                                var previousDoc = _findTargetDoc(modification.model, modification.insertAfter, modification.parentId);
                                 if(!previousDoc) {
                                     alerts.fatal("Unable to apply changes. Reason: unable to find previous document for model " + modification.model + " with id " + modification.insertAfter);
                                 }
                                 previousDoc[1].splice(previousDoc[1].indexOf(previousDoc[0]) + 1, 0, newDoc);
                             } else {
-                                var parentCollection = _findTargetDoc(modification.model, null);
+                                var parentCollection = _findTargetDoc(modification.model, null, modification.parentId);
                                 if(!parentCollection) {
                                     alerts.fatal("Unable to apply changes. Reason: unable to find collection for model " + modification.model);
                                     return;
@@ -80,19 +113,20 @@ var ProjectEngine = (function() {
                             modification.localInfo.target = newDoc;
                             break;
                         case 'update':
-                            var targetDoc = _findTargetDoc(modification.model, modification.id);
+                            var targetDoc = _findTargetDoc(modification.model, modification.id, modification.parentId);
                             if(!targetDoc) {
                                 alerts.fatal("Unable to apply changes. Reason: unable to find model " + modification.model + " with id " + modification.id);
                                 return;
                             }
-                            if(!_valueEquals(targetDoc[0][modification.property], modification.oldValue)) {
+                            var currentValue = _getValueAtPath(targetDoc[0], modification.property);
+                            if(!_valueEquals(currentValue, modification.oldValue)) {
                                 console.log({ message: "Discarding update because of unmatched previous values", doc: targetDoc, modification: modification });
                                 return;
                             }
-                            targetDoc[0][modification.property] = modification.newValue;
+                            _setValueAtPath(targetDoc[0], modification.property, modification.newValue);
                             break;
                         case 'delete':
-                            var targetDoc = _findTargetDoc(modification.model, modification.id);
+                            var targetDoc = _findTargetDoc(modification.model, modification.id, modification.parentId);
                             if(!targetDoc) {
                                 alerts.fatal("Unable to apply changes. Reason: unable to find model " + modification.model + " with id " + modification.id);
                                 return;
@@ -108,6 +142,8 @@ var ProjectEngine = (function() {
                     }
                 }
             });
+            _projectCalculator.performCalculations(self.data);
+            self.emit('modified');
         };
 
         /**
@@ -152,13 +188,14 @@ var ProjectEngine = (function() {
                             var modification = failedModif.modification;
                             switch(modification.action) {
                                 case 'create':
-                                    var parentCollection = _findTargetDoc(modification.model, null);
+                                    var parentCollection = _findTargetDoc(modification.model, null, modification.parentId);
                                     var indexOfTarget = parentCollection.indexOf(modification.localInfo.target);
                                     if(indexOfTarget != -1) {
                                         parentCollection.splice(indexOfTarget, 1);
                                     }
+                                    break;
                                 case 'update':
-                                    var targetDoc = _findTargetDoc(modification.model, modification.id);
+                                    var targetDoc = _findTargetDoc(modification.model, modification.id, modification.parentId);
                                     if(targetDoc) {
                                         if(_valueEquals(targetDoc[0][modification.property], modification.newValue)) {
                                             targetDoc[0][modification.property] = modification.oldValue;
@@ -167,8 +204,9 @@ var ProjectEngine = (function() {
                                     break;
                                 case 'delete':
                                     var originalDoc = modification.localInfo.target;
-                                    var parentCollection = _findTargetDoc(modification.model, null);
+                                    var parentCollection = _findTargetDoc(modification.model, null, modification.parentId);
                                     parentCollection[1].splice(modification.localInfo.position, 0, originalDoc);
+                                    break;
                             }
 
                         });

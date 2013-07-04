@@ -8,102 +8,147 @@ var mongoose = require('mongoose'),
     async = require('async');
 
 module.exports = function modifyPlugin (schema, options) {
-    schema.statics.modify = function(modificationLot, modification, callback) {
-        var Model = this;
 
-        if(modification.action === 'create') {
-            var obj = new Model(_.omit(modification.values, 'id', 'parent'));
+    var _getValueAtPath = function(obj, path) {
+        if(path.indexOf('.') === -1) {
+            return obj.get(path);
+        } else {
+            var firstLevelProperty = path.substring(0, path.indexOf('.'));
+            var secondLevelProperty = path.substring(path.indexOf('.') + 1);
+            var firstLevelValue = obj.get(firstLevelProperty);
+            if (!firstLevelValue) return null;
+            return firstLevelValue[secondLevelProperty];
+        }
+    };
+
+    var _setValueAtPath = function(obj, path, value) {
+        if(path.indexOf('.') === -1) {
+            obj.set(path, value);
+        } else {
+            var firstLevelProperty = path.substring(0, path.indexOf('.'));
+            var secondLevelProperty = path.substring(path.indexOf('.') + 1);
+            var firstLevelValue = obj.get(firstLevelProperty);
+            if (!firstLevelValue) firstLevelValue = {};
+            firstLevelValue[secondLevelProperty] = value;
+            obj.set(firstLevelProperty, firstLevelValue);
+            obj.markModified(firstLevelProperty);
+        }
+    };
+
+    var _canModify = function(obj, path, valueComparison) {
+        var currentValue = _getValueAtPath(obj, path);
+        if((currentValue instanceof Array) && (currentValue.length === 0)) currentValue = null;
+        if((valueComparison instanceof Array) && (valueComparison.length === 0)) valueComparison = null;
+        return (_.isEqual(currentValue, valueComparison)|| (!valueComparison && !valueComparison));
+    };
+
+    var _create = function(Model, modificationLot, modification, callback) {
+        var obj = new Model(_.omit(modification.values, 'id', 'parent'));
+        if(!options.parentProperty) {
+            obj.save(function(err) {
+                if (err) return callback(null, { status: 'error', statusMessage: err.message });
+                return callback(null, { status: 'success', statusMessage: util.format("Successfully created %s(%s).", Model.modelName, obj.id), id: obj.id });
+            });
+        } else {
+            var parentId = modificationLot.projectId;
+            if (options.parentIdProperty) {
+                parentId = modification.parentId;
+            }
+            mongoose.model(options.parentModel).findById(parentId, function(err, parent) {
+                if (err) return callback(null, { status: 'error', statusMessage: err.message });
+                if (!parent) return callback(null, { status: 'error', statusMessage: 'Unable to find parent with id ' + modificationLot.parentId });
+
+                var parentReferences = parent.get(options.parentProperty);
+                if(modification.insertAfter) {
+                    var indexOfPrevious = parentReferences.indexOf(modification.insertAfter);
+                    if (indexOfPrevious == -1) return callback(null, { status: 'error', statusMessage: 'Unable to create because the insertAfterId was not found on the parent.' });
+                    parentReferences.splice(indexOfPrevious + 1, 0, obj);
+                } else {
+                    parentReferences.push(obj);
+                }
+                parent.set(options.parentProperty, parentReferences);
+                if (Model.modelName != 'Project') {
+                    obj.set(options.parentIdProperty || 'project', parent.id);
+                }
+
+                parent.save(function(err) {
+                    if (err) return callback(null, { status: 'error', statusMessage: err.message });
+                    obj.save(function(err) {
+                        if (err) return callback(null, { status: 'error', statusMessage: err.message });
+                        modification.id = obj.id;
+                        return callback(null, { status: 'success', statusMessage: util.format("Successfully created %s(%s).", Model.modelName, obj.id), id: obj.id });
+                    })
+                });
+            });
+        }
+    };
+
+    var _update = function(Model, modificationLot, modification, callback) {
+        Model.findById(modification.id, function(findByIdErr, obj) {
+            if (findByIdErr) return callback(findByIdErr, null);
+            if (!obj) return callback(null, { status: 'error', statusMessage: util.format("Unable to find %s(%s)", Model.modelName, modification.id) });
+
+            var currentValue = _getValueAtPath(obj, modification.property);
+            if(!_canModify(obj, modification.property, modification.oldValue)) {
+                return callback(null, { status: 'concurrencyError', statusMessage: util.format("Unable to update %s(%s) because the oldValue (%s) doesn't match the current value (%s)", Model.modelName, obj.id, modification.oldValue, currentValue) });
+            }
+
+            _setValueAtPath(obj, modification.property, modification.newValue);
+            obj.save(function(err) {
+                if (err) return callback(null, { status: 'error', statusMessage: err.message });
+                return callback(null, { status: 'success', statusMessage: util.format("Successfully updated %s(%s)", Model.modelName, obj.id) });
+            });
+        });
+    };
+
+    var _delete = function(Model, modificationLot, modification, callback) {
+        Model.findById(modification.id, function(findByIdErr, obj) {
+            if (findByIdErr) return callback(findByIdErr, null);
+            if (!obj) return callback(null, { status: 'error', statusMessage: util.format("Unable to find %s(%s)", Model.modelName, modification.id) });
 
             if(!options.parentProperty) {
-                obj.save(function(err) {
+                obj.remove(function(err) {
                     if (err) return callback(null, { status: 'error', statusMessage: err.message });
-                    return callback(null, { status: 'success', statusMessage: util.format("Successfully created %s(%s).", Model.modelName, obj.id), id: obj.id });
+                    return callback(null, { status: 'success', statusMessage: util.format("Successfully deleted %s(%s)", Model.modelName, obj.id) });
                 });
             } else {
                 var parentId = modificationLot.projectId;
                 if (options.parentIdProperty) {
-                    parentId = modification[options.parentIdProperty];
+                    parentId = obj.get(options.parentIdProperty);
                 }
                 mongoose.model(options.parentModel).findById(parentId, function(err, parent) {
                     if (err) return callback(null, { status: 'error', statusMessage: err.message });
                     if (!parent) return callback(null, { status: 'error', statusMessage: 'Unable to find parent with id ' + modificationLot.parentId });
-
                     var parentReferences = parent.get(options.parentProperty);
-                    if(modification.insertAfter) {
-                        var indexOfPrevious = parentReferences.indexOf(modification.insertAfter);
-                        if (indexOfPrevious == -1) return callback(null, { status: 'error', statusMessage: 'Unable to create because the insertAfterId was not found on the parent.' });
-                        parentReferences.splice(indexOfPrevious + 1, 0, obj);
-                    } else {
-                        parentReferences.push(obj);
-                    }
+                    parentReferences = _.filter(parentReferences, function(objId) { return objId != modification.id });
                     parent.set(options.parentProperty, parentReferences);
-                    if (Model.modelName != 'Project') {
-                        obj.set(options.parentIdProperty || 'project', parent.id);
-                    }
-
                     parent.save(function(err) {
                         if (err) return callback(null, { status: 'error', statusMessage: err.message });
-                        obj.save(function(err) {
-                            if (err) return callback(null, { status: 'error', statusMessage: err.message });
-                            modification.id = obj.id;
-                            return callback(null, { status: 'success', statusMessage: util.format("Successfully created %s(%s).", Model.modelName, obj.id), id: obj.id });
-                        })
-                    });
-                });
-            }
-        } else {
-            Model.findById(modification.id, function(findByIdErr, obj) {
-                if (findByIdErr) return callback(findByIdErr, null);
-                if (!obj) return callback(null, { status: 'error', statusMessage: util.format("Unable to find %s(%s)", Model.modelName, modification.id) });
-
-                if (modification.action === 'delete') {
-                    if(!options.parentProperty) {
                         obj.remove(function(err) {
                             if (err) return callback(null, { status: 'error', statusMessage: err.message });
                             return callback(null, { status: 'success', statusMessage: util.format("Successfully deleted %s(%s)", Model.modelName, obj.id) });
                         });
-                    } else {
-                        var parentId = modificationLot.projectId;
-                        if (options.parentIdProperty) {
-                            parentId = obj.get(options.parentIdProperty);
-                        }
-                        mongoose.model(options.parentModel).findById(parentId, function(err, parent) {
-                            if (err) return callback(null, { status: 'error', statusMessage: err.message });
-                            if (!parent) return callback(null, { status: 'error', statusMessage: 'Unable to find parent with id ' + modificationLot.parentId });
-                            var parentReferences = parent.get(options.parentProperty);
-                            parentReferences = _.filter(parentReferences, function(objId) { return objId != modification.id });
-                            parent.set(options.parentProperty, parentReferences);
-                            parent.save(function(err) {
-                                if (err) return callback(null, { status: 'error', statusMessage: err.message });
-                                obj.remove(function(err) {
-                                    if (err) return callback(null, { status: 'error', statusMessage: err.message });
-                                    return callback(null, { status: 'success', statusMessage: util.format("Successfully deleted %s(%s)", Model.modelName, obj.id) });
-                                });
-                            });
-                        });
-                    }
-                } else {
-                    if (modification.action === 'update') {
-                        var oldValue = obj.get(modification.property);
-                        if((oldValue instanceof Array) && (oldValue.length === 0)) oldValue = null;
-                        var oldValueModif = modification.oldValue;
-                        if((oldValueModif instanceof Array) && (oldValueModif.length === 0)) oldValueModif = null;
+                    });
+                });
+            }
+        });
+    };
 
-                        if((_.isEqual(oldValue, oldValueModif))
-                        || (!oldValue && !oldValueModif)) {
-                            obj.set(modification.property, modification.newValue);
-                            obj.save(function(err) {
-                                if (err) return callback(null, { status: 'error', statusMessage: err.message });
-                                return callback(null, { status: 'success', statusMessage: util.format("Successfully updated %s(%s)", Model.modelName, obj.id) });
-                            });
-                        } else {
-                            return callback(null, { status: 'concurrencyError', statusMessage: util.format("Unable to update %s(%s) because the oldValue (%s) doesn't match the current value (%s)", Model.modelName, obj.id, modification.oldValue, obj.get(modification.property)) });
-                        }
-                    } else {
-                        return callback(new Error('Internal error - should not be reached.'));
-                    }
-                }
-            });
+    schema.statics.modify = function(modificationLot, modification, callback) {
+        var Model = this;
+        switch(modification.action) {
+            case 'create':
+                _create(Model, modificationLot, modification, callback);
+                break;
+            case 'update':
+                _update(Model, modificationLot, modification, callback);
+                break;
+            case 'delete':
+                _delete(Model, modificationLot, modification, callback);
+                break;
+            default:
+                callback(new Error('Unrecognized action: ' + modification.action));
+                break;
         }
     };
 };

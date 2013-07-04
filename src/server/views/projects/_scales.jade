@@ -60,14 +60,16 @@ script#scale-tab-content-template(type="text/x-handlebars-template")
                 span.label.label-important Delete
 
 script#scale-colheader-template(type="text/x-handlebars-template")
-  .relative.text-vertical(style="margin-bottom: 20px; text-align: left")
+  .relative
     .colHeader
+      .text-vertical.text-left(style="margin-bottom: 15px;")
+        {{name}}{{#if name}} ({{#if baseline}}UT{{else}}%{{/if}}){{/if}}
+      div(style="text-align: center;")
         <input type="checkbox" data-behavior="checkBaseline" data-column="{{column}}" class="htCheckboxRendererInput" {{#if baseline}}checked{{/if}} style="margin-top: 0; margin-right: 5px;">
-        .dropdown
-          a.dropdown-toggle(href="#", role="button", data-toggle="dropdown")
-            | {{name}}&nbsp;
+        .dropdown(style="display:inline;")
+          a.btn.btn-mini.dropdown-toggle(href="#", role="button", data-toggle="dropdown")
             span.caret
-          ul.dropdown-menu.text-left.clear-text-vertical
+          ul.dropdown-menu.text-left
             {{#each profiles}}
             li
               a(href="#", data-behavior="selectProfileColumn", data-column="{{../column}}")
@@ -75,5 +77,5 @@ script#scale-colheader-template(type="text/x-handlebars-template")
             {{/each}}
             li.divider
             li
-              a(href="#", data-behavior="selectProfileColumn", data-column="remove")
-                Remove
+              a(href="#", data-behavior="selectProfileColumn", data-column="{{column}}")
+                span.label.label-important Remove

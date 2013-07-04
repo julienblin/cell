@@ -6,12 +6,12 @@ var mongoose = require('mongoose'),
 var ScaleLineSchema = new Schema({
     scale: { type: Schema.Types.ObjectId, ref: 'Scale', index: true },
     isActive: { type: Boolean },
-    title: { type: String, validate: [validations.uniqueFieldInsensitive('ScaleLine', 'title', 'scale')], index: true },
-    values: [{ type: Number }]
+    complexity: { type: String, validate: [validations.uniqueFieldInsensitive('ScaleLine', 'complexity', 'scale')], index: true },
+    values: { type: Schema.Types.Mixed }
 });
 
 ScaleLineSchema.plugin(require('./plugins/paginate'));
-ScaleLineSchema.plugin(require('./plugins/modify'), { parentModel: 'Scale', parentIdProperty: 'scale', parentProperty: 'lines' });
+ScaleLineSchema.plugin(require('./plugins/modify'), { parentModel: 'Scale', parentProperty: 'lines', parentIdProperty: 'scale' });
 
 // Serialization settings
 ScaleLineSchema.set('toObject', { transform: function (doc, scale, options) {

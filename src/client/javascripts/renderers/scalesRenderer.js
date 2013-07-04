@@ -6,14 +6,13 @@ var ScalesRenderer = (function() {
     return function(engine) {
         var self = {};
         self.__proto__ = BaseTabRenderer('#scales', engine);
+        self.scaleLinesRenderer = {};
 
         var _scalesTabsSelector = '#scalesTabs';
         var _scalesTabsContentSelector = '#scalesTabsContent';
         var _modalNewScaleSelector = '#modalNewScale';
         var _modalRenameScaleSelector = '#modalRenameScale';
         var _modalDeleteScaleSelector = '#modalDeleteScale';
-
-        var _scaleLinesRenderer = {};
 
         var _renderTabs = function() {
             var previousScale = null;
@@ -70,18 +69,18 @@ var ScalesRenderer = (function() {
             _.each(self.engine.data.scales, function(scale) {
                 if(!scale.id) return;
 
-                if(!_scaleLinesRenderer[scale.id]) {
-                    _scaleLinesRenderer[scale.id] = new ScaleLinesRenderer(scale, self.engine);
-                    _scaleLinesRenderer[scale.id].on('applyModifications', function(modifications) {
+                if(!self.scaleLinesRenderer[scale.id]) {
+                    self.scaleLinesRenderer[scale.id] = new ScaleLinesRenderer(scale, self.engine);
+                    self.scaleLinesRenderer[scale.id].on('applyModifications', function(modifications) {
                         self.emit('applyModifications', modifications);
                     });
                 }
             });
 
             // Remove non-relevant renderers
-            _.each(_scaleLinesRenderer, function(renderer, scaleId) {
+            _.each(self.scaleLinesRenderer, function(renderer, scaleId) {
                 if(!_.findWhere(self.engine.data.scales, { id: scaleId })) {
-                    delete _scaleLinesRenderer[scaleId];
+                    delete self.scaleLinesRenderer[scaleId];
                 }
             });
         };
@@ -93,12 +92,12 @@ var ScalesRenderer = (function() {
             var firstVisibleTabContent = $('.tab-pane:visible:first', _scalesTabsContentSelector);
             if(firstVisibleTabContent.length > 0) {
                 var visibleScaleId = firstVisibleTabContent.data('id');
-                _scaleLinesRenderer[visibleScaleId].emit('render');
+                self.scaleLinesRenderer[visibleScaleId].emit('render');
             }
         });
 
         $(_scalesTabsSelector).on('shown', 'a[data-toggle="tab"]', function(e) {
-            _scaleLinesRenderer[$(e.target).data('id')].emit('render');
+            self.scaleLinesRenderer[$(e.target).data('id')].emit('render');
         });
 
         $(self.tabSelector).on('click', 'a[data-behavior="createScale"]', function(e) {
