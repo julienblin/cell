@@ -13,13 +13,6 @@ var ScaleSchema = new Schema({
 
 ScaleSchema.plugin(require('./plugins/paginate'));
 ScaleSchema.plugin(require('./plugins/modify'), { parentModel: 'Project', parentProperty: 'scales' });
-
-// Serialization settings
-ScaleSchema.set('toObject', { transform: function (doc, scale, options) {
-    scale.id = scale._id;
-    delete scale._id;
-    delete scale.__v;
-    delete scale.project;
-}});
+ScaleSchema.plugin(require('./plugins/serialize'), { additionalProperties: [ 'project' ] });
 
 module.exports = mongoose.model('Scale', ScaleSchema);

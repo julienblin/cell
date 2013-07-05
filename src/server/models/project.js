@@ -20,14 +20,6 @@ var ProjectSchema = new Schema({
     estimationLines: [{ type: Schema.Types.ObjectId, ref: 'EstimationLine' }]
 });
 
-// Serialization settings
-ProjectSchema.set('toObject', { transform: function (doc, project, options) {
-    project.id = project._id;
-    delete project._id;
-    delete project.__v;
-    delete project.users;
-}});
-
 ProjectSchema.methods.isAuth = function(auth, user) {
     var readIndex = this.users.read.indexOf(user.id);
     var writeIndex = this.users.write.indexOf(user.id);
@@ -152,5 +144,6 @@ ProjectSchema.statics.queries.findPaginate = function(q, sort, user, paginationO
 
 ProjectSchema.plugin(require('./plugins/paginate'));
 ProjectSchema.plugin(require('./plugins/modify'));
+ProjectSchema.plugin(require('./plugins/serialize'), { additionalProperties: [ 'users' ] });
 
 module.exports = mongoose.model('Project', ProjectSchema);
