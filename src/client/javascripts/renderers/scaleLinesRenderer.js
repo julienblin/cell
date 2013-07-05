@@ -13,10 +13,6 @@ var ScaleLinesRenderer = (function() {
         self.gridSelector = '#gridScale' + scale.id;
         var _cachedGrid = null;
 
-        var _getProfiles = function() {
-            return _.compact(_.pluck(self.engine.data.profiles, 'title'));
-        };
-
         var _getColHeaders = function() {
             var headers = [ "Act.", "Complexity" ];
             _.each(self.scale.columns, function(column) { headers.push(column[0]); });
@@ -33,7 +29,7 @@ var ScaleLinesRenderer = (function() {
             ];
 
             _.each(self.scale.columns, function(column, index) {
-                columns.push({ data: 'values.' + column[0], type: column[1] ? 'ut' : 'percent' });
+                columns.push({ data: 'values.' + column.id, type: column.isBaseline ? 'ut' : 'percent' });
             });
             columns.push({ type: 'ut' });
             columns.push({ data: 'totalUT', type: 'ut', readOnly: true });
@@ -71,11 +67,10 @@ var ScaleLinesRenderer = (function() {
                 afterGetColHeader: function(col, TH) {
                     if((col > 1) && (col < self.scale.columns.length + 3)) {
                         var th = $(TH);
-                        baseline = false;
-                        if(col != self.scale.columns.length + 2) {
-                            baseline = scale.columns[col - 2][1];
-                        }
-                        var content = self.getTemplate('#scale-colheader-template')({ name: th.text(), profiles: _getProfiles(), column: col - 2, baseline: baseline });
+                        var scaleColumn = self.scale.columns[col - 2] || {};
+                        var scaleColumnBefore = (col > 2) ? self.scale.columns[col - 3] : {};
+                        var profile = _.findWhere(self.engine.data.profiles, { id: scaleColumn.profile });
+                        var content = self.getTemplate('#scale-colheader-template')({ column: scaleColumn, profile: profile, columnBefore: scaleColumnBefore, profiles: self.engine.data.profiles });
                         th.html(content);
                         th.css('overflow','initial');
                         th.css('height', '150px');
@@ -159,64 +154,74 @@ var ScaleLinesRenderer = (function() {
         });
 
         $(self.gridSelector).on('click', 'a[data-behavior~="selectProfileColumn"]', function(e) {
-            var profile = $(this).text();
-            var column = $(this).data('column');
-            var checked = $(this).prev().is(':checked');
+            var columnId = $(this).data('column-id');
+            var profileId = $(this).data('profile-id');
+            var modifications = [];
 
-            var oldColumns = _.clone(scale.columns);
-
-            if(profile === "Remove") {
-                scale.columns.splice(column, 1);
+            if(columnId) {
+                var column = _.findWhere(self.scale.columns, { id: columnId });
+                if(column) {
+                    modifications.push({
+                        model: 'ScaleColumn',
+                        id: column.id,
+                        parentId: self.scale.id,
+                        action: 'update',
+                        property: 'profile',
+                        oldValue: column.profile,
+                        newValue: profileId,
+                        localInfo: {
+                            target: column
+                        }
+                    });
+                }
             } else {
-                if(scale.columns.length < column)
-                    scale.columns.length = column + 1;
-                scale.columns[column] = [profile, checked];
+                modifications.push({
+                    model: 'ScaleColumn',
+                    parentId: self.scale.id,
+                    action: 'create',
+                    values : {
+                        profile: profileId
+                    }
+                });
             }
 
-            var modifications = [{
-                model: 'Scale',
-                id: self.scale.id,
-                action: 'update',
-                property: 'columns',
-                oldValue: oldColumns,
-                newValue: scale.columns,
-                localInfo: {
-                    alreadyApplied: true,
-                    target: scale
-                }
-            }];
             self.emit('applyModifications', modifications);
-
             e.preventDefault();
         });
 
         $(self.gridSelector).on('change', 'input[data-behavior~="checkBaseline"]', function(e) {
-            var column = $(this).data('column');
+            var columnId = $(this).data('column-id');
             var checked = $(this).is(':checked');
+            var modifications = [];
 
-            var oldColumns = JSON.parse(JSON.stringify(scale.columns));
-            console.log(oldColumns);
-
-            if(scale.columns.length < column)
-                scale.columns.length = column + 1;
-            scale.columns[column] = scale.columns[column] || [null, checked];
-            scale.columns[column][1] = checked;
-
-            console.log(oldColumns);
-            var modifications = [{
-                model: 'Scale',
-                id: self.scale.id,
-                action: 'update',
-                property: 'columns',
-                oldValue: oldColumns,
-                newValue: scale.columns,
-                localInfo: {
-                    alreadyApplied: true,
-                    target: scale
+            if(columnId) {
+                var column = _.findWhere(self.scale.columns, { id: columnId });
+                if(column) {
+                    modifications.push({
+                        model: 'ScaleColumn',
+                        id: column.id,
+                        parentId: self.scale.id,
+                        action: 'update',
+                        property: 'isBaseline',
+                        oldValue: column.isBaseline,
+                        newValue: checked,
+                        localInfo: {
+                            target: column
+                        }
+                    });
                 }
-            }];
-            self.emit('applyModifications', modifications);
+            } else {
+                modifications.push({
+                    model: 'ScaleColumn',
+                    parentId: self.scale.id,
+                    action: 'create',
+                    values : {
+                        isBaseline: checked
+                    }
+                });
+            }
 
+            self.emit('applyModifications', modifications);
             e.preventDefault();
         });
 

@@ -63,19 +63,21 @@ script#scale-colheader-template(type="text/x-handlebars-template")
   .relative
     .colHeader
       .text-vertical.text-left(style="margin-bottom: 15px;")
-        {{name}}{{#if name}} ({{#if baseline}}UT{{else}}%{{/if}}){{/if}}
+        {{profile.title}}{{#if profile.title}} ({{#if column.isBaseline}}UT{{else}}%{{/if}}){{/if}}
       div(style="text-align: center;")
-        <input type="checkbox" data-behavior="checkBaseline" data-column="{{column}}" class="htCheckboxRendererInput" {{#if baseline}}checked{{/if}} style="margin-top: 0; margin-right: 5px;">
+        <input type="checkbox" data-behavior="checkBaseline" data-column-id="{{column.id}}" class="htCheckboxRendererInput" {{#if column.isBaseline}}checked{{/if}} style="margin-top: 0; margin-right: 5px;">
         .dropdown(style="display:inline;")
           a.btn.btn-mini.dropdown-toggle(href="#", role="button", data-toggle="dropdown")
             span.caret
           ul.dropdown-menu.text-left
             {{#each profiles}}
+            {{#if id}}
             li
-              a(href="#", data-behavior="selectProfileColumn", data-column="{{../column}}")
-                {{this}}
+              a(href="#", data-behavior="selectProfileColumn", data-profile-id="{{id}}", data-column-id="{{../column.id}}", data-column-before-id="{{../columnBefore.id}}")
+                {{title}}
+            {{/if}}
             {{/each}}
             li.divider
             li
-              a(href="#", data-behavior="selectProfileColumn", data-column="{{column}}")
+              a(href="#", data-behavior="removeColumn", data-column-id="{{column.id}}")
                 span.label.label-important Remove

@@ -1,10 +1,10 @@
 var should = require('should'),
     mongoose = require('mongoose'),
-    ObjectId = mongoose.Schema.ObjectId,
     async = require('async'),
     _ = require('underscore'),
     config = require('../../config.js'),
     Project = require('../../../server/models/project'),
+    Profile = require('../../../server/models/profile'),
     Scale = require('../../../server/models/scale'),
     User = require('../../../server/models/user'),
     ScaleColumn = require('../../../server/models/scaleColumn');
@@ -26,6 +26,8 @@ describe("ScaleColumns", function(){
             should.not.exists(err);
             Scale.create({ project: project.id, title: 'Test scale' }, function(err, scale) {
                 should.not.exists(err);
+                var objectId1 = new Profile().id;
+                var objectId2 = new Profile().id;
                 var modificationLot = {
                     projectId: project.id,
                     user: user,
@@ -36,7 +38,7 @@ describe("ScaleColumns", function(){
                             action: 'create',
                             values: {
                                 isBaseline: true,
-                                profileTitle: 'Developer'
+                                profile: objectId1
                             }
                         },
                         {
@@ -45,7 +47,7 @@ describe("ScaleColumns", function(){
                             action: 'create',
                             values: {
                                 isBaseline: false,
-                                profileTitle: 'Analyst'
+                                profile: objectId2
                             }
                         }
                     ]
@@ -59,12 +61,12 @@ describe("ScaleColumns", function(){
                     should.exists(response.results[1].id);
                     ScaleColumn.findById(response.results[0].id, function(err, refScaleColumn) {
                         should.not.exists(err);
-                        refScaleColumn.profileTitle.should.equal('Developer');
+                        refScaleColumn.profile.toString().should.equal(objectId1);
                         Scale.findById(scale.id).populate('columns').exec(function(err, refScale) {
                             refScale.columns.should.have.length(2);
                             refScale.columns[0].isBaseline.should.be.ok;
                             refScale.columns[1].isBaseline.should.not.be.ok;
-                            refScale.columns[1].profileTitle.should.equal('Analyst');
+                            var objectId3 = new Profile().id;
 
                             modificationLot.modifications = [
                                 {
@@ -74,7 +76,7 @@ describe("ScaleColumns", function(){
                                     insertAfter: refScaleColumn.id,
                                     values: {
                                         isBaseline: false,
-                                        profileTitle: 'Project manager'
+                                        profile: objectId3
                                     }
                                 }
                             ];
@@ -83,9 +85,9 @@ describe("ScaleColumns", function(){
                                 should.not.exists(err);
                                 Scale.findById(scale.id).populate('columns').exec(function(err, refScale) {
                                     refScale.columns.should.have.length(3);
-                                    refScale.columns[0].profileTitle.should.equal('Developer');
-                                    refScale.columns[1].profileTitle.should.equal('Project manager');
-                                    refScale.columns[2].profileTitle.should.equal('Analyst');
+                                    refScale.columns[0].profile.toString().should.equal(objectId1);
+                                    refScale.columns[1].profile.toString().should.equal(objectId3);
+                                    refScale.columns[2].profile.toString().should.equal(objectId2);
                                     done();
                                 });
                             });
@@ -104,6 +106,9 @@ describe("ScaleColumns", function(){
                 should.not.exists(err);
                 ScaleColumn.create({ scale: scale.id, profileTitle: 'Developer' }, function(err, scaleColumn) {
                     should.not.exists(err);
+                    var objectId1 = new Profile().id;
+                    var objectId2 = new Profile().id;
+                    var objectId3 = new Profile().id;
                     var modificationLot = {
                         projectId: project.id,
                         user: user,
@@ -119,24 +124,24 @@ describe("ScaleColumns", function(){
                                 model: 'ScaleColumn',
                                 id: scaleColumn.id,
                                 action: 'update',
-                                property: 'profileTitle',
-                                newValue: 'Analyst'
+                                property: 'profile',
+                                newValue: objectId1
                             },
                             {
                                 model: 'ScaleColumn',
                                 id: scaleColumn.id,
                                 action: 'update',
-                                property: 'profileTitle',
-                                newValue: 'Architect',
-                                oldValue: 'Analyst'
+                                property: 'profile',
+                                newValue: objectId2,
+                                oldValue: objectId1
                             },
                             {
                                 model: 'ScaleColumn',
                                 id: scaleColumn.id,
                                 action: 'update',
-                                property: 'profileTitle',
-                                newValue: 'Project manager',
-                                oldValue: 'Analyst'
+                                property: 'profile',
+                                newValue: objectId3,
+                                oldValue: objectId1
                             }
                         ]
                     };
@@ -150,7 +155,7 @@ describe("ScaleColumns", function(){
                         ScaleColumn.findById(scaleColumn.id, function(err, refScaleColumn) {
                             should.not.exists(err);
                             refScaleColumn.isBaseline.should.be.ok;
-                            refScaleColumn.profileTitle.should.equal('Architect');
+                            refScaleColumn.profile.toString().should.equal(objectId2);
                             done();
                         });
                     });

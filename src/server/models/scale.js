@@ -11,6 +11,13 @@ var ScaleSchema = new Schema({
     lines: [{ type: Schema.Types.ObjectId, ref: 'ScaleLine' }]
 });
 
+ScaleSchema.pre('remove', function(next) {
+    var scale = this;
+    mongoose.model('ScaleColumn').remove({ scale: scale.id }).exec();
+    mongoose.model('ScaleLine').remove({ scale: scale.id }).exec();
+    next();
+});
+
 ScaleSchema.plugin(require('./plugins/paginate'));
 ScaleSchema.plugin(require('./plugins/modify'), { parentModel: 'Project', parentProperty: 'scales' });
 ScaleSchema.plugin(require('./plugins/serialize'), { additionalProperties: [ 'project' ] });

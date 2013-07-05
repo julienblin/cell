@@ -20,7 +20,7 @@ module.exports = function(io) {
                 socket.set('projectId', project.id);
                 socket.join('project/' + project.id);
 
-                Scale.populate(project.scales, [{ path: 'lines'}], function(err, scales) {
+                Scale.populate(project.scales, [{ path: 'lines'}, { path: 'columns' }], function(err) {
                     callback(err, project.toObject());
                 });
             });

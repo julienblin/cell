@@ -20,6 +20,13 @@ var ProjectSchema = new Schema({
     estimationLines: [{ type: Schema.Types.ObjectId, ref: 'EstimationLine' }]
 });
 
+ProjectSchema.pre('remove', function(next) {
+    var project = this;
+    mongoose.model('Profile').remove({ project: project.id }).exec();
+    mongoose.model('Scale').remove({ scale: project.id }).exec();
+    next();
+});
+
 ProjectSchema.methods.isAuth = function(auth, user) {
     var readIndex = this.users.read.indexOf(user.id);
     var writeIndex = this.users.write.indexOf(user.id);

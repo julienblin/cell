@@ -26,10 +26,15 @@
             });
         };
 
-        var _getScaleColumnInfo = function(scale, columnName) {
+        var _getScaleColumnInfo = function(scale, columnId) {
             if(!scale.columns) return null;
-            return _.find(scale.columns, function(col) { return col[0] == columnName; });
-        }
+            return _.findWhere(scale.columns, { id: columnId });
+        };
+
+        var _getProfile = function(data, profileId) {
+            if(!data.profiles) return null;
+            return _.findWhere(data.profiles, { id: profileId });
+        };
 
         var _scales = function(data) {
             _.each(data.scales, function(scale) {
@@ -45,19 +50,19 @@
                     var totalBaseline = _.reduce(scaleLine.values, function(sum, value, key) {
                         var colInfo = _getScaleColumnInfo(scale, key);
                         if(!colInfo) return sum;
-                        var profile = _.findWhere(data.profiles, { title: colInfo[0] });
+                        var profile = _getProfile(data, colInfo.profile);
                         if(!(profile && profile.isActive)) return sum;
-                        if(colInfo[1]) return sum + value;
+                        if(colInfo.isBaseline) return sum + self.parseFloat(value);
                         return sum;
                     }, 0);
 
                     scaleLine.totalUT = _.reduce(scaleLine.values, function(sum, value, key) {
                         var colInfo = _getScaleColumnInfo(scale, key);
                         if(!colInfo) return sum;
-                        var profile = _.findWhere(data.profiles, { title: colInfo[0] });
+                        var profile = _getProfile(data, colInfo.profile);
                         if(!(profile && profile.isActive)) return sum;
 
-                        if(colInfo[1]) return sum;
+                        if(colInfo.isBaseline) return sum;
                         return sum + (totalBaseline * (self.parseFloat(value) / 100));
                     }, totalBaseline);
 
@@ -65,11 +70,11 @@
                         var colInfo = _getScaleColumnInfo(scale, key);
                         if(!colInfo) return sum;
 
-                        var profile = _.findWhere(data.profiles, { title: colInfo[0] });
+                        var profile = _getProfile(data, colInfo.profile);
                         if(!(profile && profile.isActive && profile.priceAverage)) return sum;
 
                         var localUT = self.parseFloat(value);
-                        if(!colInfo[1])
+                        if(!colInfo.isBaseline)
                             localUT = totalBaseline * (localUT / 100);
 
                         return sum + (profile.priceAverage * localUT);

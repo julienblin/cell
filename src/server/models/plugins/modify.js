@@ -39,7 +39,7 @@ module.exports = function modifyPlugin (schema, options) {
         var currentValue = _getValueAtPath(obj, path);
         if((currentValue instanceof Array) && (currentValue.length === 0)) currentValue = null;
         if((valueComparison instanceof Array) && (valueComparison.length === 0)) valueComparison = null;
-        return (_.isEqual(currentValue, valueComparison)|| (!valueComparison && !valueComparison));
+        return ((currentValue == valueComparison) || (!currentValue && !valueComparison));
     };
 
     var _create = function(Model, modificationLot, modification, callback) {

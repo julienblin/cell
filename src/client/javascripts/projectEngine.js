@@ -35,6 +35,14 @@ var ProjectEngine = (function() {
                     var scale = _.findWhere(self.data.scales, { id: id });
                     if(!scale) return null;
                     return [scale, self.data.scales, 0];
+                case 'ScaleColumn':
+                    var parentScale = _.findWhere(self.data.scales, { id: parentId });
+                    if (!parentScale) return null;
+                    if (!parentScale.columns) parentScale.columns = [];
+                    if(!id) return [null, parentScale.columns, 0];
+                    var scaleColumn = _.findWhere(parentScale.columns, { id: id });
+                    if(!scaleColumn) return null;
+                    return [scaleColumn, parentScale.columns, 0];
                 case 'ScaleLine':
                     var parentScale = _.findWhere(self.data.scales, { id: parentId });
                     if (!parentScale) return null;
@@ -51,7 +59,7 @@ var ProjectEngine = (function() {
          * Checks equality of two values, considering that null, undefined, etc are equals, and matching arrays.
          */
         _valueEquals = function(value1, value2) {
-            if (_.isEqual(value1, value2)) return true;
+            if (value1 == value2) return true;
 
             if((value1 instanceof Array) && (value1.length === 0)) value1 = null;
             if((value2 instanceof Array) && (value2.length === 0)) value2 = null;
