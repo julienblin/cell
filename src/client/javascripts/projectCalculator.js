@@ -83,6 +83,37 @@
             });
         };
 
+        var _getScale = function(data, scaleId) {
+            if(!data.scales) return null;
+            return _.findWhere(data.scales, { id: scaleId });
+        };
+
+        var _getScaleLine = function(data, scaleId, scaleLineId) {
+            var scale = _getScale(data, scaleId);
+            if(!scale) return null;
+            return _.findWhere(scale.lines, { id: scaleLineId });
+        };
+
+        var _estimationLines = function(data) {
+            _.each(data.estimationLines, function(line) {
+                var scaleLine = _getScaleLine(data, line.scale, line.complexity);
+                if(!scaleLine) {
+                    line.totalUT = null;
+                    line.totalPrice = null;
+                    return;
+                }
+
+                var coefficient = line.coefficient ? self.parseFloat(line.coefficient) : 1.0;
+                if(scaleLine.totalUT) {
+                    line.totalUT = scaleLine.totalUT * coefficient;
+                }
+
+                if(scaleLine.totalPrice) {
+                    line.totalPrice = scaleLine.totalPrice * coefficient;
+                }
+            });
+        };
+
         // Public functions
 
         /**
@@ -109,6 +140,7 @@
         self.performCalculations = function(data) {
             _averageProfiles(data);
             _scales(data);
+            _estimationLines(data);
         };
 
         return self;

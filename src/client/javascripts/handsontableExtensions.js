@@ -146,3 +146,4 @@ Handsontable.cellTypes.cellCheckbox = {
         Handsontable.CustomCellPropertiesRenderer(instance, TD, row, col, prop, value, cellProperties);
     }
 };
+

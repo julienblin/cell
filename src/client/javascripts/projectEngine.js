@@ -12,7 +12,8 @@ var ProjectEngine = (function() {
         self.renderers = {
             info: new InfoRenderer(self),
             profiles: new ProfilesRenderer(self),
-            scales: new ScalesRenderer(self)
+            scales: new ScalesRenderer(self),
+            estimationLines: new EstimationLinesRenderer(self)
         };
         _projectCalculator = new ProjectCalculator();
 
