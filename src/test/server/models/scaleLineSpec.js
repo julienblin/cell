@@ -65,14 +65,14 @@ describe("ScaleLines", function(){
                     response.results[1].status.should.equal('success');
                     should.exists(response.results[0].id);
                     should.exists(response.results[1].id);
-                    ScaleLine.findById(response.results[0].id, function(err, refScaleLine) {
+                    ScaleLine.findById(response.results[1].id, function(err, refScaleLine) {
                         should.not.exists(err);
                         refScaleLine.values.Developer.should.equal(1.0);
                         Scale.findById(scale.id).populate('lines').exec(function(err, refScale) {
                             refScale.lines.should.have.length(2);
                             refScale.lines[0].complexity.should.equal(refScaleLine.complexity);
-                            refScale.lines[0].values.Analyst.should.equal(0.5);
-                            refScale.lines[1].complexity.should.equal('Test scale line 2');
+                            refScale.lines[0].values.Analyst.should.equal(2.0);
+                            refScale.lines[1].complexity.should.equal('Test scale line');
                             refScale.lines[1].values.Developer.should.equal(1.0);
 
                             modificationLot.modifications = [
@@ -95,9 +95,9 @@ describe("ScaleLines", function(){
                                 should.not.exists(err);
                                 Scale.findById(scale.id).populate('lines').exec(function(err, refScale) {
                                     refScale.lines.should.have.length(3);
-                                    refScale.lines[0].complexity.should.equal('Test scale line');
+                                    refScale.lines[0].complexity.should.equal('Test scale line 2');
                                     refScale.lines[1].complexity.should.equal('Test scale insert after');
-                                    refScale.lines[2].complexity.should.equal('Test scale line 2');
+                                    refScale.lines[2].complexity.should.equal('Test scale line');
                                     done();
                                 });
                             });

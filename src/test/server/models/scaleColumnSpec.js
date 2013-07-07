@@ -59,13 +59,13 @@ describe("ScaleColumns", function(){
                     response.results[1].status.should.equal('success');
                     should.exists(response.results[0].id);
                     should.exists(response.results[1].id);
-                    ScaleColumn.findById(response.results[0].id, function(err, refScaleColumn) {
+                    ScaleColumn.findById(response.results[1].id, function(err, refScaleColumn) {
                         should.not.exists(err);
-                        refScaleColumn.profile.toString().should.equal(objectId1);
+                        refScaleColumn.profile.toString().should.equal(objectId2);
                         Scale.findById(scale.id).populate('columns').exec(function(err, refScale) {
                             refScale.columns.should.have.length(2);
-                            refScale.columns[0].isBaseline.should.be.ok;
-                            refScale.columns[1].isBaseline.should.not.be.ok;
+                            refScale.columns[0].isBaseline.should.not.be.ok;
+                            refScale.columns[1].isBaseline.should.be.ok;
                             var objectId3 = new Profile().id;
 
                             modificationLot.modifications = [
@@ -85,9 +85,9 @@ describe("ScaleColumns", function(){
                                 should.not.exists(err);
                                 Scale.findById(scale.id).populate('columns').exec(function(err, refScale) {
                                     refScale.columns.should.have.length(3);
-                                    refScale.columns[0].profile.toString().should.equal(objectId1);
+                                    refScale.columns[0].profile.toString().should.equal(objectId2);
                                     refScale.columns[1].profile.toString().should.equal(objectId3);
-                                    refScale.columns[2].profile.toString().should.equal(objectId2);
+                                    refScale.columns[2].profile.toString().should.equal(objectId1);
                                     done();
                                 });
                             });

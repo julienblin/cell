@@ -64,7 +64,7 @@ module.exports = function modifyPlugin (schema, options) {
                     if (indexOfPrevious == -1) return callback(null, { status: 'error', statusMessage: 'Unable to create because the insertAfterId was not found on the parent.' });
                     parentReferences.splice(indexOfPrevious + 1, 0, obj);
                 } else {
-                    parentReferences.push(obj);
+                    parentReferences.splice(0, 0, obj);
                 }
                 parent.set(options.parentProperty, parentReferences);
                 if (Model.modelName != 'Project') {

@@ -43,10 +43,8 @@ script#scale-tab-template(type="text/x-handlebars-template")
 
 script#scale-tab-content-template(type="text/x-handlebars-template")
   .tab-pane(id="scale{{id}}", style="min-height: 200px;", data-id="{{id}}")
-    .row-fluid
-      .span10-5
-        div.headersBottom(id="gridScale{{id}}")
-      .span1-5.pull-right.text-right
+    .row-fluid.text-right(style="margin-bottom: 20px;")
+      .span12
         .btn-group
           a.btn.btn-primary.dropdown-toggle(href="#", data-toggle="dropdown")
             | Actions&nbsp;
@@ -58,11 +56,14 @@ script#scale-tab-content-template(type="text/x-handlebars-template")
             li
               a(href="#", data-behavior="deleteScale")
                 span.label.label-important Delete
+    .row-fluid
+      .span12
+        div.headersBottom(id="gridScale{{id}}")
 
 script#scale-colheader-template(type="text/x-handlebars-template")
   .relative
     .colHeader
-      .text-vertical.text-left(style="margin-bottom: 15px;")
+      .text-vertical.text-left(style="margin-bottom: 15px; margin-left: 10px; {{#unless profile.isActive}}text-decoration: line-through;{{/unless}}")
         {{profile.title}}{{#if profile.title}} ({{#if column.isBaseline}}UT{{else}}%{{/if}}){{/if}}
       div(style="text-align: center;")
         <input type="checkbox" data-behavior="checkBaseline" data-column-id="{{column.id}}" class="htCheckboxRendererInput" {{#if column.isBaseline}}checked{{/if}} style="margin-top: 0; margin-right: 5px;">
@@ -73,11 +74,13 @@ script#scale-colheader-template(type="text/x-handlebars-template")
             {{#each profiles}}
             {{#if id}}
             li
-              a(href="#", data-behavior="selectProfileColumn", data-profile-id="{{id}}", data-column-id="{{../column.id}}", data-column-before-id="{{../columnBefore.id}}")
+              a(href="#", data-behavior="selectProfileColumn", data-profile-id="{{id}}", data-column-id="{{../../column.id}}", data-column-before-id="{{../../before.id}}", style="{{#unless isActive}}text-decoration: line-through;{{/unless}}")
                 {{title}}
             {{/if}}
             {{/each}}
+            {{#if column.id}}
             li.divider
             li
               a(href="#", data-behavior="removeColumn", data-column-id="{{column.id}}")
                 span.label.label-important Remove
+            {{/if}}

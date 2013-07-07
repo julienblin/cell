@@ -12,6 +12,7 @@ var ScaleLinesRenderer = (function() {
         if(!self.scale.columns) self.scale.columns = [];
         self.gridSelector = '#gridScale' + scale.id;
         var _cachedGrid = null;
+        var _shadowData = {};
 
         var _getColHeaders = function() {
             var headers = [ "Act.", "Complexity" ];
@@ -38,7 +39,7 @@ var ScaleLinesRenderer = (function() {
         };
 
         var _getColWidths = function() {
-            var colWidths = [15, 600];
+            var colWidths = [15, 300];
             _.each(scale.columns, function(column) { colWidths.push(20); });
             colWidths.push(20);
             colWidths.push(30);
@@ -64,13 +65,54 @@ var ScaleLinesRenderer = (function() {
                 colWidths: _getColWidths(),
                 minSpareRows: 1,
                 stretchH: 'all',
+                contextMenu: {
+                    items: {
+                        'row_above': {},
+                        'row_below': {},
+                        'remove_row': {},
+                        'custom_col_left': {
+                            name: 'Insert column on the left',
+                            disabled: function() {
+                                var col = $(self.gridSelector).handsontable('getSelected')[1];
+                                return !((col > 1) && (col < self.scale.columns.length + 2));
+                            }
+                        },
+                        'custom_col_right': {
+                            name: 'Insert column on the right',
+                            disabled: function() {
+                                var col = $(self.gridSelector).handsontable('getSelected')[1];
+                                return !((col > 0) && (col < self.scale.columns.length + 1));
+                            }
+                        }
+                    },
+                    callback: function (key, options) {
+                        if ((key === 'custom_col_left') || (key === 'custom_col_right')) {
+                            var col = $(self.gridSelector).handsontable('getSelected')[1];
+                            if(key === 'custom_col_left') {
+                                var insertAfterScaleColumns = (col > 2) ? self.scale.columns[col - 3] : {};
+                            }
+                            if(key === 'custom_col_right') {
+                                var insertAfterScaleColumns = (col > 1) ? self.scale.columns[col - 2] : {};
+                            }
+                            var modifications = [];
+                            modifications.push({
+                                model: 'ScaleColumn',
+                                parentId: self.scale.id,
+                                action: 'create',
+                                insertAfter: insertAfterScaleColumns.id,
+                                values: {}
+                            });
+                            self.emit('applyModifications', modifications);
+                        }
+                    }
+                },
                 afterGetColHeader: function(col, TH) {
                     if((col > 1) && (col < self.scale.columns.length + 3)) {
                         var th = $(TH);
                         var scaleColumn = self.scale.columns[col - 2] || {};
                         var scaleColumnBefore = (col > 2) ? self.scale.columns[col - 3] : {};
                         var profile = _.findWhere(self.engine.data.profiles, { id: scaleColumn.profile });
-                        var content = self.getTemplate('#scale-colheader-template')({ column: scaleColumn, profile: profile, columnBefore: scaleColumnBefore, profiles: self.engine.data.profiles });
+                        var content = self.getTemplate('#scale-colheader-template')({ column: scaleColumn, profile: profile, before: scaleColumnBefore, profiles: self.engine.data.profiles });
                         th.html(content);
                         th.css('overflow','initial');
                         th.css('height', '150px');
@@ -92,6 +134,9 @@ var ScaleLinesRenderer = (function() {
                     }
                     cellProperties.muted = !scaleLine.isActive;
                     return cellProperties;
+                },
+                beforeRender: function() {
+                    _shadowData.lines = _.clone(self.scale.lines);
                 },
                 afterChange: function(changes, operation) {
                     switch(operation) {
@@ -141,6 +186,24 @@ var ScaleLinesRenderer = (function() {
                             self.emit('applyModifications', modifications);
                             break;
                     }
+                },
+                afterRemoveRow: function(index, amount) {
+                    var linesToDelete = _shadowData.lines.slice(index, index + amount);
+                    var modifications = [];
+                    _.each(linesToDelete, function(scale, scaleIndex) {
+                        modifications.push({
+                            model: 'ScaleLine',
+                            id: scale.id,
+                            parentId: self.scale.id,
+                            action: 'delete',
+                            localInfo: {
+                                alreadyApplied: true,
+                                target: scale,
+                                position: (index + scaleIndex)
+                            }
+                        });
+                    });
+                    self.emit('applyModifications', modifications);
                 }
             });
             _cachedGrid = $(self.gridSelector).data('handsontable');
@@ -155,6 +218,7 @@ var ScaleLinesRenderer = (function() {
 
         $(self.gridSelector).on('click', 'a[data-behavior~="selectProfileColumn"]', function(e) {
             var columnId = $(this).data('column-id');
+            var columnBeforeId = $(this).data('column-before-id');
             var profileId = $(this).data('profile-id');
             var modifications = [];
 
@@ -179,6 +243,7 @@ var ScaleLinesRenderer = (function() {
                     model: 'ScaleColumn',
                     parentId: self.scale.id,
                     action: 'create',
+                    insertAfter: columnBeforeId,
                     values : {
                         profile: profileId
                     }
@@ -219,6 +284,29 @@ var ScaleLinesRenderer = (function() {
                         isBaseline: checked
                     }
                 });
+            }
+
+            self.emit('applyModifications', modifications);
+            e.preventDefault();
+        });
+
+        $(self.gridSelector).on('click', 'a[data-behavior~="removeColumn"]', function(e) {
+            var columnId = $(this).data('column-id');
+            var modifications = [];
+
+            if(columnId) {
+                var column = _.findWhere(self.scale.columns, { id: columnId });
+                if(column) {
+                    modifications.push({
+                        model: 'ScaleColumn',
+                        id: column.id,
+                        parentId: self.scale.id,
+                        action: 'delete',
+                        localInfo: {
+                            target: column
+                        }
+                    });
+                }
             }
 
             self.emit('applyModifications', modifications);

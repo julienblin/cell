@@ -18,7 +18,7 @@ var ProjectEngine = (function() {
 
         /**
          * Find the target document in data using the model name and id; Can also retrieve the parent collection only
-         * Returns an array containing : [the document, the parent collection, the insertion offset]
+         * Returns an array containing : [the document, the parent collection]
          * Returns null if not found.
          */
         _findTargetDoc = function(model, id, parentId) {
@@ -26,31 +26,31 @@ var ProjectEngine = (function() {
                 case 'Project':
                     return [self.data, null, null];
                 case 'Profile':
-                    if(!id) return [null, self.data.profiles, -1];
+                    if(!id) return [null, self.data.profiles];
                     var profile = _.findWhere(self.data.profiles, { id: id });
                     if(!profile) return null;
-                    return [profile, self.data.profiles, -1];
+                    return [profile, self.data.profiles];
                 case 'Scale':
-                    if(!id) return [null, self.data.scales, 0];
+                    if(!id) return [null, self.data.scales];
                     var scale = _.findWhere(self.data.scales, { id: id });
                     if(!scale) return null;
-                    return [scale, self.data.scales, 0];
+                    return [scale, self.data.scales];
                 case 'ScaleColumn':
                     var parentScale = _.findWhere(self.data.scales, { id: parentId });
                     if (!parentScale) return null;
                     if (!parentScale.columns) parentScale.columns = [];
-                    if(!id) return [null, parentScale.columns, 0];
+                    if(!id) return [null, parentScale.columns];
                     var scaleColumn = _.findWhere(parentScale.columns, { id: id });
                     if(!scaleColumn) return null;
-                    return [scaleColumn, parentScale.columns, 0];
+                    return [scaleColumn, parentScale.columns];
                 case 'ScaleLine':
                     var parentScale = _.findWhere(self.data.scales, { id: parentId });
                     if (!parentScale) return null;
                     if (!parentScale.lines) parentScale.lines = [];
-                    if(!id) return [null, parentScale.lines, -1];
+                    if(!id) return [null, parentScale.lines];
                     var scaleLine = _.findWhere(parentScale.lines, { id: id });
                     if(!scaleLine) return null;
-                    return [scaleLine, parentScale.lines, -1];
+                    return [scaleLine, parentScale.lines];
             }
             return null;
         };
@@ -115,7 +115,7 @@ var ProjectEngine = (function() {
                                     alerts.fatal("Unable to apply changes. Reason: unable to find collection for model " + modification.model);
                                     return;
                                 }
-                                parentCollection[1].splice(parentCollection[1].length + parentCollection[2], 0, newDoc);
+                                parentCollection[1].splice(0, 0, newDoc);
                             }
                             modification.localInfo = modification.localInfo || {};
                             modification.localInfo.target = newDoc;

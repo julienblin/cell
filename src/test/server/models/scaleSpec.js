@@ -51,13 +51,13 @@ describe("Scales", function(){
                 response.results[1].status.should.equal('success');
                 should.exists(response.results[0].id);
                 should.exists(response.results[1].id);
-                Scale.findById(response.results[0].id, function(err, refScale) {
+                Scale.findById(response.results[1].id, function(err, refScale) {
                     should.not.exists(err);
-                    refScale.name.should.equal('Test scale');
+                    refScale.name.should.equal('Test scale 2');
                     Project.findById(project.id).populate('scales').exec(function(err, refProject) {
                         refProject.scales.should.have.length(2);
                         refProject.scales[0].name.should.equal(refScale.name);
-                        refProject.scales[1].name.should.equal('Test scale 2');
+                        refProject.scales[1].name.should.equal('Test scale');
 
                         modificationLot.modifications = [
                             {
@@ -74,9 +74,9 @@ describe("Scales", function(){
                             should.not.exists(err);
                             Project.findById(project.id).populate('scales').exec(function(err, refProject) {
                                 refProject.scales.should.have.length(3);
-                                refProject.scales[0].name.should.equal('Test scale');
+                                refProject.scales[0].name.should.equal('Test scale 2');
                                 refProject.scales[1].name.should.equal('Test scale insert after');
-                                refProject.scales[2].name.should.equal('Test scale 2');
+                                refProject.scales[2].name.should.equal('Test scale');
                                 done();
                             });
                         });

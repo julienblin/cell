@@ -144,7 +144,7 @@ var ProfilesRenderer = (function() {
                                 target: profile,
                                 position: (index + profileIndex)
                             }
-                        })
+                        });
                     });
                     self.emit('applyModifications', modifications);
                 }
