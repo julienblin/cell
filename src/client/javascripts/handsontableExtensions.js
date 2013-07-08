@@ -20,6 +20,13 @@ Handsontable.CustomCellPropertiesRenderer = function(instance, TD, row, col, pro
         } else {
             $(TD).css('text-decoration', 'inherit');
         }
+
+        if(cellProperties.grandHeading) {
+            $(TD).css('font-size', '14px');
+            $(TD).css('font-weight', 'bold');
+            $(TD).css('background-color', '#f5f5f5');
+            $(TD).css('color', '#9da0a4');
+        }
     }
 };
 
@@ -80,9 +87,32 @@ Handsontable.CellCheckboxRenderer = function (instance, TD, row, col, prop, valu
     return TD;
 };
 
+Handsontable.BlankRenderer = function (instance, TD, row, col, prop, value, cellProperties) {
+    Handsontable.CustomCellPropertiesRenderer(instance, TD, row, col, prop, value, cellProperties);
+};
+
+Handsontable.cellTypes.cellNumeric = {
+    editor: Handsontable.TextEditor,
+    renderer: function (instance, TD, row, col, prop, value, cellProperties) {
+        instance.view.wt.wtDom.addClass(TD, 'htNumeric');
+        Handsontable.TextRenderer(instance, TD, row, col, prop, value, cellProperties);
+        Handsontable.CustomCellPropertiesRenderer(instance, TD, row, col, prop, value, cellProperties);
+    },
+    validator: function (value, callback) {
+        if(!value) return callback(true);
+        callback(/^-?\d*\.?\d*$/.test(value));
+    },
+    dataType: 'number'
+};
+
 Handsontable.cellTypes.title = {
     editor: Handsontable.TextEditor,
     renderer: function (instance, TD, row, col, prop, value, cellProperties) {
+        if (cellProperties.paddingLeft) {
+            $(TD).css({ 'padding-left': cellProperties.paddingLeft });
+        } else {
+            $(TD).css({ 'padding-left': 'inherit' });
+        }
         Handsontable.TextRenderer(instance, TD, row, col, prop, value, cellProperties);
         Handsontable.CustomCellPropertiesRenderer(instance, TD, row, col, prop, value, cellProperties);
     }

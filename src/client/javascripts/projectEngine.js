@@ -52,6 +52,11 @@ var ProjectEngine = (function() {
                     var scaleLine = _.findWhere(parentScale.lines, { id: id });
                     if(!scaleLine) return null;
                     return [scaleLine, parentScale.lines];
+                case 'EstimationLine':
+                    if(!id) return [null, self.data.estimationLines];
+                    var line = _.findWhere(self.data.estimationLines, { id: id });
+                    if(!line) return null;
+                    return [line, self.data.estimationLines];
             }
             return null;
         };

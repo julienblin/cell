@@ -95,23 +95,52 @@
         };
 
         var _estimationLines = function(data) {
-            _.each(data.estimationLines, function(line) {
+            var headingTotalLine = _.findWhere(data.estimationLines, { lineType: 'headingTotal' });
+            if(!headingTotalLine) {
+                headingTotalLine = {
+                    lineType: 'headingTotal',
+                    isActive: true,
+                    title: 'Grand total'
+                };
+                data.estimationLines.splice(0, 0, headingTotalLine);
+            } else {
+                if(data.estimationLines.indexOf(headingTotalLine) !== 0) {
+                    data.estimationLines.splice(data.estimationLines.indexOf(headingTotalLine), 0);
+                    data.estimationLines.splice(0, 0, headingTotalLine);
+                }
+            }
+
+            headingTotalLine.totalUT = 0;
+            headingTotalLine.totalPrice = 0;
+
+            for(var lineIndex = data.estimationLines.length - 1; lineIndex >= 0; --lineIndex) {
+                var line = data.estimationLines[lineIndex];
+                if(line.lineType === 'headingTotal') continue;
+
                 var scaleLine = _getScaleLine(data, line.scale, line.complexity);
                 if(!scaleLine) {
                     line.totalUT = null;
                     line.totalPrice = null;
-                    return;
+                    continue;
                 }
 
-                var coefficient = line.coefficient ? self.parseFloat(line.coefficient) : 1.0;
-                if(scaleLine.totalUT) {
-                    line.totalUT = scaleLine.totalUT * coefficient;
-                }
+                if(!line.lineType) {
+                    var coefficient = line.coefficient ? self.parseFloat(line.coefficient) : 1.0;
+                    if(scaleLine.totalUT) {
+                        line.totalUT = scaleLine.totalUT * coefficient;
+                        if(line.isActive) {
+                            headingTotalLine.totalUT = headingTotalLine.totalUT + line.totalUT;
+                        }
+                    }
 
-                if(scaleLine.totalPrice) {
-                    line.totalPrice = scaleLine.totalPrice * coefficient;
+                    if(scaleLine.totalPrice) {
+                        line.totalPrice = scaleLine.totalPrice * coefficient;
+                        if(line.isActive) {
+                            headingTotalLine.totalPrice = headingTotalLine.totalPrice + line.totalPrice;
+                        }
+                    }
                 }
-            });
+            }
         };
 
         // Public functions
