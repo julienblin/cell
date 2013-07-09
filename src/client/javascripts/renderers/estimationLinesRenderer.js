@@ -98,8 +98,8 @@ var EstimationLinesRenderer = (function() {
                         editor: Handsontable.AutocompleteEditor
                     }},
                     { data: 'coefficient', type: 'cellNumeric' },
-                    { data: 'totalUT',     type: 'ut', readOnly: true },
-                    { data: 'totalPrice',  type: 'price', readOnly: true }
+                    { data: 'computed.totalUT',     type: 'ut', readOnly: true },
+                    { data: 'computed.totalPrice',  type: 'price', readOnly: true }
                 ],
                 cells: function (row, col, prop) {
                     var cellProperties = {};
@@ -161,8 +161,8 @@ var EstimationLinesRenderer = (function() {
                                 cellProperties.readOnly = true;
                             }
                             break;
-                        case 'totalUT':
-                        case 'totalPrice':
+                        case 'computed.totalUT':
+                        case 'computed.totalPrice':
                             cellProperties.computed = (line.id) && true;
                             break;
                     }

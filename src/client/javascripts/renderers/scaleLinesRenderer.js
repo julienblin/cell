@@ -33,8 +33,8 @@ var ScaleLinesRenderer = (function() {
                 columns.push({ data: 'values.' + column.id, type: column.isBaseline ? 'ut' : 'percent' });
             });
             columns.push({ type: 'ut' });
-            columns.push({ data: 'totalUT', type: 'ut', readOnly: true });
-            columns.push({ data: 'totalPrice', type: 'price', readOnly: true });
+            columns.push({ data: 'computed.totalUT', type: 'ut', readOnly: true });
+            columns.push({ data: 'computed.totalPrice', type: 'price', readOnly: true });
             return columns;
         };
 
@@ -131,8 +131,8 @@ var ScaleLinesRenderer = (function() {
                                 cellProperties.invalid = !(scaleLine.complexity);
                             }
                             break;
-                        case 'totalUT':
-                        case 'totalPrice':
+                        case 'computed.totalUT':
+                        case 'computed.totalPrice':
                             cellProperties.computed = true;
                             break;
                     }

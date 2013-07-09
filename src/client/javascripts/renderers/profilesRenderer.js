@@ -44,7 +44,7 @@ var ProfilesRenderer = (function() {
                     { data: 'priceIntermediary',      type: 'price' },
                     { data: 'percentageSenior',       type: 'percent' },
                     { data: 'priceSenior',            type: 'price' },
-                    { data: 'priceAverage',           type: 'price', readOnly: true }
+                    { data: 'computed.priceAverage',  type: 'price', readOnly: true }
                 ],
                 contextMenu: ['row_above', 'row_below', 'remove_row'],
                 cells: function (row, col, prop) {
@@ -67,7 +67,7 @@ var ProfilesRenderer = (function() {
                                     cellProperties.invalid = (totalPercentage != 100);
                                 }
                                 break;
-                            case 'priceAverage':
+                            case 'computed.priceAverage':
                                 cellProperties.computed = true;
                                 break;
                         }

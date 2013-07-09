@@ -9,17 +9,18 @@
 
         var _averageProfiles = function(data) {
             _.each(data.profiles, function(profile) {
+                if(!profile.computed) profile.computed = {};
                 if (!profile.id) {
-                    profile.priceAverage = null;
+                    profile.computed.priceAverage = null;
                     return;
                 }
 
                 if((self.parseInt(profile.percentageJunior) + self.parseInt(profile.percentageIntermediary) + self.parseInt(profile.percentageSenior)) != 100) {
-                    profile.priceAverage = null;
+                    profile.computed.priceAverage = null;
                     return;
                 }
 
-                profile.priceAverage = Math.round(
+                profile.computed.priceAverage = Math.round(
                     (self.parseInt(profile.priceJunior) * (self.parseInt(profile.percentageJunior) / 100)) +
                         (self.parseInt(profile.priceIntermediary) * (self.parseInt(profile.percentageIntermediary) / 100)) +
                         (self.parseInt(profile.priceSenior) * (self.parseInt(profile.percentageSenior) / 100)));
@@ -39,11 +40,12 @@
         var _scales = function(data) {
             _.each(data.scales, function(scale) {
                 _.each(scale.lines, function(scaleLine) {
+                    if(!scaleLine.computed) scaleLine.computed = {};
                     if(!scaleLine.values) scaleLine.values = {};
 
                     if(!scaleLine.id) {
-                        scaleLine.totalUT = null;
-                        scaleLine.totalPrice = null;
+                        scaleLine.computed.totalUT = null;
+                        scaleLine.computed.totalPrice = null;
                         return;
                     }
 
@@ -56,7 +58,7 @@
                         return sum;
                     }, 0);
 
-                    scaleLine.totalUT = _.reduce(scaleLine.values, function(sum, value, key) {
+                    scaleLine.computed.totalUT = _.reduce(scaleLine.values, function(sum, value, key) {
                         var colInfo = _getScaleColumnInfo(scale, key);
                         if(!colInfo) return sum;
                         var profile = _getProfile(data, colInfo.profile);
@@ -66,18 +68,18 @@
                         return sum + (totalBaseline * (self.parseFloat(value) / 100));
                     }, totalBaseline);
 
-                    scaleLine.totalPrice = _.reduce(scaleLine.values, function(sum, value, key) {
+                    scaleLine.computed.totalPrice = _.reduce(scaleLine.values, function(sum, value, key) {
                         var colInfo = _getScaleColumnInfo(scale, key);
                         if(!colInfo) return sum;
 
                         var profile = _getProfile(data, colInfo.profile);
-                        if(!(profile && profile.isActive && profile.priceAverage)) return sum;
+                        if(!(profile && profile.isActive && profile.computed.priceAverage)) return sum;
 
                         var localUT = self.parseFloat(value);
                         if(!colInfo.isBaseline)
                             localUT = totalBaseline * (localUT / 100);
 
-                        return sum + (profile.priceAverage * localUT);
+                        return sum + (profile.computed.priceAverage * localUT);
                     }, 0);
                 });
             });
@@ -100,7 +102,8 @@
                 headingTotalLine = {
                     lineType: 'headingTotal',
                     isActive: true,
-                    title: 'Grand total'
+                    title: 'Grand total',
+                    computed: {}
                 };
                 data.estimationLines.splice(0, 0, headingTotalLine);
             } else {
@@ -110,8 +113,8 @@
                 }
             }
 
-            headingTotalLine.totalUT = 0;
-            headingTotalLine.totalPrice = 0;
+            headingTotalLine.computed.totalUT = 0;
+            headingTotalLine.computed.totalPrice = 0;
 
             var currentHeading1 = {
                 totalUT: 0,
@@ -125,12 +128,13 @@
 
             for(var lineIndex = data.estimationLines.length - 1; lineIndex >= 0; --lineIndex) {
                 var line = data.estimationLines[lineIndex];
+                if(!line.computed) line.computed = {};
+
                 if(line.lineType === 'headingTotal') continue;
 
                 if(line.lineType === 'heading1') {
-                    line.totalUT = currentHeading1.totalUT;
-                    line.totalPrice = currentHeading1.totalPrice;
-                    console.log(line);
+                    line.computed.totalUT = currentHeading1.totalUT;
+                    line.computed.totalPrice = currentHeading1.totalPrice;
                     currentHeading1 = {
                         totalUT: 0,
                         totalPrice: 0
@@ -139,9 +143,8 @@
                 }
 
                 if(line.lineType === 'heading2') {
-                    line.totalUT = currentHeading2.totalUT;
-                    line.totalPrice = currentHeading2.totalPrice;
-                    console.log(line);
+                    line.computed.totalUT = currentHeading2.totalUT;
+                    line.computed.totalPrice = currentHeading2.totalPrice;
                     currentHeading2 = {
                         totalUT: 0,
                         totalPrice: 0
@@ -151,28 +154,28 @@
 
                 var scaleLine = _getScaleLine(data, line.scale, line.complexity);
                 if(!scaleLine) {
-                    line.totalUT = null;
-                    line.totalPrice = null;
+                    line.computed.totalUT = null;
+                    line.computed.totalPrice = null;
                     continue;
                 }
 
                 if(!line.lineType) {
                     var coefficient = line.coefficient ? self.parseFloat(line.coefficient) : 1.0;
-                    if(scaleLine.totalUT) {
-                        line.totalUT = scaleLine.totalUT * coefficient;
+                    if(scaleLine.computed.totalUT) {
+                        line.computed.totalUT = scaleLine.computed.totalUT * coefficient;
                         if(line.isActive) {
-                            headingTotalLine.totalUT = headingTotalLine.totalUT + line.totalUT;
-                            currentHeading1.totalUT = currentHeading1.totalUT + line.totalUT;
-                            currentHeading2.totalUT = currentHeading2.totalUT + line.totalUT;
+                            headingTotalLine.computed.totalUT = headingTotalLine.computed.totalUT + line.computed.totalUT;
+                            currentHeading1.totalUT = currentHeading1.totalUT + line.computed.totalUT;
+                            currentHeading2.totalUT = currentHeading2.totalUT + line.computed.totalUT;
                         }
                     }
 
-                    if(scaleLine.totalPrice) {
-                        line.totalPrice = scaleLine.totalPrice * coefficient;
+                    if(scaleLine.computed.totalPrice) {
+                        line.computed.totalPrice = scaleLine.computed.totalPrice * coefficient;
                         if(line.isActive) {
-                            headingTotalLine.totalPrice = headingTotalLine.totalPrice + line.totalPrice;
-                            currentHeading1.totalPrice = currentHeading1.totalPrice + line.totalPrice;
-                            currentHeading2.totalPrice = currentHeading2.totalPrice + line.totalPrice;
+                            headingTotalLine.computed.totalPrice = headingTotalLine.computed.totalPrice + line.computed.totalPrice;
+                            currentHeading1.totalPrice = currentHeading1.totalPrice + line.computed.totalPrice;
+                            currentHeading2.totalPrice = currentHeading2.totalPrice + line.computed.totalPrice;
                         }
                     }
                 }
