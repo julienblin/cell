@@ -73,14 +73,18 @@ var ScaleLinesRenderer = (function() {
                         'custom_col_left': {
                             name: 'Insert column on the left',
                             disabled: function() {
-                                var col = $(self.gridSelector).handsontable('getSelected')[1];
+                                var col = $(self.gridSelector).handsontable('getSelected');
+                                if(!col) return true;
+                                col = col[1]
                                 return !((col > 1) && (col < self.scale.columns.length + 2));
                             }
                         },
                         'custom_col_right': {
                             name: 'Insert column on the right',
                             disabled: function() {
-                                var col = $(self.gridSelector).handsontable('getSelected')[1];
+                                var col = $(self.gridSelector).handsontable('getSelected');
+                                if(!col) return true;
+                                col = col[1]
                                 return !((col > 0) && (col < self.scale.columns.length + 1));
                             }
                         }
@@ -207,13 +211,6 @@ var ScaleLinesRenderer = (function() {
                 }
             });
             _cachedGrid = $(self.gridSelector).data('handsontable');
-        });
-
-        // Prevents clipping of dropdowns inside the grid
-        $(self.gridSelector).on('click', 'a.dropdown-toggle', function(e) {
-            var dropDown = $(this).next();
-            $('.wtHider', self.gridSelector).css('min-height', dropDown.height() + 200 + 'px');
-            e.preventDefault();
         });
 
         $(self.gridSelector).on('click', 'a[data-behavior~="selectProfileColumn"]', function(e) {

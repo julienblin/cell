@@ -105,17 +105,22 @@ var EstimationLinesRenderer = (function() {
                     var cellProperties = {};
                     var line = self.engine.data.estimationLines[row] || {};
 
-                    if(line.lineType === 'headingTotal') {
+                    if((line.lineType === 'headingTotal')
+                     ||(line.lineType === 'heading1')
+                     ||(line.lineType === 'heading2')) {
                         cellProperties.grandHeading = true;
                         cellProperties.readOnly = true;
                     }
+
 
                     if(typeof prop === 'function')
                         prop = prop(null, null, { propertyName: true });
 
                     switch(prop) {
                         case 'isActive':
-                            if(line.lineType === 'headingTotal') {
+                            if((line.lineType === 'headingTotal')
+                             ||(line.lineType === 'heading1')
+                             ||(line.lineType === 'heading2')) {
                                 cellProperties.renderer = Handsontable.BlankRenderer;
                             }
                             break;
@@ -126,13 +131,13 @@ var EstimationLinesRenderer = (function() {
                                     cellProperties.paddingLeft = '2px';
                                     break;
                                 case 'heading1':
-                                    cellProperties.paddingLeft = '10px';
+                                    cellProperties.paddingLeft = '15px';
                                     break;
                                 case 'heading2':
-                                    cellProperties.paddingLeft = '20px';
+                                    cellProperties.paddingLeft = '30px';
                                     break;
                                 default:
-                                    cellProperties.paddingLeft = '30px';
+                                    cellProperties.paddingLeft = '45px';
                                     break;
                             }
                             break;
@@ -165,6 +170,71 @@ var EstimationLinesRenderer = (function() {
                     cellProperties.muted = (line.id) && !line.isActive;
 
                     return cellProperties;
+                },
+                contextMenu: {
+                    items: {
+                        'row_above': {
+                            disabled: function() {
+                                var row = $(self.gridSelector).handsontable('getSelected');
+                                if(!row) return true;
+                                row = row[0];
+                                return row < 1;
+                            }
+                        },
+                        'row_below': {},
+                        'hsep1': '---------',
+                        'set_heading1': {
+                            name: 'Set as heading 1'
+                        },
+                        'set_heading2': {
+                            name: 'Set as heading 2'
+                        },
+                        'set_standard': {
+                            name: 'Set as standard line'
+                        },
+                        'hsep2': '---------',
+                        'remove_row': {
+                            disabled: function() {
+                                var row = $(self.gridSelector).handsontable('getSelected');
+                                if(!row) return true;
+                                row = row[0];
+                                return row < 1;
+                            }
+                        }
+                    },
+                    callback: function (key, options) {
+                        if ((key === 'set_heading1') || (key === 'set_heading2') || (key === 'set_standard')) {
+                            var row = $(self.gridSelector).handsontable('getSelected');
+                            if(!row) return true;
+                            row = row[0];
+
+                            var line = self.engine.data.estimationLines[row];
+                            if(line.id) {
+                                var modification = {
+                                    model: 'EstimationLine',
+                                    action: 'update',
+                                    id: line.id,
+                                    property: 'lineType',
+                                    oldValue: line.lineType
+                                };
+                                switch(key) {
+                                    case 'set_heading1':
+                                        modification.newValue = 'heading1';
+                                        break;
+                                    case 'set_heading2':
+                                        modification.newValue = 'heading2';
+                                        break;
+                                    case 'set_standard':
+                                        modification.newValue = null;
+                                        break;
+                                }
+                                self.emit('applyModifications', [modification]);
+                            }
+                        }
+                    }
+                },
+                beforeRender: function() {
+                    _shadowData.estimationLines = _.clone(self.engine.data.estimationLines);
                 },
                 afterChange: function(changes, operation) {
                     switch(operation) {
@@ -233,18 +303,26 @@ var EstimationLinesRenderer = (function() {
                             self.emit('applyModifications', modifications);
                             break;
                     }
+                },
+                afterRemoveRow: function(index, amount) {
+                    var linesToDelete = _shadowData.estimationLines.slice(index, index + amount);
+                    var modifications = [];
+                    _.each(linesToDelete, function(line, lineIndex) {
+                        modifications.push({
+                            model: 'EstimationLine',
+                            id: line.id,
+                            action: 'delete',
+                            localInfo: {
+                                alreadyApplied: true,
+                                target: line,
+                                position: (index + lineIndex)
+                            }
+                        });
+                    });
+                    self.emit('applyModifications', modifications);
                 }
             });
             _cachedGrid = $(self.gridSelector).data('handsontable');
-        });
-
-        // Prevents clipping of dropdowns inside the grid
-        $(self.gridSelector).on('click', '.htAutocomplete', function(e) {
-            var dropDown = $('.handsontableInputHolder');
-            if(dropDown.length === 1) {
-                $('.wtHider', self.gridSelector).css('min-height', $(dropDown[0]).height() + 200 + 'px');
-                e.preventDefault();
-            }
         });
 
         return self;

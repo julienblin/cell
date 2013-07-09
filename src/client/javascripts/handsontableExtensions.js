@@ -110,8 +110,6 @@ Handsontable.cellTypes.title = {
     renderer: function (instance, TD, row, col, prop, value, cellProperties) {
         if (cellProperties.paddingLeft) {
             $(TD).css({ 'padding-left': cellProperties.paddingLeft });
-        } else {
-            $(TD).css({ 'padding-left': 'inherit' });
         }
         Handsontable.TextRenderer(instance, TD, row, col, prop, value, cellProperties);
         Handsontable.CustomCellPropertiesRenderer(instance, TD, row, col, prop, value, cellProperties);

@@ -42,7 +42,7 @@ script#scale-tab-template(type="text/x-handlebars-template")
       {{name}}
 
 script#scale-tab-content-template(type="text/x-handlebars-template")
-  .tab-pane(id="scale{{id}}", style="min-height: 200px;", data-id="{{id}}")
+  .tab-pane(id="scale{{id}}", data-id="{{id}}")
     .row-fluid.text-right(style="margin-bottom: 20px;")
       .span12
         .btn-group
@@ -58,7 +58,7 @@ script#scale-tab-content-template(type="text/x-handlebars-template")
                 span.label.label-important Delete
     .row-fluid
       .span12
-        div.headersBottom(id="gridScale{{id}}")
+        .headersBottom.gridPadding(id="gridScale{{id}}", style="min-height: 350px;")
 
 script#scale-colheader-template(type="text/x-handlebars-template")
   .relative

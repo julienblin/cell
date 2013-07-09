@@ -113,9 +113,41 @@
             headingTotalLine.totalUT = 0;
             headingTotalLine.totalPrice = 0;
 
+            var currentHeading1 = {
+                totalUT: 0,
+                totalPrice: 0
+            };
+
+            var currentHeading2 = {
+                totalUT: 0,
+                totalPrice: 0
+            };
+
             for(var lineIndex = data.estimationLines.length - 1; lineIndex >= 0; --lineIndex) {
                 var line = data.estimationLines[lineIndex];
                 if(line.lineType === 'headingTotal') continue;
+
+                if(line.lineType === 'heading1') {
+                    line.totalUT = currentHeading1.totalUT;
+                    line.totalPrice = currentHeading1.totalPrice;
+                    console.log(line);
+                    currentHeading1 = {
+                        totalUT: 0,
+                        totalPrice: 0
+                    };
+                    continue;
+                }
+
+                if(line.lineType === 'heading2') {
+                    line.totalUT = currentHeading2.totalUT;
+                    line.totalPrice = currentHeading2.totalPrice;
+                    console.log(line);
+                    currentHeading2 = {
+                        totalUT: 0,
+                        totalPrice: 0
+                    };
+                    continue;
+                }
 
                 var scaleLine = _getScaleLine(data, line.scale, line.complexity);
                 if(!scaleLine) {
@@ -130,6 +162,8 @@
                         line.totalUT = scaleLine.totalUT * coefficient;
                         if(line.isActive) {
                             headingTotalLine.totalUT = headingTotalLine.totalUT + line.totalUT;
+                            currentHeading1.totalUT = currentHeading1.totalUT + line.totalUT;
+                            currentHeading2.totalUT = currentHeading2.totalUT + line.totalUT;
                         }
                     }
 
@@ -137,6 +171,8 @@
                         line.totalPrice = scaleLine.totalPrice * coefficient;
                         if(line.isActive) {
                             headingTotalLine.totalPrice = headingTotalLine.totalPrice + line.totalPrice;
+                            currentHeading1.totalPrice = currentHeading1.totalPrice + line.totalPrice;
+                            currentHeading2.totalPrice = currentHeading2.totalPrice + line.totalPrice;
                         }
                     }
                 }
