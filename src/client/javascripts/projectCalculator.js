@@ -17,13 +17,20 @@
 
                 if((self.parseInt(profile.percentageJunior) + self.parseInt(profile.percentageIntermediary) + self.parseInt(profile.percentageSenior)) != 100) {
                     profile.computed.priceAverage = null;
+                    profile.computed.percentPriceJunior = null;
+                    profile.computed.percentPriceIntermediary = null;
+                    profile.computed.percentPriceSenior = null;
                     return;
                 }
 
-                profile.computed.priceAverage = Math.round(
+                profile.computed.priceAverage =
                     (self.parseInt(profile.priceJunior) * (self.parseInt(profile.percentageJunior) / 100)) +
                         (self.parseInt(profile.priceIntermediary) * (self.parseInt(profile.percentageIntermediary) / 100)) +
-                        (self.parseInt(profile.priceSenior) * (self.parseInt(profile.percentageSenior) / 100)));
+                        (self.parseInt(profile.priceSenior) * (self.parseInt(profile.percentageSenior) / 100));
+
+                profile.computed.percentPriceJunior = (self.parseInt(profile.priceJunior) * self.parseInt(profile.percentageJunior)) / profile.computed.priceAverage;
+                profile.computed.percentPriceIntermediary = (self.parseInt(profile.priceIntermediary) * self.parseInt(profile.percentageIntermediary)) / profile.computed.priceAverage;
+                profile.computed.percentPriceSenior = (self.parseInt(profile.priceSenior) * self.parseInt(profile.percentageSenior)) / profile.computed.priceAverage;
             });
         };
 
@@ -264,17 +271,6 @@
             data.computed.profiles = headingTotalLine.computed.profiles;
         };
 
-        var _profileStatistics = function(data) {
-            _.each(data.profiles, function(profile) {
-                if(!profile.computed) profile.computed = {};
-                if (!profile.id) {
-                    profile.computed.percentTotalUT = null;
-                    profile.computed.percentTotalPrice = null;
-                    return;
-                }
-            });
-        };
-
         // Public functions
 
         /**
@@ -302,7 +298,6 @@
             _averageProfiles(data);
             _scales(data);
             _estimationLines(data);
-            _profileStatistics(data);
         };
 
         return self;
