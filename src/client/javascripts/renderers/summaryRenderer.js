@@ -7,6 +7,7 @@ var SummaryRenderer = (function() {
         var self = {};
         self.__proto__ = BaseTabRenderer('#summary', engine);
         self.gridSelectorProfiles = '#profilesComputedGrid';
+        self.chartsSelectorProfilesEfforts = '#profilesEffortsCharts';
 
         var _cachedGridProfiles = null;
 
@@ -84,55 +85,137 @@ var SummaryRenderer = (function() {
             return result;
         };
 
+        var _renderChartsProfilesEfforts = function(data) {
+            var colors = Highcharts.getOptions().colors;
+            var profilesData =  _.map(data, function(line, index) {
+                if(line.title !== 'Total') {
+                    return {
+                        name: line.title,
+                        y: line.totalAggregateUT,
+                        color: colors[index]
+                    };
+                }
+            });
+
+            var levelData = _.flatten(_.map(data, function(line, index) {
+                if(line.title !== 'Total') {
+                    return [
+                        {
+                            name: 'Junior',
+                            y: line.totalJuniorUT,
+                            color: colors[index]
+                        },
+                        {
+                            name: 'Intermediary',
+                            y: line.totalIntermediaryUT,
+                            color: colors[index]
+                        },
+                        {
+                            name: 'Senior',
+                            y: line.totalSeniorUT,
+                            color: colors[index]
+                        }
+                    ];
+                }
+            }));
+
+            $(self.chartsSelectorProfilesEfforts).highcharts({
+                chart: {
+                    type: 'pie'
+                },
+                plotOptions: {
+                    pie: {
+                        shadow: false,
+                        center: ['50%', '50%'],
+                        animation: false
+                    }
+                },
+                title: {
+                    text: 'Repartition of UT per profile'
+                },
+                series: [
+                    {
+                        name: 'UT',
+                        data: profilesData,
+                        size: '60%',
+                        dataLabels: {
+                            formatter: function() {
+                                return this.y > 5 ? this.point.name : null;
+                            },
+                            color: 'white',
+                            distance: -30
+                        }
+                    },
+                    {
+                        name: 'UT',
+                        data: levelData,
+                        size: '80%',
+                        innerSize: '60%',
+                        dataLabels: {
+                            formatter: function() {
+                                return this.y > 1 ? '<b>'+ this.point.name +':</b> '+ numeral(this.y).format('0.[0]') +'%'  : null;
+                            }
+                        }
+                    }
+                ]
+            });
+        };
+
         // Event subscriptions
         self.on('render', function() {
 
             $('[data-property="totalUT"]').text(numeral(self.engine.data.computed.totalUT).format('0,0') + ' UT');
             $('[data-property="totalPrice"]').text(numeral(self.engine.data.computed.totalPrice).format('0,0 $'));
 
+            var data = _computeProfilesData();
+
             if(_cachedGridProfiles) {
                 $(self.gridSelectorProfiles).handsontable("updateSettings", {
-                    data: _computeProfilesData()
+                    data: data
                 });
                 _cachedGridProfiles.render();
-                return;
+            } else {
+                $(self.gridSelectorProfiles).handsontable({
+                    data: data,
+                    colHeaders: [ "Title", "Junior", "Intermediary", "Senior", "Aggregate" ],
+                    colWidths:  [600, 45, 45, 45, 45, 45, 45, 45, 45],
+                    afterGetColHeader: function (col, TH) {
+                        switch(col) {
+                            case 1:
+                            case 2:
+                            case 3:
+                            case 4:
+                                $(TH).attr('colspan', 2);
+                                break;
+                        }
+                    },
+                    stretchH: 'all',
+                    rowHeaders: true,
+                    columns: [
+                        { data: 'title',                  type: 'title', readOnly: true },
+                        { data: 'totalJuniorUT',          type: 'ut', readOnly: true },
+                        { data: 'priceJunior',            type: 'price', readOnly: true },
+                        { data: 'totalIntermediaryUT',    type: 'ut', readOnly: true },
+                        { data: 'priceIntermediary',      type: 'price', readOnly: true },
+                        { data: 'totalSeniorUT',          type: 'ut', readOnly: true },
+                        { data: 'priceSenior',            type: 'price', readOnly: true },
+                        { data: 'totalAggregateUT',       type: 'ut', readOnly: true },
+                        { data: 'priceAggregate',         type: 'price', readOnly: true },
+                    ],
+                    cells: function (row, col, prop) {
+                        var cellProperties = {};
+                        if(row === self.engine.data.profiles.length)
+                            cellProperties.grandHeading = true;
+                        if(/Aggregate/.test(prop)) {
+                            cellProperties.grandHeading = true;
+                        }
+                        return cellProperties;
+                    }
+                });
+                _cachedGridProfiles = $(self.gridSelectorProfiles).data('handsontable');
             }
 
-            $(self.gridSelectorProfiles).handsontable({
-                data: _computeProfilesData(),
-                colHeaders: [ "Title", "Junior", "Intermediary", "Senior", "Aggregate" ],
-                colWidths:  [600, 45, 45, 45, 45, 45, 45, 45, 45],
-                afterGetColHeader: function (col, TH) {
-                    switch(col) {
-                        case 1:
-                        case 2:
-                        case 3:
-                        case 4:
-                            $(TH).attr('colspan', 2);
-                            break;
-                    }
-                },
-                stretchH: 'all',
-                rowHeaders: true,
-                columns: [
-                    { data: 'title',                  type: 'title', readOnly: true },
-                    { data: 'totalJuniorUT',          type: 'ut', readOnly: true },
-                    { data: 'priceJunior',            type: 'price', readOnly: true },
-                    { data: 'totalIntermediaryUT',    type: 'ut', readOnly: true },
-                    { data: 'priceIntermediary',      type: 'price', readOnly: true },
-                    { data: 'totalSeniorUT',          type: 'ut', readOnly: true },
-                    { data: 'priceSenior',            type: 'price', readOnly: true },
-                    { data: 'totalAggregateUT',       type: 'ut', readOnly: true },
-                    { data: 'priceAggregate',         type: 'price', readOnly: true },
-                ],
-                cells: function (row, col, prop) {
-                    var cellProperties = {};
-                    if(row === self.engine.data.profiles.length)
-                        cellProperties.grandHeading = true;
-                    return cellProperties;
-                }
-            });
-            _cachedGridProfiles = $(self.gridSelectorProfiles).data('handsontable');
+            _renderChartsProfilesEfforts(data);
         });
 
         return self;

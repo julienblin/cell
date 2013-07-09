@@ -16,8 +16,8 @@ module.exports = function(assets) {
     assets.addJs('/javascripts/jquery.contextMenu.js', 'project');
     assets.addJs('/javascripts/jquery.ui.position.js', 'project');
     assets.addJs('/javascripts/underscore.min.js', 'project');
-    assets.addJs('/javascripts/underscore.min.js', 'project');
     assets.addJs('/javascripts/handlebars.js', 'project');
+    assets.addJs('/javascripts/highcharts.js', 'project');
 
     assets.addJs('/javascripts/handsontableExtensions.js', 'project');
     assets.addJs('/javascripts/eventEmitter.js', 'project');
