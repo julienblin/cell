@@ -108,10 +108,12 @@ var ScalesRenderer = (function() {
 
         $(_modalNewScaleSelector).on('submit', function(e) {
             var scaleName = $('input[name="name"]', _modalNewScaleSelector).val();
+            var currentLastScale = _.last(self.engine.data.scales);
             if(scaleName) {
                 var modifications = [{
                     model: 'Scale',
                     action: 'create',
+                    insertAfter: currentLastScale ? currentLastScale.id : null,
                     values: {
                         isActive: true,
                         name: scaleName,

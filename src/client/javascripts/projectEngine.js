@@ -156,8 +156,6 @@ var ProjectEngine = (function() {
                     }
                 }
             });
-            _projectCalculator.performCalculations(self.data);
-            self.emit('modified');
         };
 
         /**
@@ -202,7 +200,7 @@ var ProjectEngine = (function() {
                             var modification = failedModif.modification;
                             switch(modification.action) {
                                 case 'create':
-                                    var parentCollection = _findTargetDoc(modification.model, null, modification.parentId);
+                                    var parentCollection = _findTargetDoc(modification.model, null, modification.parentId)[1];
                                     var indexOfTarget = parentCollection.indexOf(modification.localInfo.target);
                                     if(indexOfTarget != -1) {
                                         parentCollection.splice(indexOfTarget, 1);
@@ -218,8 +216,8 @@ var ProjectEngine = (function() {
                                     break;
                                 case 'delete':
                                     var originalDoc = modification.localInfo.target;
-                                    var parentCollection = _findTargetDoc(modification.model, null, modification.parentId);
-                                    parentCollection[1].splice(modification.localInfo.position, 0, originalDoc);
+                                    var parentCollection = _findTargetDoc(modification.model, null, modification.parentId)[1];
+                                    parentCollection.splice(modification.localInfo.position, 0, originalDoc);
                                     break;
                             }
 

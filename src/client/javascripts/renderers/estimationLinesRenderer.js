@@ -76,6 +76,7 @@ var EstimationLinesRenderer = (function() {
                 colHeaders: [ "Act.", "Title", "Scale", "Complexity", "Coeff.", "Total UT", "Total $" ],
                 colWidths:  [15, 600, 60, 60, 20, 30, 30],
                 stretchH: 'all',
+                stretchV: 'all',
                 rowHeaders: true,
                 minSpareRows: 1,
                 columns: [

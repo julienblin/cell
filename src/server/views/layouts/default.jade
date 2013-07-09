@@ -19,9 +19,7 @@ html(lang='en')
 
       block container
 
-      hr
-      footer
-        p.text-right= config.app.copyright + ' - ' + config.app.version
+    include ../includes/bottom-navbar
 
     != renderJs()
     block foot
