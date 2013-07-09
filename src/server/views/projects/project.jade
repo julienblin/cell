@@ -28,10 +28,6 @@ block container
         .span10.offset1
           #profilesInputGrid
 
-      .row(style="margin-top: 30px")
-        .span10.offset1
-          #profilesComputedGrid
-
     #scales.tab-pane
       .tabbable.tabs-left
         ul#scalesTabs.nav.nav-tabs
@@ -44,6 +40,16 @@ block container
 
     #summary.tab-pane
       h3 Summary
+
+      .row
+        .span12
+          blockquote
+            h5(data-property="totalUT")
+            h5(data-property="totalPrice")
+
+      .row
+        .span12
+          #profilesComputedGrid
 
 block foot
 

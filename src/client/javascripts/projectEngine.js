@@ -13,7 +13,8 @@ var ProjectEngine = (function() {
             info: new InfoRenderer(self),
             profiles: new ProfilesRenderer(self),
             scales: new ScalesRenderer(self),
-            estimationLines: new EstimationLinesRenderer(self)
+            estimationLines: new EstimationLinesRenderer(self),
+            summary: new SummaryRenderer(self)
         };
         _projectCalculator = new ProjectCalculator();
 

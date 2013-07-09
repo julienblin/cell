@@ -6,53 +6,21 @@ var ProfilesRenderer = (function() {
     return function(engine) {
         var self = {};
         self.__proto__ = BaseTabRenderer('#profiles', engine);
-        self.gridSelectorInput = '#profilesInputGrid';
-        self.gridSelectorComputed = '#profilesComputedGrid';
+        self.gridSelector = '#profilesInputGrid';
 
-        var _cachedGridInput = null;
-        var _cachedGridComputed = null;
+        var _cachedGrid = null;
         var _calculator = new ProjectCalculator();
         var _shadowData = {};
 
-        var _computeData = function() {
-            var result = [];
-            _.each(self.engine.data.profiles, function(profile) {
-                if(profile.id) {
-                    var line = {
-                        isActive: profile.isActive,
-                        title: profile.title
-                    };
-
-                    var computedProfile = self.engine.data.computed.profiles[profile.id];
-                    if(computedProfile) {
-                        line.percentageJunior = computedProfile.percentUT * (profile.percentageJunior / 100);
-                        line.priceJunior = computedProfile.totalPrice * (profile.computed.percentPriceJunior / 100);
-                        line.percentageIntermediary = computedProfile.percentUT * (profile.percentageIntermediary / 100);
-                        line.priceIntermediary = computedProfile.totalPrice * (profile.computed.percentPriceIntermediary / 100);
-                        line.percentageSenior = computedProfile.percentUT * (profile.percentageSenior / 100);
-                        line.priceSenior = computedProfile.totalPrice * (profile.computed.percentPriceSenior / 100);
-                    }
-
-                    result.push(line);
-                }
-            });
-            return result;
-        };
-
         // Event subscriptions
         self.on('render', function() {
-            _computeData();
 
-            if(_cachedGridInput && _cachedGridComputed) {
-                _cachedGridInput.render();
-                $(self.gridSelectorComputed).handsontable("updateSettings", {
-                    data: _computeData()
-                });
-                _cachedGridComputed.render();
+            if(_cachedGrid) {
+                _cachedGrid.render();
                 return;
             }
 
-            $(self.gridSelectorInput).handsontable({
+            $(self.gridSelector).handsontable({
                 data: self.engine.data.profiles,
                 colHeaders: [ "Act.", "Title", "Junior", "Intermediary", "Senior", "$ / UT" ],
                 colWidths:  [15, 600, 30, 30, 30, 30, 30, 30, 60],
@@ -182,38 +150,7 @@ var ProfilesRenderer = (function() {
                     self.emit('applyModifications', modifications);
                 }
             });
-            _cachedGridInput = $(self.gridSelectorInput).data('handsontable');
-
-            $(self.gridSelectorComputed).handsontable({
-                data: _computeData(),
-                colHeaders: [ "Act.", "Title", "Junior", "Intermediary", "Senior", "Aggregate" ],
-                colWidths:  [15, 600, 30, 30, 30, 30, 30, 30, 30, 30],
-                afterGetColHeader: function (col, TH) {
-                    switch(col) {
-                        case 2:
-                        case 3:
-                        case 4:
-                        case 5:
-                            $(TH).attr('colspan', 2);
-                            break;
-                    }
-                },
-                stretchH: 'all',
-                rowHeaders: true,
-                columns: [
-                    { data: 'isActive',               renderer: Handsontable.BlankRenderer, readOnly: true },
-                    { data: 'title',                  type: 'title', readOnly: true },
-                    { data: 'percentageJunior',       type: 'percent', readOnly: true },
-                    { data: 'priceJunior',            type: 'price', readOnly: true },
-                    { data: 'percentageIntermediary', type: 'percent', readOnly: true },
-                    { data: 'priceIntermediary',      type: 'price', readOnly: true },
-                    { data: 'percentageSenior',       type: 'percent', readOnly: true },
-                    { data: 'priceSenior',            type: 'price', readOnly: true },
-                    { data: 'percentageAggregate',    type: 'percent', readOnly: true },
-                    { data: 'priceAggregate',         type: 'price', readOnly: true }
-                ]
-            });
-            _cachedGridComputed = $(self.gridSelectorComputed).data('handsontable');
+            _cachedGrid = $(self.gridSelector).data('handsontable');
         });
 
         return self;
