@@ -123,4 +123,12 @@ $(function() {
             }
         }
     });
+
+    $(document).ajaxSend(function() {
+        statusBar.changeIcon('loading');
+    }).ajaxSuccess(function() {
+        statusBar.changeIcon('ok');
+    }).ajaxError(function() {
+        statusBar.changeIcon('error');
+    });
 });

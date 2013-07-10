@@ -8,6 +8,7 @@ module.exports = function(assets) {
     assets.addJs('/javascripts/lib/bootstrap.min.js');
     assets.addJs('/javascripts/lib/numeral.js');
     assets.addJs('/javascripts/alerts.js');
+    assets.addJs('/javascripts/statusBar.js');
     assets.addJs('/javascripts/modals.js');
     assets.addJs('/javascripts/behaviors.js');
 

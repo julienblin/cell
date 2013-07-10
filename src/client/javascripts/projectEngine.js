@@ -167,9 +167,12 @@ var ProjectEngine = (function() {
                 var modificationsToSend = _.map(modifications, function(modification) {
                     return _.omit(modification, 'localInfo');
                 });
+                statusBar.changeIcon('loading');
                 _socket.emit('modify', modificationsToSend, function(err, results) {
+                    statusBar.changeIcon('ok');
                     if (err) {
                         alerts.fatal("Unable to send modifications to server. Reason:" + err.message);
+                        statusBar.changeIcon('error');
                         return;
                     }
 
@@ -245,6 +248,7 @@ var ProjectEngine = (function() {
 
         window.onerror = function(msg, url, line) {
             alerts.fatal('Execution error. Reason: ' + msg + '.');
+            statusBar.changeIcon('error');
         };
 
         $(window).unload(function() {
@@ -259,6 +263,8 @@ var ProjectEngine = (function() {
             }
 
             var loadingAlert = alerts.info('Loading project...');
+            statusBar.changeIcon('loading');
+
             var socketUrl = window.location.protocol + '//' + window.location.hostname;
             if (window.location.port) {
                 socketUrl += ':' + window.location.port;
@@ -267,11 +273,14 @@ var ProjectEngine = (function() {
 
             _socket.on('disconnect', function() {
                 alerts.fatal("You've been disconnected from the server.");
+                statusBar.changeIcon('error');
             });
 
             _socket.emit('getDataAndSubscribe', projectId, function(err, data) {
                 loadingAlert.dismiss();
+                statusBar.changeIcon('ok');
                 if (err) {
+                    statusBar.changeIcon('error');
                     alerts.fatal("There has been an error while loading project data. Reason: " + err.message);
                     return;
                 }
@@ -282,14 +291,17 @@ var ProjectEngine = (function() {
             });
 
             _socket.on('receiveUpdates', function(modifications) {
+                statusBar.changeIcon('loading');
                 if(!self.data) {
                     alerts.fatal("There has been an concurrency error while loading project.");
+                    statusBar.changeIcon('error');
                     return;
                 }
 
                 _apply(modifications);
                 _projectCalculator.performCalculations(self.data);
                 self.emit('modified');
+                statusBar.changeIcon('ok');
             });
         };
 
