@@ -84,6 +84,9 @@ module.exports = function modifyPlugin (schema, options) {
     };
 
     var _update = function(Model, modificationLot, modification, callback) {
+        if(Model.modelName === 'Project')
+            modification.id = modificationLot.projectId;
+
         Model.findById(modification.id, function(findByIdErr, obj) {
             if (findByIdErr) return callback(findByIdErr, null);
             if (!obj) return callback(null, { status: 'error', statusMessage: util.format("Unable to find %s(%s)", Model.modelName, modification.id) });
@@ -102,6 +105,9 @@ module.exports = function modifyPlugin (schema, options) {
     };
 
     var _delete = function(Model, modificationLot, modification, callback) {
+        if(Model.modelName === 'Project')
+            modification.id = modificationLot.projectId;
+
         Model.findById(modification.id, function(findByIdErr, obj) {
             if (findByIdErr) return callback(findByIdErr, null);
             if (!obj) return callback(null, { status: 'error', statusMessage: util.format("Unable to find %s(%s)", Model.modelName, modification.id) });

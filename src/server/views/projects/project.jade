@@ -20,8 +20,23 @@ block container
         .span9
           h1(contenteditable, data-property="projectName")
           h3(contenteditable, data-property="clientName")
-        .span3
-          p#createdAt.text-right.muted
+        .span3.text-center
+          p#createdAt.muted
+          .well(style="margin-left: 20px; margin-right: 20px")
+            p
+              button#btnLockProject.btn(style="width: 150px")
+                i.icon-pencil
+                span
+                  | &nbsp;Lock
+            p
+              button#btnTakeSnapshot.btn(style="width: 150px")
+                i.icon-camera
+                | &nbsp;Take a snapshot
+            hr
+            p
+              button#btnDeleteProject.btn.btn-danger(style="width: 150px")
+                i.icon-remove.icon-white
+                | &nbsp;Delete
 
     #profiles.tab-pane
       .row

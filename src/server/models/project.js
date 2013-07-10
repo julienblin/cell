@@ -9,6 +9,7 @@ var ProjectSchema = new Schema({
     projectName: { type: String, required: true, validate: [validations.uniqueFieldInsensitive('Project', 'projectName', 'clientName')], index: true },
     description: { type: String },
     created: { type: Date, required: true, default: Date.now },
+    isLocked: { type: Boolean, default: false },
 
     users: {
         read: [{ type: Schema.Types.ObjectId, ref: 'User' }],
@@ -82,14 +83,28 @@ ProjectSchema.statics.create = function(values, user, callback) {
  */
 ProjectSchema.statics.applyModifications = function(modificationLot, callback) {
     mongoose.model('Project').findById(modificationLot.projectId, function(err, project) {
-        if (err) return callback(err, null);
-        if (!project) return callback(new Error("Unable to find project with id " + modificationLot.projectId));
-        if (!project.isAuth('write', modificationLot.user)) {
+        if (err)
+            return callback(err, null);
+        if (!project)
+            return callback(new Error("Unable to find project with id " + modificationLot.projectId));
+        if (!project.isAuth('write', modificationLot.user))
             return callback(new Error("User " + modificationLot.user.username + " is not authorized for project with id " + modificationLot.projectId));
-        };
 
         var responses = _.clone(modificationLot);
         responses.results = [];
+
+        if(project.isLocked) {
+            if(modificationLot.modifications
+                && (modificationLot.modifications.length === 1)
+                && (modificationLot.modifications[0].action === 'update')
+                && (modificationLot.modifications[0].property === 'isLocked')) {
+
+            } else {
+                responses.results.push({ status: 'error', statusMessage: 'Project is locked.' });
+                return callback(null, responses);
+            }
+        }
+
         async.eachSeries(
             modificationLot.modifications,
             function(modification, eachCallback) {

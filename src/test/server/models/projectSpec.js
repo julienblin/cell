@@ -123,4 +123,49 @@ describe("Projects", function(){
         should.not.exists(projectObj.__v);
         should.not.exists(projectObj.users);
     });
+
+    it('should not apply modifications when the project is locked, except for isLocked.', function(done) {
+        var user = new User();
+        Project.create({ clientName: 'CGI', projectName: 'Cell', isLocked: true }, user, function(err, project) {
+            should.not.exists(err);
+            var modificationLot = {
+                projectId: project.id,
+                user: user,
+                modifications: [
+                    {
+                        model: 'Project',
+                        action: 'update',
+                        property: 'clientName',
+                        oldValue: 'CGI',
+                        newValue: 'Logica'
+                    }
+                ]
+            };
+            Project.applyModifications(modificationLot, function(err, response) {
+                should.not.exists(err);
+                response.results[0].status.should.equal('error');
+                Project.findById(project.id, function(err, project) {
+                    should.not.exists(err);
+                    project.clientName.should.equal('CGI');
+
+                    modificationLot.modifications = [{
+                        model: 'Project',
+                        action: 'update',
+                        property: 'isLocked',
+                        oldValue: true,
+                        newValue: false
+                    }];
+
+                    Project.applyModifications(modificationLot, function(err, response) {
+                        should.not.exists(err);
+                        Project.findById(project.id, function(err, project) {
+                            should.not.exists(err);
+                            project.isLocked.should.not.be.ok;
+                            done();
+                        });
+                    });
+                });
+            });
+        });
+    });
 });
