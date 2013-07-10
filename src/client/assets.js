@@ -4,20 +4,20 @@
 
 module.exports = function(assets) {
     assets.root = __dirname;
-    assets.addJs('/javascripts/jquery.min.js');
-    assets.addJs('/javascripts/bootstrap.min.js');
+    assets.addJs('/javascripts/lib/jquery.min.js');
+    assets.addJs('/javascripts/lib/bootstrap.min.js');
+    assets.addJs('/javascripts/lib/numeral.js');
     assets.addJs('/javascripts/alerts.js');
     assets.addJs('/javascripts/modals.js');
-    assets.addJs('/javascripts/numeral.js');
     assets.addJs('/javascripts/behaviors.js');
 
     // Project specifics
-    assets.addJs('/javascripts/jquery.handsontable.js', 'project');
-    assets.addJs('/javascripts/jquery.contextMenu.js', 'project');
-    assets.addJs('/javascripts/jquery.ui.position.js', 'project');
-    assets.addJs('/javascripts/underscore.min.js', 'project');
-    assets.addJs('/javascripts/handlebars.js', 'project');
-    assets.addJs('/javascripts/highcharts.js', 'project');
+    assets.addJs('/javascripts/lib/jquery.handsontable.js', 'project');
+    assets.addJs('/javascripts/lib/jquery.contextMenu.js', 'project');
+    assets.addJs('/javascripts/lib/jquery.ui.position.js', 'project');
+    assets.addJs('/javascripts/lib/underscore.min.js', 'project');
+    assets.addJs('/javascripts/lib/handlebars.js', 'project');
+    assets.addJs('/javascripts/lib/highcharts.js', 'project');
 
     assets.addJs('/javascripts/handsontableExtensions.js', 'project');
     assets.addJs('/javascripts/eventEmitter.js', 'project');
