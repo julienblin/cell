@@ -4,7 +4,8 @@
 
 var Project = require('../models/project'),
     Scale = require('../models/scale'),
-    _ = require('underscore');
+    _ = require('underscore'),
+    async = require('async');
 
 module.exports = function(io) {
     io.of('/project').on('connection', function (socket) {
@@ -48,6 +49,14 @@ module.exports = function(io) {
                     socket.broadcast.to('project/' + projectId).emit('receiveUpdates', successfulModifications);
                 });
             });
+        });
+    });
+
+    // When a project is removed, eject clients in the room.
+    Project.schema.post('remove', function(project) {
+        async.each(io.of('/project').clients('project/' + project.id), function(client, callback) {
+            client.disconnect();
+            callback();
         });
     });
 };

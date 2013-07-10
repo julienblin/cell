@@ -1,0 +1,11 @@
+#modalDeleteProject.modal.hide.fade(role="dialog", aria-labelledby="modalDeleteProject", aria-hidden="true", data-backdrop="static")
+  .modal-header
+    button.close(data-dismiss="modal", aria-hidden="true") x
+    h3 Delete project
+  .modal-body
+    | Are you sure you want to delete the project?
+    form#modalDeleteProjectForm.form-horizontal.no-margin(action="/projects/#{project.id}", method="POST")
+      input(type="hidden", name="_method", value="delete")
+  .modal-footer
+    button.btn(data-dismiss="modal", aria-hidden="true") Cancel
+    button#confirmDeleteProject.btn.btn-danger(href="#modalDeleteProjectForm", data-behavior="submit") Delete

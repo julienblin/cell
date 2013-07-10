@@ -50,6 +50,10 @@ var InfoRenderer = (function() {
             e.preventDefault();
         });
 
+        $('#btnTakeSnapshot').on('click', function(e) {
+            alerts.warning('Not implemented yet. Stay tuned!', 5000);
+        });
+
         return self;
     }
 })();

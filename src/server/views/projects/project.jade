@@ -34,7 +34,7 @@ block container
                 | &nbsp;Take a snapshot
             hr
             p
-              button#btnDeleteProject.btn.btn-danger(style="width: 150px")
+              button#btnDeleteProject.btn.btn-danger(style="width: 150px", href="#modalDeleteProject", data-toggle="modal")
                 i.icon-remove.icon-white
                 | &nbsp;Delete
 
@@ -82,6 +82,7 @@ block foot
       br
       | Latency:&nbsp;{{avgLatency}}&nbsp;(avg)&nbsp;/&nbsp;{{stdDevLatency}}&nbsp;(std.&nbsp;dev.)
 
+  include _info
   include _scales
 
   script(type="text/javascript", src="/socket.io/socket.io.js")

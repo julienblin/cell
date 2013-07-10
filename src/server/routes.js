@@ -25,6 +25,7 @@ module.exports = function (app, passport) {
 
     // Projects
     app.get('/projects/:id', auth.project, projects.show);
+    app.delete('/projects/:id', auth.project, projects.delete);
 
     // Admin
     app.get('/system/users', auth.admin, users.index);
