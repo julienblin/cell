@@ -273,7 +273,7 @@ var SummaryRenderer = (function() {
                         { data: 'totalSeniorUT',          type: 'ut', readOnly: true },
                         { data: 'priceSenior',            type: 'price', readOnly: true },
                         { data: 'totalAggregateUT',       type: 'ut', readOnly: true },
-                        { data: 'priceAggregate',         type: 'price', readOnly: true },
+                        { data: 'priceAggregate',         type: 'price', readOnly: true }
                     ],
                     cells: function (row, col, prop) {
                         var cellProperties = {};
