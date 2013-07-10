@@ -7,7 +7,9 @@ module.exports = function(assets) {
     assets.addJs('/javascripts/lib/jquery.min.js');
     assets.addJs('/javascripts/lib/bootstrap.min.js');
     assets.addJs('/javascripts/lib/numeral.js');
+    assets.addJs('/javascripts/math.js');
     assets.addJs('/javascripts/alerts.js');
+    assets.addJs('/javascripts/eventEmitter.js');
     assets.addJs('/javascripts/statusBar.js');
     assets.addJs('/javascripts/modals.js');
     assets.addJs('/javascripts/behaviors.js');
@@ -21,7 +23,6 @@ module.exports = function(assets) {
     assets.addJs('/javascripts/lib/highcharts.js', 'project');
 
     assets.addJs('/javascripts/handsontableExtensions.js', 'project');
-    assets.addJs('/javascripts/eventEmitter.js', 'project');
     assets.addJs('/javascripts/projectCalculator.js', 'project');
     assets.addJs('/javascripts/renderers/baseRenderer.js', 'project');
     assets.addJs('/javascripts/renderers/baseTabRenderer.js', 'project');

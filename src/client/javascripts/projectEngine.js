@@ -4,8 +4,6 @@
 
 var ProjectEngine = (function() {
     return function(projectId) {
-        var _socket, _projectCalculator;
-
         var self = {};
         self.__proto__ = EventEmitter();
         self.projectId = projectId;
@@ -16,7 +14,19 @@ var ProjectEngine = (function() {
             estimationLines: new EstimationLinesRenderer(self),
             summary: new SummaryRenderer(self)
         };
-        _projectCalculator = new ProjectCalculator();
+
+        self.stats = {
+            state: 'disconnected',
+            getTransport: function() {
+                return self.socket ? self.socket.socket.transport.name : undefined;
+            },
+            latencies: [],
+            numberOfSentUpdates: 0,
+            numberOfReceivedUpdates: 0,
+            numberOfDiscardedUpdates: 0
+        };
+
+        var _projectCalculator = new ProjectCalculator();
 
         /**
          * Find the target document in data using the model name and id; Can also retrieve the parent collection only
@@ -135,6 +145,7 @@ var ProjectEngine = (function() {
                             }
                             var currentValue = _getValueAtPath(targetDoc[0], modification.property);
                             if(!_valueEquals(currentValue, modification.oldValue)) {
+                                ++self.stats.numberOfDiscardedUpdates;
                                 console.log({ message: "Discarding update because of unmatched previous values", doc: targetDoc, modification: modification });
                                 return;
                             }
@@ -163,12 +174,16 @@ var ProjectEngine = (function() {
          * Broadcast modifications - eventually revert changes in case of error.
          */
         var _broadcast = function(modifications) {
-            if (_socket) {
+            if (self.socket) {
+                ++self.stats.numberOfSentUpdates;
                 var modificationsToSend = _.map(modifications, function(modification) {
                     return _.omit(modification, 'localInfo');
                 });
                 statusBar.changeIcon('loading');
-                _socket.emit('modify', modificationsToSend, function(err, results) {
+                var startTime = new Date().getTime();
+                self.socket.emit('modify', modificationsToSend, function(err, results) {
+                    var endTime = new Date().getTime();
+                    self.stats.latencies.push(endTime - startTime);
                     statusBar.changeIcon('ok');
                     if (err) {
                         alerts.fatal("Unable to send modifications to server. Reason:" + err.message);
@@ -255,6 +270,20 @@ var ProjectEngine = (function() {
             alerts.clear();
         });
 
+        // Statistics popover on icon status bar
+        $(statusBar.getStatusIconSelector()).popover({
+            html: true,
+            placement: 'top',
+            title: 'Statistics',
+            content: function() {
+                return (Handlebars.compile($('#statistics-template').html()))({
+                    stats: self.stats,
+                    avgLatency: numeral(Math.average(self.stats.latencies)).format('0'),
+                    stdDevLatency: numeral(Math.standardDeviation(self.stats.latencies)).format('0')
+                });
+            }
+        });
+
         // Public functions
         self.init = function() {
             if (navigator.userAgent.indexOf('Zombie.js') != -1) {
@@ -269,14 +298,17 @@ var ProjectEngine = (function() {
             if (window.location.port) {
                 socketUrl += ':' + window.location.port;
             }
-            _socket = io.connect(socketUrl + '/project');
+            self.socket = io.connect(socketUrl + '/project');
 
-            _socket.on('disconnect', function() {
+            self.stats.state = 'connected';
+
+            self.socket.on('disconnect', function() {
                 alerts.fatal("You've been disconnected from the server.");
                 statusBar.changeIcon('error');
+                self.stats.state = 'disconnected';
             });
 
-            _socket.emit('getDataAndSubscribe', projectId, function(err, data) {
+            self.socket.emit('getDataAndSubscribe', projectId, function(err, data) {
                 loadingAlert.dismiss();
                 statusBar.changeIcon('ok');
                 if (err) {
@@ -290,8 +322,9 @@ var ProjectEngine = (function() {
                 alerts.success('Project loaded - good to go!', 3000);
             });
 
-            _socket.on('receiveUpdates', function(modifications) {
+            self.socket.on('receiveUpdates', function(modifications) {
                 statusBar.changeIcon('loading');
+                ++self.stats.numberOfReceivedUpdates;
                 if(!self.data) {
                     alerts.fatal("There has been an concurrency error while loading project.");
                     statusBar.changeIcon('error');

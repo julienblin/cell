@@ -57,6 +57,16 @@ block container
 
 block foot
 
+  script#statistics-template(type="text/x-handlebars-template")
+    p
+      | State:&nbsp;{{stats.state}}
+      br
+      | Transport:&nbsp;{{stats.getTransport}}
+      br
+      | Updates:&nbsp;{{stats.numberOfSentUpdates}}&nbsp;sent&nbsp;/&nbsp;{{stats.numberOfReceivedUpdates}}&nbsp;rec.&nbsp;/&nbsp;{{stats.numberOfDiscardedUpdates}}&nbsp;disc.
+      br
+      | Latency:&nbsp;{{avgLatency}}&nbsp;(avg)&nbsp;/&nbsp;{{stdDevLatency}}&nbsp;(std.&nbsp;dev.)
+
   include _scales
 
   script(type="text/javascript", src="/socket.io/socket.io.js")

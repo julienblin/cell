@@ -1,8 +1,22 @@
-window.statusBar = (function() {
-    var _statusIconSelector = "#icon-status";
+var StatusBar = (function() {
+    return function() {
 
-    return {
-        changeIcon: function(status) {
+        var self = {};
+        self.__proto__ = EventEmitter();
+
+        var _statusIconSelector = "#icon-status";
+
+        $(_statusIconSelector).on('click', function(e) {
+            self.emit('requestStatus', e);
+            e.preventDefault();
+        });
+
+        /**
+         * Changes the icon in the status bar.
+         * Possible values: ok, loading, error
+         * @param status
+         */
+        self.changeIcon = function(status) {
             $(_statusIconSelector).removeClass();
             switch(status) {
                 case 'ok':
@@ -15,6 +29,14 @@ window.statusBar = (function() {
                     $(_statusIconSelector).addClass('icon-remove');
                     break;
             }
-        }
-    }
+        };
+
+        self.getStatusIconSelector = function() {
+            return _statusIconSelector;
+        };
+
+        return self;
+    };
 })();
+
+window.statusBar = new StatusBar();
