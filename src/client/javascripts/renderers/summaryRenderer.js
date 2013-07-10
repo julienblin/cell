@@ -8,7 +8,9 @@ var SummaryRenderer = (function() {
         self.__proto__ = BaseTabRenderer('#summary', engine);
         self.gridSelectorProfiles = '#profilesComputedGrid';
         self.chartsSelectorProfilesEfforts = '#profilesEffortsCharts';
+        self.chartsSelectorScalesEfforts = '#scalesEffortsCharts';
 
+        var _calculator = new ProjectCalculator();
         var _cachedGridProfiles = null;
 
         var _computeProfilesData = function() {
@@ -91,7 +93,7 @@ var SummaryRenderer = (function() {
                 if(line.title !== 'Total') {
                     return {
                         name: line.title,
-                        y: line.totalAggregateUT,
+                        y: _calculator.parseFloat(line.totalAggregateUT),
                         color: colors[index]
                     };
                 }
@@ -102,17 +104,17 @@ var SummaryRenderer = (function() {
                     return [
                         {
                             name: 'Junior',
-                            y: line.totalJuniorUT,
+                            y: _calculator.parseFloat(line.totalJuniorUT),
                             color: colors[index]
                         },
                         {
                             name: 'Intermediary',
-                            y: line.totalIntermediaryUT,
+                            y: _calculator.parseFloat(line.totalIntermediaryUT),
                             color: colors[index]
                         },
                         {
                             name: 'Senior',
-                            y: line.totalSeniorUT,
+                            y: _calculator.parseFloat(line.totalSeniorUT),
                             color: colors[index]
                         }
                     ];
@@ -161,22 +163,93 @@ var SummaryRenderer = (function() {
             });
         };
 
+        var _renderChartsScalesEfforts = function() {
+            var colors = Highcharts.getOptions().colors;
+
+            var scalesData = [];
+            var scaleLinesData = [];
+
+            _.each(self.engine.data.scales, function(scale, index) {
+                if(!scale.computed.aggregates) scale.computed.aggregates = {
+                    totalUT: 0
+                };
+
+                _.each(scale.lines, function(scaleLine) {
+                    var scaleLineValues = self.engine.data.computed.scaleLines[scaleLine.id];
+                    if(scaleLineValues) {
+                        scaleLinesData.push({
+                            name: scaleLine.complexity,
+                            y: _calculator.parseFloat(scaleLineValues.totalUT),
+                            color: colors[index]
+                        });
+                        scale.computed.aggregates.totalUT = scale.computed.aggregates.totalUT + scaleLineValues.totalUT;
+                    }
+                });
+                scalesData.push({
+                    name: scale.name,
+                    y: _calculator.parseFloat(scale.computed.aggregates.totalUT),
+                    color: colors[index]
+                })
+            });
+
+            $(self.chartsSelectorScalesEfforts).highcharts({
+                chart: {
+                    type: 'pie'
+                },
+                plotOptions: {
+                    pie: {
+                        shadow: false,
+                        center: ['50%', '50%'],
+                        animation: false
+                    }
+                },
+                title: {
+                    text: 'Repartition of UT per scale'
+                },
+                series: [
+                    {
+                        name: 'UT',
+                        data: scalesData,
+                        size: '60%',
+                        dataLabels: {
+                            formatter: function() {
+                                return this.y > 5 ? this.point.name : null;
+                            },
+                            color: 'white',
+                            distance: -30
+                        }
+                    },
+                    {
+                        name: 'UT',
+                        data: scaleLinesData,
+                        size: '80%',
+                        innerSize: '60%',
+                        dataLabels: {
+                            formatter: function() {
+                                return this.y > 1 ? '<b>'+ this.point.name +':</b> '+ numeral(this.y).format('0.[0]') +'%'  : null;
+                            }
+                        }
+                    }
+                ]
+            });
+        };
+
         // Event subscriptions
         self.on('render', function() {
 
             $('[data-property="totalUT"]').text(numeral(self.engine.data.computed.totalUT).format('0,0') + ' UT');
             $('[data-property="totalPrice"]').text(numeral(self.engine.data.computed.totalPrice).format('0,0 $'));
 
-            var data = _computeProfilesData();
+            var profilesData = _computeProfilesData();
 
             if(_cachedGridProfiles) {
                 $(self.gridSelectorProfiles).handsontable("updateSettings", {
-                    data: data
+                    data: profilesData
                 });
                 _cachedGridProfiles.render();
             } else {
                 $(self.gridSelectorProfiles).handsontable({
-                    data: data,
+                    data: profilesData,
                     colHeaders: [ "Title", "Junior", "Intermediary", "Senior", "Aggregate" ],
                     colWidths:  [600, 45, 45, 45, 45, 45, 45, 45, 45],
                     afterGetColHeader: function (col, TH) {
@@ -215,7 +288,10 @@ var SummaryRenderer = (function() {
                 _cachedGridProfiles = $(self.gridSelectorProfiles).data('handsontable');
             }
 
-            _renderChartsProfilesEfforts(data);
+            if(profilesData.length > 1) {
+                _renderChartsProfilesEfforts(profilesData);
+                _renderChartsScalesEfforts();
+            }
         });
 
         return self;
