@@ -18,18 +18,29 @@ var UsersRenderer = (function() {
                     if (user.id === self.engine.userId)
                         user.current = true;
                     return user;
-                }), 'username')
+                }), 'username'),
+                readOnly: self.engine.isUserReadOnly
             })));
             $(self.usersReadListSelector).html($(self.getTemplate('#users-list-template')({
                 users: _.sortBy(_.map(self.engine.data.usersRead, function(user) {
                     if (user.id === self.engine.userId)
                         user.current = true;
                     return user;
-                }), 'username')
+                }), 'username'),
+                readOnly: self.engine.isUserReadOnly
             })));
+
+            $('#linkAddEditor, #linkAddReader').removeClass('disabled');
+            if(self.engine.isUserReadOnly) {
+                $('#linkAddEditor, #linkAddReader').addClass('disabled');
+            }
+            $('button[data-behavior~="removeUser"]', self.tabSelector).prop('disabled', self.engine.isUserReadOnly);
         });
 
         $('#linkAddEditor, #linkAddReader').on('click', function(e) {
+            e.preventDefault();
+            if(self.engine.isUserReadOnly) return;
+
             switch(e.currentTarget.id) {
                 case 'linkAddEditor':
                     _userAddAuth = 'write';
@@ -51,12 +62,12 @@ var UsersRenderer = (function() {
                     });
                 }
             });
-            e.preventDefault();
         });
 
         $(self.tabSelector).on('click', 'button[data-behavior~="removeUser"]', function(e) {
-            self.engine.setAuth($(this).data('id'), 'none');
             e.preventDefault();
+            if(self.engine.isUserReadOnly) return;
+            self.engine.setAuth($(this).data('id'), 'none');
         });
 
         return self;

@@ -13,10 +13,10 @@ module.exports = function(io) {
 
         socket.on('getDataAndSubscribe', function(projectId, callback) {
             Project.findById(projectId).populate('profiles scales estimationLines usersRead usersWrite').exec(function(err, project) {
-                if (err) return callback("internal error.", null);
-                if (!project) return callback("unknown project id.", null);
+                if (err) return callback(new Error("internal error."), null);
+                if (!project) return callback(new Error("unknown project id."), null);
                 if (!project.isAuth('read', socket.handshake.user)) {
-                    return callback("user is not authorized for this project.", null);
+                    return callback(new Error("user is not authorized for this project."), null);
                 }
 
                 socket.set('projectId', project.id);
@@ -59,14 +59,14 @@ module.exports = function(io) {
                 if (err) return callback(err, null);
 
                 Project.findById(projectId, function(err, project) {
-                    if (err) return callback("internal error", null);
-                    if (!project) return callback("unknown project id.", null);
+                    if (err) return callback(new Error("internal error"), null);
+                    if (!project) return callback(new Error("unknown project id."), null);
                     if (!project.isAuth('write', socket.handshake.user)) {
-                        return callback("user is not authorized for this project.", null);
+                        return callback(new Error("user is not authorized for this project."), null);
                     }
 
                     User.findById(userId, function(err, user) {
-                        if (err) return callback("internal error", null);
+                        if (err) return callback(new Error("internal error"), null);
                         if (!user) return callback(new Error('Unknown userid ' + userId), null);
 
                         try {

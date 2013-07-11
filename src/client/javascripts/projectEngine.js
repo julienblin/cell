@@ -8,6 +8,13 @@ var ProjectEngine = (function() {
         self.__proto__ = EventEmitter();
         self.projectId = projectId;
         self.userId = userId;
+
+        // Must be there before the renderes top make sure value is updated before they refresh.
+        self.on('modified', function() {
+            self.isUserReadOnly = _.findWhere(self.data.usersRead, { id: self.userId }) ? true : false;
+            self.isReadOnly = (self.data.isLocked || self.isUserReadOnly);
+        });
+
         self.renderers = {
             info: new InfoRenderer(self),
             profiles: new ProfilesRenderer(self),

@@ -9,6 +9,8 @@ var mongoose = require('mongoose'),
 
 module.exports = function modifyPlugin (schema, options) {
 
+    if(!options) options = {};
+
     var _getValueAtPath = function(obj, path) {
         if(path.indexOf('.') === -1) {
             return obj.get(path);

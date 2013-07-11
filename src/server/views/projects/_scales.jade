@@ -66,6 +66,7 @@ script#scale-colheader-template(type="text/x-handlebars-template")
       .text-vertical.text-left(style="margin-bottom: 15px; margin-left: 10px; {{#unless profile.isActive}}text-decoration: line-through;{{/unless}}")
         {{profile.title}}{{#if profile.title}} ({{#if column.isBaseline}}UT{{else}}%{{/if}}){{/if}}
       div(style="text-align: center;")
+        {{#unless readOnly}}
         <input type="checkbox" data-behavior="checkBaseline" data-column-id="{{column.id}}" class="htCheckboxRendererInput" {{#if column.isBaseline}}checked{{/if}} style="margin-top: 0; margin-right: 5px;">
         .dropdown(style="display:inline;")
           a.btn.btn-mini.dropdown-toggle(href="#", role="button", data-toggle="dropdown")
@@ -84,3 +85,4 @@ script#scale-colheader-template(type="text/x-handlebars-template")
               a(href="#", data-behavior="removeColumn", data-column-id="{{column.id}}")
                 span.label.label-important Remove
             {{/if}}
+        {{/unless}}

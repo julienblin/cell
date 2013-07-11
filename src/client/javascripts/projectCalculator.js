@@ -236,7 +236,7 @@
                 if(!line.lineType) {
                     var coefficient = line.coefficient ? self.parseFloat(line.coefficient) : 1.0;
                     if(scaleLine.computed.totalUT) {
-                        line.computed.totalUT = self.parseFloat(scaleLine.computed.totalUT) * coefficient;
+                        line.computed.totalUT = scaleLine.computed.totalUT * coefficient;
                         if(line.isActive) {
                             headingTotalLine.computed.totalUT = headingTotalLine.computed.totalUT + line.computed.totalUT;
                             currentHeading1.totalUT = currentHeading1.totalUT + line.computed.totalUT;

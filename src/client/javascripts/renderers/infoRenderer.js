@@ -10,7 +10,9 @@ var InfoRenderer = (function() {
         // Event subscriptions
         self.on('render', function() {
             $('[data-property="projectName"]').text(engine.data.projectName);
+            $('[data-property="projectName"]').prop('contenteditable', !self.engine.isReadOnly);
             $('[data-property="clientName"]').text(engine.data.clientName);
+            $('[data-property="clientName"]').prop('contenteditable', !self.engine.isReadOnly);
             $('#createdAt').text('Created:' + new Date(engine.data.created).toLocaleString());
 
             if(self.engine.data.isLocked) {
@@ -26,6 +28,9 @@ var InfoRenderer = (function() {
             }
 
             document.title = "Cell - " + engine.data.clientName + ' - ' + engine.data.projectName;
+
+            $('#btnLockProject').prop('disabled', self.engine.isUserReadOnly);
+            $('#btnDeleteProject').prop('disabled', self.engine.isReadOnly);
         });
 
         $('[contenteditable]', self.tabSelector).on('change', function(e) {

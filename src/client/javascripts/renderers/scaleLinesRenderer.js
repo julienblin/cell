@@ -25,14 +25,14 @@ var ScaleLinesRenderer = (function() {
 
         var _getColumns = function() {
             var columns = [
-                { data: 'isActive', type: 'cellCheckbox' },
-                { data: 'complexity', type: 'title' }
+                { data: 'isActive', type: 'cellCheckbox', readOnly: self.engine.isReadOnly },
+                { data: 'complexity', type: 'title', readOnly: self.engine.isReadOnly }
             ];
 
             _.each(self.scale.columns, function(column, index) {
-                columns.push({ data: 'values.' + column.id, type: column.isBaseline ? 'ut' : 'percent' });
+                columns.push({ data: 'values.' + column.id, type: column.isBaseline ? 'ut' : 'percent', readOnly: self.engine.isReadOnly });
             });
-            columns.push({ type: 'ut' });
+            columns.push({ type: 'ut', readOnly: self.engine.isReadOnly });
             columns.push({ data: 'computed.totalUT', type: 'ut', readOnly: true });
             columns.push({ data: 'computed.totalPrice', type: 'price', readOnly: true });
             return columns;
@@ -65,7 +65,7 @@ var ScaleLinesRenderer = (function() {
                 colWidths: _getColWidths(),
                 minSpareRows: 1,
                 stretchH: 'all',
-                contextMenu: {
+                contextMenu: self.engine.isReadOnly ? null : {
                     items: {
                         'row_above': {},
                         'row_below': {},
@@ -116,7 +116,7 @@ var ScaleLinesRenderer = (function() {
                         var scaleColumn = self.scale.columns[col - 2] || {};
                         var scaleColumnBefore = (col > 2) ? self.scale.columns[col - 3] : {};
                         var profile = _.findWhere(self.engine.data.profiles, { id: scaleColumn.profile });
-                        var content = self.getTemplate('#scale-colheader-template')({ column: scaleColumn, profile: profile, before: scaleColumnBefore, profiles: self.engine.data.profiles });
+                        var content = self.getTemplate('#scale-colheader-template')({ column: scaleColumn, profile: profile, before: scaleColumnBefore, profiles: self.engine.data.profiles, readOnly: self.engine.isReadOnly });
                         th.html(content);
                         th.css('overflow','initial');
                         th.css('height', '150px');

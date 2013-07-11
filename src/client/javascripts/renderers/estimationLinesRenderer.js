@@ -80,8 +80,8 @@ var EstimationLinesRenderer = (function() {
                 rowHeaders: true,
                 minSpareRows: 1,
                 columns: [
-                    { data: 'isActive',    type: 'cellCheckbox' },
-                    { data: 'title',       type: 'title' },
+                    { data: 'isActive',    type: 'cellCheckbox', readOnly: self.engine.isReadOnly },
+                    { data: 'title',       type: 'title', readOnly: self.engine.isReadOnly },
                     { data: _dataScale,       type: {
                         renderer: function(instance, td, row, col, prop, value, cellProperties) {
                             Handsontable.AutocompleteCell.renderer.apply(this, arguments);
@@ -89,15 +89,15 @@ var EstimationLinesRenderer = (function() {
                         },
                         editor: Handsontable.AutocompleteEditor,
                         source: _scalesSource
-                    }},
+                    }, readOnly: self.engine.isReadOnly},
                     { data: _dataComplexity,  type: {
                         renderer: function(instance, td, row, col, prop, value, cellProperties) {
                             Handsontable.AutocompleteCell.renderer.apply(this, arguments);
                             Handsontable.CustomCellPropertiesRenderer(instance, td, row, col, prop, value, cellProperties);
                         },
                         editor: Handsontable.AutocompleteEditor
-                    }},
-                    { data: 'coefficient', type: 'cellNumeric' },
+                    }, readOnly: self.engine.isReadOnly},
+                    { data: 'coefficient', type: 'cellNumeric', readOnly: self.engine.isReadOnly },
                     { data: 'computed.totalUT',     type: 'ut', readOnly: true },
                     { data: 'computed.totalPrice',  type: 'price', readOnly: true }
                 ],
@@ -171,7 +171,7 @@ var EstimationLinesRenderer = (function() {
 
                     return cellProperties;
                 },
-                contextMenu: {
+                contextMenu: self.engine.isReadOnly ? null : {
                     items: {
                         'row_above': {
                             disabled: function() {

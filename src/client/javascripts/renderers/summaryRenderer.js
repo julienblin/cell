@@ -242,7 +242,6 @@ var SummaryRenderer = (function() {
 
         // Event subscriptions
         self.on('render', function() {
-
             $('[data-property="totalUT"]').text(numeral(self.engine.data.computed.totalUT).format('0,0') + ' UT');
             $('[data-property="totalPrice"]').text(numeral(self.engine.data.computed.totalPrice).format('0,0 $'));
 

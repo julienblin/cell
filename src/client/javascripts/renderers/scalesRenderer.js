@@ -39,7 +39,7 @@ var ScalesRenderer = (function() {
             });
 
             // Adding the plus tab.
-            if(!$('a[data-behavior="createScale"]', _scalesTabsSelector).length) {
+            if(!$('a[data-behavior~="createScale"]', _scalesTabsSelector).length) {
                 $(_scalesTabsSelector)
                     .append($('<li><a href="#" class="btn-success" data-behavior="createScale">Create scale</a></li>'));
             }
@@ -94,16 +94,27 @@ var ScalesRenderer = (function() {
                 var visibleScaleId = firstVisibleTabContent.data('id');
                 self.scaleLinesRenderer[visibleScaleId].emit('render');
             }
+
+            $('a[data-behavior~="createScale"]', self.tabSelector).removeClass('disabled');
+            $('a.dropdown-toggle', self.tabSelector).removeClass('disabled');
+
+            if(self.engine.isReadOnly) {
+                console.log($('a.dropdown-toggle', self.tabSelector));
+                $('a[data-behavior~="createScale"]', self.tabSelector).addClass('disabled');
+                $('a.dropdown-toggle', self.tabSelector).addClass('disabled');
+            }
         });
 
         $(_scalesTabsSelector).on('shown', 'a[data-toggle="tab"]', function(e) {
             self.scaleLinesRenderer[$(e.target).data('id')].emit('render');
         });
 
-        $(self.tabSelector).on('click', 'a[data-behavior="createScale"]', function(e) {
+        $(self.tabSelector).on('click', 'a[data-behavior~="createScale"]', function(e) {
+            e.preventDefault();
+            if(self.engine.isReadOnly) return;
+
             $('input[name="name"]', _modalNewScaleSelector).val('');
             $(_modalNewScaleSelector).modal('show');
-            e.preventDefault();
         });
 
         $(_modalNewScaleSelector).on('submit', function(e) {
@@ -127,13 +138,15 @@ var ScalesRenderer = (function() {
         });
 
         $(self.tabSelector).on('click', 'a[data-behavior="renameScale"]', function(e) {
+            e.preventDefault();
+            if(self.engine.isReadOnly) return;
+
             var currentScaleId = $(this).closest('[data-id]').data('id');
             var currentScale = _.findWhere(self.engine.data.scales, { id: currentScaleId });
             $('input[name="name"]', _modalRenameScaleSelector).val(currentScale.name);
             $('input[name="id"]', _modalRenameScaleSelector).val(currentScale.id);
             $('input[name="oldValue"]', _modalRenameScaleSelector).val(currentScale.name);
             $(_modalRenameScaleSelector).modal('show');
-            e.preventDefault();
         });
 
         $(_modalRenameScaleSelector).on('submit', function(e) {
@@ -154,12 +167,14 @@ var ScalesRenderer = (function() {
         });
 
         $(self.tabSelector).on('click', 'a[data-behavior="deleteScale"]', function(e) {
+            e.preventDefault();
+            if(self.engine.isReadOnly) return;
+
             var currentScaleId = $(this).closest('[data-id]').data('id');
             var currentScale = _.findWhere(self.engine.data.scales, { id: currentScaleId });
             $('input[name="id"]', _modalDeleteScaleSelector).val(currentScale.id);
             $('#deleteScaleName').text(currentScale.name);
             $(_modalDeleteScaleSelector).modal('show');
-            e.preventDefault();
         });
 
         $(_modalDeleteScaleSelector).on('submit', function(e) {
