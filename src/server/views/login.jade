@@ -12,6 +12,7 @@ html(lang='en')
           .offset4.span3
             .login-box
               h3= config.app.name
+              include includes/flash
               form(action='/login', method='post')
                 .control-group
                     input#username(type='text', name="username", placeholder='Username', autofocus)

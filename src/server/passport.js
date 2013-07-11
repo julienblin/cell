@@ -17,10 +17,7 @@ module.exports = function() {
         })
     });
 
-    passport.use(new LocalStrategy({
-            usernameField: 'username',
-            passwordField: 'password'
-        },
+    passport.use(new LocalStrategy(
         function(username, password, done) {
             User.authenticate(username, password, function (err, user) {
                 if (err) return done(err);

@@ -8,6 +8,7 @@ exports.LOGIN_ROUTE = "/login";
 
 exports.requiresLogin = function (req, res, next) {
     if (!req.isAuthenticated()) {
+        req.session.loginRedirectTo = req.path;
         return res.redirect(exports.LOGIN_ROUTE);
     }
     next();
@@ -15,6 +16,7 @@ exports.requiresLogin = function (req, res, next) {
 
 exports.project = function (req, res, next) {
     if (!req.isAuthenticated()) {
+        req.session.loginRedirectTo = req.path;
         return res.redirect(exports.LOGIN_ROUTE);
     }
     Project.findById(req.params.id, function(err, project) {
@@ -28,10 +30,12 @@ exports.project = function (req, res, next) {
 
 exports.admin = function (req, res, next) {
     if (!req.isAuthenticated()) {
+        req.session.loginRedirectTo = req.path;
         return res.redirect(exports.LOGIN_ROUTE);
     }
 
     if (!req.user.isAdmin) {
+        req.session.loginRedirectTo = req.path;
         return res.redirect(exports.LOGIN_ROUTE);
     }
     next();

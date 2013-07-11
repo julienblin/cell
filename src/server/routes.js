@@ -11,10 +11,15 @@ var auth = require('./middlewares/authorizations')
 
 module.exports = function (app, passport) {
     app.get(auth.LOGIN_ROUTE, login.login);
-    app.post(auth.LOGIN_ROUTE, passport.authenticate('local', {
-        successRedirect: '/',
-        failureRedirect: auth.LOGIN_ROUTE
-    }));
+    app.post(
+        auth.LOGIN_ROUTE,
+        passport.authenticate('local', {
+            failureRedirect: auth.LOGIN_ROUTE,
+            failureFlash: true
+        }),
+        login.loginRedirect
+    );
+
     app.get('/logout', login.logout);
 
     // Modals
