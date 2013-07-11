@@ -3,6 +3,8 @@
  */
 
 var EstimationLinesRenderer = (function() {
+    "use strict";
+
     return function(engine) {
         var self = {};
         self.__proto__ = BaseTabRenderer('#estimations', engine);
@@ -23,43 +25,45 @@ var EstimationLinesRenderer = (function() {
         };
 
         var _dataScale = function(line, value, options) {
+            var scale;
             if (options) {
                 if (options.propertyName) return 'scale';
                 if (options.inverseGet) {
-                    var scale = _.findWhere(self.engine.data.scales, { name: value });
+                    scale = _.findWhere(self.engine.data.scales, { name: value });
                     return scale ? scale.id : null;
                 }
             }
             if(!line) line = {};
             if(typeof value === 'undefined') {
-                var scale = _.findWhere(self.engine.data.scales, { id: line.scale });
+                scale = _.findWhere(self.engine.data.scales, { id: line.scale });
                 return scale ? scale.name : null;
             } else {
-                var scale = _.findWhere(self.engine.data.scales, { name: value });
+                scale = _.findWhere(self.engine.data.scales, { name: value });
                 line.scale = scale ? scale.id : null;
             }
         };
 
         var _dataComplexity = function(line, value, options) {
+            var scale, scaleLine;
             if (options) {
                 if (options.propertyName) return 'complexity';
                 if (options.inverseGet) {
-                    var scale = _.findWhere(self.engine.data.scales, { id: line.scale });
+                    scale = _.findWhere(self.engine.data.scales, { id: line.scale });
                     if(!scale) return null;
-                    var scaleLine = _.findWhere(scale.lines, { complexity: value });
+                    scaleLine = _.findWhere(scale.lines, { complexity: value });
                     return scaleLine ? scaleLine.id : null;
                 }
             }
             if(!line) line = {};
             if(typeof value === 'undefined') {
-                var scale = _.findWhere(self.engine.data.scales, { id: line.scale });
+                scale = _.findWhere(self.engine.data.scales, { id: line.scale });
                 if(!scale) return null;
-                var scaleLine = _.findWhere(scale.lines, { id: line.complexity });
+                scaleLine = _.findWhere(scale.lines, { id: line.complexity });
                 return scaleLine ? scaleLine.complexity : null;
             } else {
-                var scale = _.findWhere(self.engine.data.scales, { id: line.scale });
+                scale = _.findWhere(self.engine.data.scales, { id: line.scale });
                 if(!scale) return null;
-                var scaleLine = _.findWhere(scale.lines, { complexity: value });
+                scaleLine = _.findWhere(scale.lines, { complexity: value });
                 line.complexity = scaleLine ? scaleLine.id : null;
             }
         };
@@ -326,5 +330,5 @@ var EstimationLinesRenderer = (function() {
         });
 
         return self;
-    }
+    };
 })();

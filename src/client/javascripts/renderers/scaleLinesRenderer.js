@@ -3,6 +3,8 @@
  */
 
 var ScaleLinesRenderer = (function() {
+    "use strict";
+
     return function(scale, engine) {
         var self = {};
 
@@ -75,7 +77,7 @@ var ScaleLinesRenderer = (function() {
                             disabled: function() {
                                 var col = $(self.gridSelector).handsontable('getSelected');
                                 if(!col) return true;
-                                col = col[1]
+                                col = col[1];
                                 return !((col > 1) && (col < self.scale.columns.length + 2));
                             }
                         },
@@ -84,19 +86,20 @@ var ScaleLinesRenderer = (function() {
                             disabled: function() {
                                 var col = $(self.gridSelector).handsontable('getSelected');
                                 if(!col) return true;
-                                col = col[1]
+                                col = col[1];
                                 return !((col > 0) && (col < self.scale.columns.length + 1));
                             }
                         }
                     },
                     callback: function (key, options) {
+                        var insertAfterScaleColumns;
                         if ((key === 'custom_col_left') || (key === 'custom_col_right')) {
                             var col = $(self.gridSelector).handsontable('getSelected')[1];
                             if(key === 'custom_col_left') {
-                                var insertAfterScaleColumns = (col > 2) ? self.scale.columns[col - 3] : {};
+                                insertAfterScaleColumns = (col > 2) ? self.scale.columns[col - 3] : {};
                             }
                             if(key === 'custom_col_right') {
-                                var insertAfterScaleColumns = (col > 1) ? self.scale.columns[col - 2] : {};
+                                insertAfterScaleColumns = (col > 1) ? self.scale.columns[col - 2] : {};
                             }
                             var modifications = [];
                             modifications.push({
@@ -311,5 +314,5 @@ var ScaleLinesRenderer = (function() {
         });
 
         return self;
-    }
+    };
 })();

@@ -3,6 +3,8 @@
  */
 
 var BaseRenderer = (function() {
+    "use strict";
+
     return function(engine) {
 
         var self = {};

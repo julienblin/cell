@@ -3,6 +3,8 @@
  */
 
 var SummaryRenderer = (function() {
+    "use strict";
+
     return function(engine) {
         var self = {};
         self.__proto__ = BaseTabRenderer('#summary', engine);
@@ -192,7 +194,7 @@ var SummaryRenderer = (function() {
                     name: scale.name,
                     y: _calculator.parseFloat(scale.computed.aggregates.totalUT),
                     color: colors[index]
-                })
+                });
             });
 
             $(self.chartsSelectorScalesEfforts).highcharts({
@@ -300,5 +302,5 @@ var SummaryRenderer = (function() {
         });
 
         return self;
-    }
+    };
 })();

@@ -3,6 +3,8 @@
  */
 
 var ProjectEngine = (function() {
+    "use strict";
+
     return function(projectId, userId) {
         var self = {};
         self.__proto__ = EventEmitter();
@@ -42,7 +44,8 @@ var ProjectEngine = (function() {
          * Returns an array containing : [the document, the parent collection]
          * Returns null if not found.
          */
-        _findTargetDoc = function(model, id, parentId) {
+        var _findTargetDoc = function(model, id, parentId) {
+            var parentScale;
             switch(model) {
                 case 'Project':
                     return [self.data, null, null];
@@ -57,7 +60,7 @@ var ProjectEngine = (function() {
                     if(!scale) return null;
                     return [scale, self.data.scales];
                 case 'ScaleColumn':
-                    var parentScale = _.findWhere(self.data.scales, { id: parentId });
+                    parentScale = _.findWhere(self.data.scales, { id: parentId });
                     if (!parentScale) return null;
                     if (!parentScale.columns) parentScale.columns = [];
                     if(!id) return [null, parentScale.columns];
@@ -65,7 +68,7 @@ var ProjectEngine = (function() {
                     if(!scaleColumn) return null;
                     return [scaleColumn, parentScale.columns];
                 case 'ScaleLine':
-                    var parentScale = _.findWhere(self.data.scales, { id: parentId });
+                    parentScale = _.findWhere(self.data.scales, { id: parentId });
                     if (!parentScale) return null;
                     if (!parentScale.lines) parentScale.lines = [];
                     if(!id) return [null, parentScale.lines];
@@ -84,7 +87,7 @@ var ProjectEngine = (function() {
         /**
          * Checks equality of two values, considering that null, undefined, etc are equals, and matching arrays.
          */
-        _valueEquals = function(value1, value2) {
+        var _valueEquals = function(value1, value2) {
             if (value1 == value2) return true;
 
             if((value1 instanceof Array) && (value1.length === 0)) value1 = null;
@@ -92,7 +95,7 @@ var ProjectEngine = (function() {
             return (!value1 && !value2);
         };
 
-        _getValueAtPath = function(obj, path) {
+        var _getValueAtPath = function(obj, path) {
             if (path.indexOf('.') === -1) {
                 return obj[path];
             } else {
@@ -104,7 +107,7 @@ var ProjectEngine = (function() {
             }
         };
 
-        _setValueAtPath = function(obj, path, value) {
+        var _setValueAtPath = function(obj, path, value) {
             if (path.indexOf('.') === -1) {
                 obj[path] = value;
             } else {
@@ -125,6 +128,8 @@ var ProjectEngine = (function() {
         var _apply = function(modifications) {
             _.each(modifications, function(modification) {
                 if(!(modification.localInfo && modification.localInfo.alreadyApplied)) {
+                    var targetDoc;
+
                     switch(modification.action) {
                         case 'create':
                             var newDoc = modification.values;
@@ -147,7 +152,7 @@ var ProjectEngine = (function() {
                             modification.localInfo.target = newDoc;
                             break;
                         case 'update':
-                            var targetDoc = _findTargetDoc(modification.model, modification.id, modification.parentId);
+                            targetDoc = _findTargetDoc(modification.model, modification.id, modification.parentId);
                             if(!targetDoc) {
                                 alerts.fatal("Unable to apply changes. Reason: unable to find model " + modification.model + " with id " + modification.id);
                                 return;
@@ -161,7 +166,7 @@ var ProjectEngine = (function() {
                             _setValueAtPath(targetDoc[0], modification.property, modification.newValue);
                             break;
                         case 'delete':
-                            var targetDoc = _findTargetDoc(modification.model, modification.id, modification.parentId);
+                            targetDoc = _findTargetDoc(modification.model, modification.id, modification.parentId);
                             if(!targetDoc) {
                                 alerts.fatal("Unable to apply changes. Reason: unable to find model " + modification.model + " with id " + modification.id);
                                 return;
@@ -217,7 +222,7 @@ var ProjectEngine = (function() {
                                 modification: modifications[index],
                                 result: result
                             };
-                        };
+                        }
                         return null;
                     }));
 
@@ -225,10 +230,11 @@ var ProjectEngine = (function() {
                         _.each(failedModifications, function(failedModif) {
                             alerts.warning("Some changes have been reverted. Reason:" + failedModif.result.statusMessage, 5000);
 
-                            var modification = failedModif.modification;
+                            var modification = failedModif.modification,
+                                parentCollection;
                             switch(modification.action) {
                                 case 'create':
-                                    var parentCollection = _findTargetDoc(modification.model, null, modification.parentId)[1];
+                                    parentCollection = _findTargetDoc(modification.model, null, modification.parentId)[1];
                                     var indexOfTarget = parentCollection.indexOf(modification.localInfo.target);
                                     if(indexOfTarget != -1) {
                                         parentCollection.splice(indexOfTarget, 1);
@@ -244,7 +250,7 @@ var ProjectEngine = (function() {
                                     break;
                                 case 'delete':
                                     var originalDoc = modification.localInfo.target;
-                                    var parentCollection = _findTargetDoc(modification.model, null, modification.parentId)[1];
+                                    parentCollection = _findTargetDoc(modification.model, null, modification.parentId)[1];
                                     parentCollection.splice(modification.localInfo.position, 0, originalDoc);
                                     break;
                             }

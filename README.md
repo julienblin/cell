@@ -15,3 +15,7 @@ Just install [Vagrant](http://www.vagrantup.com/) and [VirtualBox](https://www.v
 	npm start
 	
 Open a browser to [http://localhost:3000/](http://localhost:3000/).
+
+To launch the complete test suite (inside the vagrant vm):
+
+	grunt

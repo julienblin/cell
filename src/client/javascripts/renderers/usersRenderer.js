@@ -3,6 +3,8 @@
  */
 
 var UsersRenderer = (function() {
+    "use strict";
+
     return function(engine) {
         var self = {};
         self.__proto__ = BaseTabRenderer('#users', engine);
@@ -30,9 +32,10 @@ var UsersRenderer = (function() {
                 readOnly: self.engine.isUserReadOnly
             })));
 
-            $('#linkAddEditor, #linkAddReader').removeClass('disabled');
+            var links = $('#linkAddEditor, #linkAddReader');
+            links.removeClass('disabled');
             if(self.engine.isUserReadOnly) {
-                $('#linkAddEditor, #linkAddReader').addClass('disabled');
+                links.addClass('disabled');
             }
             $('button[data-behavior~="removeUser"]', self.tabSelector).prop('disabled', self.engine.isUserReadOnly);
         });
@@ -71,5 +74,5 @@ var UsersRenderer = (function() {
         });
 
         return self;
-    }
+    };
 })();

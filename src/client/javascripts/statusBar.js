@@ -1,4 +1,12 @@
+/**
+ * Manages the status bar (bottom of the page).
+ */
+
+/*global $:false */
+
 var StatusBar = (function() {
+    "use strict";
+
     return function() {
 
         var self = {};

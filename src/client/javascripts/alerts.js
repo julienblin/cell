@@ -1,4 +1,10 @@
+/**
+ * Manages alerts messages on the window.
+ * Uses the same styles as flash messages on server.
+ */
+
 window.alerts = (function() {
+    "use strict";
 
     var _flashesSelector = '#flashes div div';
 

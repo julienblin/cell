@@ -14,8 +14,7 @@
     "private": true,
     "main": "cell.js",
     "scripts": {
-        "start": "node cell.js",
-        "test": "mocha && cucumber.js"
+        "start": "node cell.js"
     },
     "engines": {
         "node": ">0.10.11"
@@ -42,6 +41,8 @@
         "cucumber": "*",
         "zombie": "*",
         "grunt": "*",
-        "grunt-contrib-jshint": "*"
+        "grunt-contrib-jshint": "*",
+        "grunt-mocha-test": "*",
+        "grunt-cucumber": "*"
     }
 }

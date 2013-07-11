@@ -1,4 +1,17 @@
+/**
+ * Manages behaviors.
+ * Behaviors are attached to DOM element through the data-behavior html5 attribute.
+ * Available behaviors:
+ *  - tooltip: bootstrap tooltips
+ *  - submit: submits forms (either through href or closest search)
+ *  - ajax: (on forms and a) - performs ajax request are renders the results
+ *  - persistent (on a.tabs): persists tab selection between refreshs (using url hashbang!)
+ *
+ * + various utilities (including a change event for contenteditable).
+ */
+
 window.behaviors = (function() {
+    "use strict";
 
     var _changingHash = false;
 
@@ -71,6 +84,8 @@ window.behaviors = (function() {
 })();
 
 $(function() {
+    "use strict";
+
     numeral.language($('html').attr('lang'));
 
     behaviors.apply();

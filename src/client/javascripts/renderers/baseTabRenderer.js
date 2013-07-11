@@ -4,6 +4,8 @@
  */
 
 var BaseTabRenderer = (function() {
+    "use strict";
+
     return function(tabSelector, engine) {
 
         var self = {};

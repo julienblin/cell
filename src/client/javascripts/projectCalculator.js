@@ -1,9 +1,12 @@
 /**
  * The project calculator - responsible for computing values on data.
  * Should not update user-updatable values because there is no tracking on those modifications.
+ * All computed values are attached through the documents on a special 'computed' property.
  */
 
 (function(exports) {
+    "use strict";
+
     exports.ProjectCalculator = function() {
         var self = {};
 
@@ -341,7 +344,7 @@
          */
         self.parseInt = function(value) {
             if (!value) return 0;
-            return parseInt(value);
+            return parseInt(value, 10);
         };
 
         /**

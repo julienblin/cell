@@ -3,6 +3,8 @@
  */
 
 var ScalesRenderer = (function() {
+    "use strict";
+
     return function(engine) {
         var self = {};
         self.__proto__ = BaseTabRenderer('#scales', engine);
@@ -189,5 +191,5 @@ var ScalesRenderer = (function() {
         });
 
         return self;
-    }
+    };
 })();

@@ -1,4 +1,10 @@
+/**
+ * Manages modals windows (using the modals controller on the server)
+ */
+
 window.modals = (function(){
+    "use strict";
+
     var _openModal = function(modalId, url, callback) {
         $('#modals').load(url, function(responseText, textStatus, req) {
             if (textStatus == "error") {
@@ -23,15 +29,16 @@ window.modals = (function(){
             _openModal('#modalAddUser', '/modals/addUser?filter=' + filteredUserIds.join(), callback);
         },
         close: function(modal) {
+            var modalId;
             switch(modal) {
                 case 'new':
-                    var modalId = '#modalNew';
+                    modalId = '#modalNew';
                     break;
                 case 'open':
-                    var modalId = '#modalOpen';
+                    modalId = '#modalOpen';
                     break;
                 case 'addUser':
-                    var modalId = '#modalAddUser';
+                    modalId = '#modalAddUser';
                     break;
                 default:
                     throw new Error('unknown modal ' + modal);

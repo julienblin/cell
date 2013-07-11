@@ -3,6 +3,8 @@
  */
 
 var ProfilesRenderer = (function() {
+    "use strict";
+
     return function(engine) {
         var self = {};
         self.__proto__ = BaseTabRenderer('#profiles', engine);
@@ -154,5 +156,5 @@ var ProfilesRenderer = (function() {
         });
 
         return self;
-    }
+    };
 })();

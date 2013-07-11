@@ -3,6 +3,8 @@
  */
 
 var InfoRenderer = (function() {
+    "use strict";
+
     return function(engine) {
         var self = {};
         self.__proto__ = BaseTabRenderer("#info", engine);
@@ -60,5 +62,5 @@ var InfoRenderer = (function() {
         });
 
         return self;
-    }
+    };
 })();

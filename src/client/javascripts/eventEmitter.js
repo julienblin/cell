@@ -3,6 +3,8 @@
  */
 
 var EventEmitter = (function() {
+    "use strict";
+
     return function() {
         var _events = {};
 
@@ -42,5 +44,5 @@ var EventEmitter = (function() {
         };
 
         return self;
-    }
+    };
 })();
