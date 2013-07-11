@@ -244,8 +244,12 @@ var SummaryRenderer = (function() {
 
         // Event subscriptions
         self.on('render', function() {
-            $('[data-property="totalUT"]').text(numeral(self.engine.data.computed.totalUT).format('0,0') + ' UT');
-            $('[data-property="totalPrice"]').text(numeral(self.engine.data.computed.totalPrice).format('0,0 $'));
+            $('[data-property="totalUT"]', self.tabSelector).text(numeral(self.engine.data.computed.totalUT).format('0,0') + ' UT');
+            $('[data-property="totalPrice"]', self.tabSelector).text(numeral(self.engine.data.computed.totalPrice).format('0,0 $'));
+            var optimalDuration = 1.3333333333333333 * Math.sqrt(self.engine.data.computed.totalUT / 20) * 20;
+            $('[data-property="optimalDuration"]', self.tabSelector).text('Optimal duration: ' + numeral(optimalDuration).format('0,0') + ' UT');
+            var optimalNumberOfResources = 0.75 * Math.sqrt(self.engine.data.computed.totalUT / 20);
+            $('[data-property="optimalResources"]', self.tabSelector).text('Optimal resources: ' + numeral(optimalNumberOfResources).format('0,0') + ' UT');
 
             var profilesData = _computeProfilesData();
 
