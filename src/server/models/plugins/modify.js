@@ -91,6 +91,13 @@ module.exports = function modifyPlugin (schema, options) {
             if (findByIdErr) return callback(findByIdErr, null);
             if (!obj) return callback(null, { status: 'error', statusMessage: util.format("Unable to find %s(%s)", Model.modelName, modification.id) });
 
+            // We verify that if the parent is a project, it is in fact the same as with modificationLot.projectId.
+            if(options.parentModel === 'Project') {
+                var parentIdProperty = options.parentIdProperty || 'project';
+                if(obj[parentIdProperty] != modificationLot.projectId)
+                    return callback(null, { status: 'error', statusMessage: 'There seems to be a confusion of projects.' });
+            }
+
             var currentValue = _getValueAtPath(obj, modification.property);
             if(!_canModify(obj, modification.property, modification.oldValue)) {
                 return callback(null, { status: 'concurrencyError', statusMessage: util.format("Unable to update %s(%s) because the oldValue (%s) doesn't match the current value (%s)", Model.modelName, obj.id, modification.oldValue, currentValue) });
@@ -111,6 +118,13 @@ module.exports = function modifyPlugin (schema, options) {
         Model.findById(modification.id, function(findByIdErr, obj) {
             if (findByIdErr) return callback(findByIdErr, null);
             if (!obj) return callback(null, { status: 'error', statusMessage: util.format("Unable to find %s(%s)", Model.modelName, modification.id) });
+
+            // We verify that if the parent is a project, it is in fact the same as with modificationLot.projectId.
+            if(options.parentModel === 'Project') {
+                var parentIdProperty = options.parentIdProperty || 'project';
+                if(obj[parentIdProperty] != modificationLot.projectId)
+                    return callback(null, { status: 'error', statusMessage: 'There seems to be a confusion of projects.' });
+            }
 
             if(!options.parentProperty) {
                 obj.remove(function(err) {

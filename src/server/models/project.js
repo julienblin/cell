@@ -79,6 +79,11 @@ ProjectSchema.statics.create = function(values, user, callback) {
 };
 
 /**
+ * Only models listed here will be integrated by applyModifications.
+ */
+var MODIFICATIONS_MODELS_WHITE_LIST = [ 'Project', 'Profile', 'Scale', 'ScaleColumn', 'ScaleLine', 'EstimationLine' ];
+
+/**
  * Apply modifications by invoking the modify static methods on corresponding models.
  * @param modificationLot
  * @param user
@@ -111,6 +116,10 @@ ProjectSchema.statics.applyModifications = function(modificationLot, callback) {
         async.eachSeries(
             modificationLot.modifications,
             function(modification, eachCallback) {
+                if(MODIFICATIONS_MODELS_WHITE_LIST.indexOf(modification.model) == -1) {
+                    responses.results.push({ status: 'error', statusMessage: 'Model is not in white list.' });
+                    return eachCallback();
+                }
                 try {
                     var Model = mongoose.model(modification.model);
                     Model.modify(modificationLot, modification, function(modifyErr, response) {
@@ -120,11 +129,11 @@ ProjectSchema.statics.applyModifications = function(modificationLot, callback) {
                             response.userId = modificationLot.user.id;
                             responses.results.push(response);
                         }
-                        eachCallback();
+                        return eachCallback();
                     });
                 } catch (eachErr) {
                     responses.results.push({ status: 'error', statusMessage: eachErr.message });
-                    eachCallback();
+                    return eachCallback();
                 }
             },
             function(err) {
