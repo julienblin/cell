@@ -1,0 +1,39 @@
+form#formAddUser(action="/modals/addUser#{filter ? '?filter='+filter : ''}", method="get", data-behavior="ajax")
+  input(type="hidden", name="search", value="search")
+  table#tableUsers.table.table-hover.table-condensed
+    thead
+      th
+        .dropdown.inline-dropdown.input-dropdown
+          a.dropdown-toggle(data-toggle="dropdown")
+            span
+              | Username
+              if username
+                |  (#{username})
+
+            span.caret
+          ul.dropdown-menu.input-dropdown-menu
+            li
+              input.pull-left.input-first(type="search", name="username", placeholder="(filter)", value=username, autocomplete="off", autofocus)
+              button.btn(type="submit") Search
+
+      th
+        .dropdown.inline-dropdown.input-dropdown
+          a.dropdown-toggle(data-toggle="dropdown")
+            span
+              | Email
+              if email
+                |  (#{email})
+            span.caret
+          ul.dropdown-menu.input-dropdown-menu
+            li
+              input.pull-left.input-first(type="search", name="email", placeholder="(filter)", value=email, autocomplete="off", autofocus)
+              button.btn(type="submit") Search
+
+    tbody
+      each user in results
+        tr
+          td.span2
+            a.cellLink(href="#", data-behavior='userSelected', data-id="#{user.id}")= user.username
+          td
+            a.cellLink(href="#", data-behavior='userSelected', data-id="#{user.id}")= user.email
+  != paginate(req, pagination, { ajaxTarget: "#formAddUser" })

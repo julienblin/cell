@@ -23,10 +23,11 @@ module.exports = function (app, passport) {
     app.get('/logout', login.logout);
 
     // Modals
-    app.get('/modals/new', modals.new);
-    app.post('/modals/new', modals.createNew);
-    app.get('/modals/open', modals.open);
-    app.get('/modals/clientNames', modals.clientNames);
+    app.get('/modals/new', auth.requiresLogin, modals.new);
+    app.post('/modals/new', auth.requiresLogin, modals.createNew);
+    app.get('/modals/open', auth.requiresLogin, modals.open);
+    app.get('/modals/clientNames', auth.requiresLogin, modals.clientNames);
+    app.get('/modals/addUser', auth.requiresLogin, modals.addUser);
 
     // Projects
     app.get('/projects/:id', auth.project, projects.show);

@@ -253,6 +253,26 @@ var ProjectEngine = (function() {
             }
         };
 
+        var _integrateSetAuth = function(user, auth) {
+            switch(auth) {
+                case 'read':
+                    self.data.usersRead.push(user);
+                    break;
+                case 'write':
+                    self.data.usersWrite.push(user);
+                    break;
+                case 'none':
+                    var foundUser = _.findWhere(self.data.usersRead, { id: user.id });
+                    if(foundUser)
+                        self.data.usersRead.splice(self.data.usersRead.indexOf(foundUser), 1);
+                    foundUser = _.findWhere(self.data.usersWrite, { id: user.id });
+                    if(foundUser)
+                        self.data.usersWrite.splice(self.data.usersWrite.indexOf(foundUser), 1);
+                    break;
+            }
+            self.emit('modified');
+        };
+
         // Event subscriptions
         _.each(self.renderers, function(renderer) {
             renderer.on('applyModifications', function(modifications) {
@@ -338,6 +358,31 @@ var ProjectEngine = (function() {
                 self.emit('modified');
                 statusBar.changeIcon('ok');
             });
+
+            self.socket.on('setAuth', function(user, auth) {
+                ++self.stats.numberOfReceivedUpdates;
+                _integrateSetAuth(user, auth);
+            });
+
+            self.socket.on('userJoined', function(user) {
+                alerts.info(user.username + ' just joined the conversation.', 3000);
+            });
+        };
+
+        self.setAuth = function(userId, auth) {
+            if(self.socket) {
+                ++self.stats.numberOfSentUpdates;
+                statusBar.changeIcon('loading');
+                self.socket.emit('setAuth', userId, auth, function(err, newUser) {
+                    if (err) {
+                        statusBar.changeIcon('error');
+                        alerts.fatal("There has been an error while adding user. Reason: " + err.message);
+                        return;
+                    }
+                    _integrateSetAuth(newUser, auth);
+                    statusBar.changeIcon('ok');
+                });
+            }
         };
 
         return self;

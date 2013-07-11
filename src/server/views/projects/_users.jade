@@ -1,10 +1,10 @@
 script#users-list-template(type="text/x-handlebars-template")
   {{#each users}}
-  hr
+  hr(style="margin: 0")
   .media(class="{{#if current}}alert-info{{/if}}", style="padding: 10px;")
     .media-body
       {{#unless current}}
-      button.btn.btn-small.btn-danger.pull-right(data-behavior="removeUser", data-id="{{id}}")
+      button.btn.btn-small.btn-danger.pull-right(data-behavior="removeUser tooltip", data-id="{{id}}", title="Remove authorization")
         i.icon-remove.icon-white
       {{/unless}}
       h4.media-heading
@@ -13,3 +13,4 @@ script#users-list-template(type="text/x-handlebars-template")
         i.icon-envelope
         | &nbsp;{{email}}
   {{/each}}
+

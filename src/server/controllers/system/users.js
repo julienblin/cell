@@ -6,14 +6,14 @@ var User = require('../../models/user'),
     util = require('util'),
     _ = require('underscore');
 
-exports.index = function(req, res) {
+exports.index = function(req, res, next) {
     var searchCriteria = {};
     var q = req.query.q;
     if (q) {
         searchCriteria = { $or: [{"username": new RegExp(q, 'i')}, {"email": new RegExp(q, 'i')}] };
     }
     User.paginate(searchCriteria, "username", { currentPage: req.query.page }, function(err, pagination, results){
-        if (err) throw err;
+        if (err) return next(err);
         res.render('system/users/index', {
             title: 'Users',
             pagination: pagination,

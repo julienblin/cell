@@ -3,6 +3,7 @@
  */
 
 var Project = require('../models/project'),
+    User = require('../models/user'),
     Scale = require('../models/scale'),
     _ = require('underscore'),
     async = require('async');
@@ -20,6 +21,8 @@ module.exports = function(io) {
 
                 socket.set('projectId', project.id);
                 socket.join('project/' + project.id);
+
+                socket.broadcast.to('project/' + projectId).emit('userJoined', socket.handshake.user.toObject());
 
                 Scale.populate(project.scales, [{ path: 'lines'}, { path: 'columns' }], function(err) {
                     callback(err, project.toObject());
@@ -47,6 +50,37 @@ module.exports = function(io) {
                         }
                     }
                     socket.broadcast.to('project/' + projectId).emit('receiveUpdates', successfulModifications);
+                });
+            });
+        });
+
+        socket.on('setAuth', function(userId, auth, callback) {
+            socket.get('projectId', function(err, projectId) {
+                if (err) return callback(err, null);
+
+                Project.findById(projectId, function(err, project) {
+                    if (err) return callback("internal error", null);
+                    if (!project) return callback("unknown project id.", null);
+                    if (!project.isAuth('write', socket.handshake.user)) {
+                        return callback("user is not authorized for this project.", null);
+                    }
+
+                    User.findById(userId, function(err, user) {
+                        if (err) return callback("internal error", null);
+                        if (!user) return callback(new Error('Unknown userid ' + userId), null);
+
+                        try {
+                            project.setAuth(auth, user);
+                            project.save(function(err) {
+                                if (err) return callback("internal error", null);
+                                callback(null, user.toObject());
+                                socket.broadcast.to('project/' + projectId).emit('setAuth', user.toObject(), auth);
+                                return;
+                            });
+                        } catch (err) {
+                            return callback(err, null);
+                        }
+                    });
                 });
             });
         });
