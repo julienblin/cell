@@ -2,6 +2,8 @@
  * All the socket.io actions related to projects.
  */
 
+"use strict";
+
 var Project = require('../models/project'),
     User = require('../models/user'),
     Scale = require('../models/scale'),

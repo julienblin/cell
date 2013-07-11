@@ -1,3 +1,12 @@
+/**
+ * The user model.
+ * A user is either "standard" or "admin".
+ * It can be deactivated, but never deleted.
+ * Passwords are stored in the db, but encrypted using bcrypt.
+ */
+
+"use strict";
+
 var mongoose = require('mongoose'),
     Schema = mongoose.Schema,
     bcrypt = require('bcrypt'),
@@ -37,7 +46,7 @@ UserSchema.methods.comparePassword = function(candidatePassword, callback) {
     bcrypt.compare(candidatePassword, this.password, function(err, isMatch) {
         if (err) return callback(err);
         callback(null, isMatch);
-    })
+    });
 };
 
 /**

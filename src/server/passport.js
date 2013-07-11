@@ -1,6 +1,9 @@
 /**
  * Passport authentication config
+ * Only the local strategy (using the User model and db password) is defined actually.
  */
+
+"use strict";
 
 var passport = require('passport'),
     LocalStrategy = require('passport-local').Strategy,
@@ -14,7 +17,7 @@ module.exports = function() {
     passport.deserializeUser(function(id, done) {
         User.findOne({ _id: id }, function (err, user) {
             done(err, user);
-        })
+        });
     });
 
     passport.use(new LocalStrategy(

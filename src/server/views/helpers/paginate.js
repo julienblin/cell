@@ -2,6 +2,8 @@
  * Pagination view helper
  */
 
+"use strict";
+
 var url = require('url'),
     qs = require('querystring'),
     util = require('util'),
@@ -27,14 +29,15 @@ module.exports = function(req, pagination, opt) {
     var parsedUrl = url.parse(req.url),
         pathname = parsedUrl.pathname,
         params = qs.parse(parsedUrl.query),
-        str = '<div class="pagination pagination-small pagination-centered"><ul>';
+        str = '<div class="pagination pagination-small pagination-centered"><ul>',
+        i;
 
     if (pagination.pageCount < 8) {
-        for(var i = 1; i <= pagination.pageCount; ++i) {
+        for(i = 1; i <= pagination.pageCount; ++i) {
             str += util.format('<li class="%s">', i == pagination.currentPage ? "active" : "");
             params.page = i;
             str += generatePageLink(pathname, params, i, options);
-            str += '</li>'
+            str += '</li>';
         }
     } else {
         if (pagination.currentPage > 1) {
@@ -63,9 +66,7 @@ module.exports = function(req, pagination, opt) {
             if (pagination.currentPage == 1) lastPageNumber += 1;
         }
 
-        console.log(firstPageNumber + ' - ' + lastPageNumber);
-
-        for (var i = firstPageNumber; i <= lastPageNumber; i++) {
+        for (i = firstPageNumber; i <= lastPageNumber; i++) {
             params.page = i;
             if (i == pagination.currentPage) {
                 str += '<li class="active">' + generatePageLink(pathname, params, util.format('%d / %d', i, pagination.pageCount), options) + '</li>';

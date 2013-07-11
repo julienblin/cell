@@ -1,6 +1,9 @@
 /**
- * Editors
+ * Various editors
+ * Editors are view helpers that help renders forms (input, label, etc.)
  */
+
+"use strict";
 
 var util = require('util'),
     _ = require('underscore');

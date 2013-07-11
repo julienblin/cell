@@ -1,3 +1,10 @@
+/**
+ * Socket.io configuration, especially the integration with passport for authentication.
+ * Specific socket actions are in the sockets folder.
+ */
+
+"use strict";
+
 var io = require('socket.io'),
     winston = require('winston'),
     express = require('express'),

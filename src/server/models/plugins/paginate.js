@@ -2,6 +2,8 @@
  * Pagination plugin
  */
 
+"use strict";
+
 var _ = require('underscore'),
     DEFAULT_PAGE_SIZE = 25;
 
@@ -13,9 +15,9 @@ module.exports = function paginatePlugin (schema, options) {
             currentPage: 1,
             pageSize: DEFAULT_PAGE_SIZE
         });
-        pagination.currentPage = parseInt(pagination.currentPage);
-        pagination.pageSize = parseInt(pagination.pageSize);
-
+        pagination.currentPage = parseInt(pagination.currentPage, 10);
+        pagination.pageSize = parseInt(pagination.pageSize, 10);
+        
         if(pagination.currentPage <= 0) pagination.currentPage = 1;
 
         var skipFrom = (pagination.currentPage * pagination.pageSize) - pagination.pageSize;
@@ -36,9 +38,9 @@ module.exports = function paginatePlugin (schema, options) {
                             pageCount: pageCount,
                             totalItems: totalItems
                         }, results);
-                    };
+                    }
                 });
-            };
+            }
         });
     };
 };

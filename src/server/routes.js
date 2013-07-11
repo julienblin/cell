@@ -1,8 +1,10 @@
 /**
- * Global routes configuration
+ * Routes configuration
  */
 
-var auth = require('./middlewares/authorizations')
+"use strict";
+
+var auth = require('./middlewares/authorizations'),
     index = require('./controllers/index'),
     login = require('./controllers/login'),
     modals = require('./controllers/modals'),

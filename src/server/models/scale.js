@@ -1,3 +1,12 @@
+/**
+ * The Scale model.
+ * A scale is composed of lines and columns:
+ *   - lines allow the definition of complexities (that estimation lines refers to)
+ *   - columns allow each line to associate some numbers to profiles
+ */
+
+"use strict";
+
 var mongoose = require('mongoose'),
     Schema = mongoose.Schema,
     validations = require('./plugins/validations'),

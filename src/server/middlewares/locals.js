@@ -2,6 +2,8 @@
  * Middleware to push local variables to every view
  */
 
+"use strict";
+
 module.exports = function(config) {
     return function(req, res, next) {
         res.locals.config = config;
@@ -9,5 +11,5 @@ module.exports = function(config) {
         res.locals.paginate = require('../views/helpers/paginate');
         res.locals.editors = require('../views/helpers/editors');
         next();
-    }
+    };
 };

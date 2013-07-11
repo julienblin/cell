@@ -40,6 +40,8 @@
     "devDependencies": {
         "should": "*",
         "cucumber": "*",
-        "zombie": "*"
+        "zombie": "*",
+        "grunt": "*",
+        "grunt-contrib-jshint": "*"
     }
 }

@@ -1,3 +1,9 @@
+/**
+ * Pages related to login and logout of users.
+ */
+
+"use strict";
+
 var auth = require('../middlewares/authorizations'),
     passport = require('passport');
 

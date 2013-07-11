@@ -3,6 +3,8 @@
  * http://mongoosejs.com/docs/validation.html
  */
 
+"use strict";
+
 var mongoose = require('mongoose'),
     util = require('util'),
     check = require('validator').check;
@@ -32,9 +34,9 @@ exports.uniqueFieldInsensitive = function(modelName, path, relatedToOtherPath) {
 
         query.count(function(err, count) {
             if (err) throw err;
-            callback(count == 0);
+            callback(count === 0);
         });
-    }
+    };
 };
 
 exports.email = function() {

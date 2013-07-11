@@ -3,6 +3,8 @@
  * Alter the toObject function to filter internal variables.
  */
 
+"use strict";
+
 module.exports = function serializePlugin (schema, pluginOptions) {
     if (!pluginOptions) pluginOptions = {};
     if (!pluginOptions.remove) pluginOptions.remove = [];

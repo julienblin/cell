@@ -2,6 +2,8 @@
  * The server application
  */
 
+"use strict";
+
 var winston = require('winston'),
     fs = require('fs'),
     http = require('http'),
@@ -23,7 +25,7 @@ module.exports = function(config, callback) {
     fs.readdirSync(__dirname + '/models').forEach(function (file) {
         if (file != 'plugins')
             require(__dirname + '/models/' + file);
-    })
+    });
 
     var passport = require('./passport');
     var app = require('./express')(config);

@@ -1,6 +1,9 @@
 /**
- * Users controller
+ * Users controller for user management
+ * User sessions are managed in the login controller.
  */
+
+"use strict";
 
 var User = require('../../models/user'),
     util = require('util'),
@@ -38,8 +41,8 @@ exports.loadUser = function(req, res, next) {
 var mapUser = function(user, req) {
     user.username = req.body.username;
     user.email = req.body.email;
-    user.isActive = req.body.isActive == undefined ? false : true;
-    user.isAdmin = req.body.isAdmin == undefined ? false : true;
+    user.isActive = req.body.isActive === undefined ? false : true;
+    user.isAdmin = req.body.isAdmin === undefined ? false : true;
 
     if (req.body.password) {
         if (req.body.password === req.body.confirm) {

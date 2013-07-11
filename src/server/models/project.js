@@ -1,3 +1,10 @@
+/**
+ * The project model.
+ * A project is a complete estimate.
+ */
+
+"use strict";
+
 var mongoose = require('mongoose'),
     Schema = mongoose.Schema,
     validations = require('./plugins/validations'),
@@ -40,15 +47,12 @@ ProjectSchema.methods.isAuth = function(auth, user) {
     switch(auth) {
         case 'read':
             return (isAuthorizedForRead || isAuthorizedForWrite);
-            break;
         case 'write':
             return isAuthorizedForWrite;
-            break;
         default:
             throw new Error('unrecognized auth value: ' + auth);
-            break;
     }
-}
+};
 
 ProjectSchema.methods.setAuth = function(auth, user) {
     var readIndex = this.usersRead.indexOf(user.id);

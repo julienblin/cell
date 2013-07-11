@@ -1,3 +1,9 @@
+/**
+ * Regroup all AJAX modals (such as new/open a project and addUsers)
+ */
+
+"use strict";
+
 var Project = require('../models/project'),
     User = require('../models/user'),
     _ = require('underscore');
@@ -66,7 +72,7 @@ exports.addUser = function(req, res, next) {
                 { 'isActive' : true },
                 searchQuery
             ]
-        }
+        };
     }
 
     console.log(searchQuery);

@@ -2,6 +2,8 @@
  * Authorization rules connect middleware
  */
 
+"use strict";
+
 var Project = require('../models/project');
 
 exports.LOGIN_ROUTE = "/login";
@@ -26,7 +28,7 @@ exports.project = function (req, res, next) {
         req.project = project;
         next();
     });
-}
+};
 
 exports.admin = function (req, res, next) {
     if (!req.isAuthenticated()) {

@@ -1,3 +1,11 @@
+/**
+ * The ScaleLine model.
+ * A scale line allows the input of specific numbers corresponding to scale columns and complexities.
+ * Each scale line can they be pointed to by an estimation line.
+ */
+
+"use strict";
+
 var mongoose = require('mongoose'),
     Schema = mongoose.Schema,
     validations = require('./plugins/validations'),

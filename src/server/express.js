@@ -6,26 +6,31 @@ var winston = require('winston'),
     express = require('express'),
     path = require('path'),
     bundle = require('bundle-up'),
-    mongoStore = require('connect-mongo')(express),
+    MongoStore = require('connect-mongo')(express),
     passport = require('passport');
 
-module.exports = function(config) {
-    var app = express();
-
-    // all environments
+module.exports = function (config) {
+    "use strict";
+    
+    var app = express(),
+        sessionStore = new MongoStore({
+            url: config.db.url,
+            collection : 'sessions'
+        });
+    
     app.set('views', __dirname + '/views');
     app.set('view engine', 'jade');
 
     app.use(express.favicon());
     app.use(express.compress());
-    if(config.env === 'development') {
+    if (config.env === 'development') {
         app.use(express.logger('dev'));
     }
 
     bundle(app, __dirname + '/../client/assets', {
         staticRoot: __dirname + '/../public/',
         staticUrlRoot: '/',
-        bundle: (config.env != 'development'),
+        bundle: (config.env !== 'development'),
         minifyCss: true,
         minifyJs: true
     });
@@ -36,11 +41,6 @@ module.exports = function(config) {
     app.use(express.bodyParser());
     app.use(express.methodOverride());
     app.use(express.cookieParser());
-
-    var sessionStore = new mongoStore({
-        url: config.db.url,
-        collection : 'sessions'
-    });
     app.set('sessionStore', sessionStore);
 
     app.use(express.session({
@@ -54,7 +54,7 @@ module.exports = function(config) {
     app.use(require('./middlewares/helpers'));
     app.use(app.router);
 
-    if(config.env === 'development') {
+    if (config.env === 'development') {
         app.use(express.errorHandler());
     }
 

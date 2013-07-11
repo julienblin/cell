@@ -1,3 +1,12 @@
+/**
+ * The Profile model.
+ * A profile is the basic unit for a calculating price in an estimate, by allowing the association between profiles
+ * and scales at the scale lines/columns level.
+ * Profiles are divided in 3 tiers: Junior / Intermediary / Senior.
+ */
+
+"use strict";
+
 var mongoose = require('mongoose'),
     Schema = mongoose.Schema,
     validations = require('./plugins/validations'),

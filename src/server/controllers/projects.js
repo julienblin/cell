@@ -1,3 +1,8 @@
+/**
+ * Projects-related pages. A lot of it is done client-side though.
+ */
+
+"use strict";
 
 var util = require('util');
 

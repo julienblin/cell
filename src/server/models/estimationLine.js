@@ -1,3 +1,10 @@
+/**
+ * The EstimationLine model.
+ * A project is composed of many estimation lines, each one refers to a specific scale and complexity.
+ */
+
+"use strict";
+
 var mongoose = require('mongoose'),
     Schema = mongoose.Schema,
     validations = require('./plugins/validations'),

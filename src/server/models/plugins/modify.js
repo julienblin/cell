@@ -1,6 +1,10 @@
 /**
  * Plugin that knows how to apply modifications to a model.
+ * Used massively in the websocket project synchronization.
+ * There is an kinda-alternative implementation client-side, inside the ProjectEngine.
  */
+
+"use strict";
 
 var mongoose = require('mongoose'),
     util = require('util'),
@@ -79,7 +83,7 @@ module.exports = function modifyPlugin (schema, options) {
                         if (err) return callback(null, { status: 'error', statusMessage: err.message });
                         modification.id = obj.id;
                         return callback(null, { status: 'success', statusMessage: util.format("Successfully created %s(%s).", Model.modelName, obj.id), id: obj.id });
-                    })
+                    });
                 });
             });
         }
@@ -142,7 +146,7 @@ module.exports = function modifyPlugin (schema, options) {
                     if (err) return callback(null, { status: 'error', statusMessage: err.message });
                     if (!parent) return callback(null, { status: 'error', statusMessage: 'Unable to find parent with id ' + modificationLot.parentId });
                     var parentReferences = parent.get(options.parentProperty);
-                    parentReferences = _.filter(parentReferences, function(objId) { return objId != modification.id });
+                    parentReferences = _.filter(parentReferences, function(objId) { return objId != modification.id; });
                     parent.set(options.parentProperty, parentReferences);
                     parent.save(function(err) {
                         if (err) return callback(null, { status: 'error', statusMessage: err.message });
