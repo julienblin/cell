@@ -32,6 +32,7 @@ module.exports = function(assets) {
     assets.addJs('/javascripts/renderers/scalesRenderer.js', 'project');
     assets.addJs('/javascripts/renderers/estimationLinesRenderer.js', 'project');
     assets.addJs('/javascripts/renderers/summaryRenderer.js', 'project');
+    assets.addJs('/javascripts/renderers/usersRenderer.js', 'project');
     assets.addJs('/javascripts/projectEngine.js', 'project');
 
     assets.addCss('/stylesheets/bootstrap.min.css');

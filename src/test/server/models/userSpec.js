@@ -116,4 +116,12 @@ describe("Users", function(){
             })
         });
     });
+
+    it("should not serialize internal properties", function() {
+        var user = new User({ email:'julien.blin@cgi.com', username:'Julien Blin', password: VALID_PASSWORD, isActive: false });
+        var userObj = user.toObject();
+        should.not.exists(userObj._id);
+        should.not.exists(userObj.__v);
+        should.not.exists(userObj.password);
+    });
 });

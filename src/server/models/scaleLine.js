@@ -12,6 +12,6 @@ var ScaleLineSchema = new Schema({
 
 ScaleLineSchema.plugin(require('./plugins/paginate'));
 ScaleLineSchema.plugin(require('./plugins/modify'), { parentModel: 'Scale', parentProperty: 'lines', parentIdProperty: 'scale' });
-ScaleLineSchema.plugin(require('./plugins/serialize'), { additionalProperties: [ 'scale' ] });
+ScaleLineSchema.plugin(require('./plugins/serialize'), { remove: [ 'scale' ] });
 
 module.exports = mongoose.model('ScaleLine', ScaleLineSchema);

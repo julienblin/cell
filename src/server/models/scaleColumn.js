@@ -11,6 +11,6 @@ var ScaleColumnSchema = new Schema({
 
 ScaleColumnSchema.plugin(require('./plugins/paginate'));
 ScaleColumnSchema.plugin(require('./plugins/modify'), { parentModel: 'Scale', parentProperty: 'columns', parentIdProperty: 'scale' });
-ScaleColumnSchema.plugin(require('./plugins/serialize'), { additionalProperties: [ 'scale' ] });
+ScaleColumnSchema.plugin(require('./plugins/serialize'), { remove: [ 'scale' ] });
 
 module.exports = mongoose.model('ScaleColumn', ScaleColumnSchema);

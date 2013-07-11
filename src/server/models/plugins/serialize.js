@@ -4,12 +4,17 @@
  */
 
 module.exports = function serializePlugin (schema, pluginOptions) {
-    if(!pluginOptions) pluginOptions.additionalProperties = [];
+    if (!pluginOptions) pluginOptions = {};
+    if (!pluginOptions.remove) pluginOptions.remove = [];
     schema.set('toObject', { transform: function (doc, ret , options) {
         ret.id = ret._id;
         delete ret._id;
         delete ret.__v;
-        for(var key in pluginOptions.additionalProperties)
-            delete ret[pluginOptions.additionalProperties[key]];
+        for(var key in pluginOptions.remove)
+            delete ret[pluginOptions.remove[key]];
+
+        if (pluginOptions.callback) {
+            pluginOptions.callback(doc, ret, options);
+        }
     }});
 };

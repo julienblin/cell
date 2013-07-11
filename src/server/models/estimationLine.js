@@ -15,6 +15,6 @@ var EstimationLineSchema = new Schema({
 
 EstimationLineSchema.plugin(require('./plugins/paginate'));
 EstimationLineSchema.plugin(require('./plugins/modify'), { parentModel: 'Project', parentProperty: 'estimationLines' });
-EstimationLineSchema.plugin(require('./plugins/serialize'), { additionalProperties: [ 'project' ] });
+EstimationLineSchema.plugin(require('./plugins/serialize'), { remove: [ 'project' ] });
 
 module.exports = mongoose.model('EstimationLine', EstimationLineSchema);

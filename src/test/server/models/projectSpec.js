@@ -117,11 +117,16 @@ describe("Projects", function(){
     })
 
     it("should not serialize internal properties", function() {
-        var project = new Project({ projectName: "Cell"});
+        var user1 = new User({ username: 'foo', email: 'foo@cgi.com', password: 'foo'});
+        var user2 = new User({ username: 'bar', email: 'bar@cgi.com', password: 'bar'});
+        var project = new Project({
+            projectName: "Cell",
+            userReads:[ user1 ],
+            usersWrite: [ user2 ]
+        });
         var projectObj = project.toObject();
         should.not.exists(projectObj._id);
         should.not.exists(projectObj.__v);
-        should.not.exists(projectObj.users);
     });
 
     it('should not apply modifications when the project is locked, except for isLocked.', function(done) {

@@ -36,7 +36,7 @@ block container
           td= user.username
           td= user.email
           td.span1
-            if user.active
+            if user.isActive
               i.icon-ok
           td.span1
             if user.isAdmin

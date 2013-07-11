@@ -81,5 +81,6 @@ UserSchema.statics.ensureDefaultUser = function(callback) {
 };
 
 UserSchema.plugin(require('./plugins/paginate'));
+UserSchema.plugin(require('./plugins/serialize'), { remove: [ 'password' ] });
 
 module.exports = mongoose.model('User', UserSchema);

@@ -20,6 +20,6 @@ ScaleSchema.pre('remove', function(next) {
 
 ScaleSchema.plugin(require('./plugins/paginate'));
 ScaleSchema.plugin(require('./plugins/modify'), { parentModel: 'Project', parentProperty: 'scales' });
-ScaleSchema.plugin(require('./plugins/serialize'), { additionalProperties: [ 'project' ] });
+ScaleSchema.plugin(require('./plugins/serialize'), { remove: [ 'project' ] });
 
 module.exports = mongoose.model('Scale', ScaleSchema);

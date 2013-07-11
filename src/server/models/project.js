@@ -11,10 +11,8 @@ var ProjectSchema = new Schema({
     created: { type: Date, required: true, default: Date.now },
     isLocked: { type: Boolean, default: false },
 
-    users: {
-        read: [{ type: Schema.Types.ObjectId, ref: 'User' }],
-        write: [{ type: Schema.Types.ObjectId, ref: 'User' }]
-    },
+    usersRead: [{ type: Schema.Types.ObjectId, ref: 'User' }],
+    usersWrite: [{ type: Schema.Types.ObjectId, ref: 'User' }],
 
     profiles: [{ type: Schema.Types.ObjectId, ref: 'Profile' }],
     scales: [{ type: Schema.Types.ObjectId, ref: 'Scale' }],
@@ -29,17 +27,22 @@ ProjectSchema.pre('remove', function(next) {
 });
 
 ProjectSchema.methods.isAuth = function(auth, user) {
-    var readIndex = this.users.read.indexOf(user.id);
-    var writeIndex = this.users.write.indexOf(user.id);
+    // users could be eagerly populated
+    var isAuthorizedForRead =
+        this.usersRead.indexOf(user.id) === -1 ?
+            (_.findWhere(this.usersRead, { id: user.id }) ? true : false)
+            : true;
+    var isAuthorizedForWrite =
+        this.usersWrite.indexOf(user.id) === -1 ?
+            (_.findWhere(this.usersWrite, { id: user.id }) ? true : false)
+            : true;
+
     switch(auth) {
         case 'read':
-            if(readIndex != -1) return true;
-            if(writeIndex != -1) return true;
-            return false;
+            return (isAuthorizedForRead || isAuthorizedForWrite);
             break;
         case 'write':
-            if(writeIndex != -1) return true;
-            return false;
+            return isAuthorizedForWrite;
             break;
         default:
             throw new Error('unrecognized auth value: ' + auth);
@@ -48,20 +51,20 @@ ProjectSchema.methods.isAuth = function(auth, user) {
 }
 
 ProjectSchema.methods.setAuth = function(auth, user) {
-    var readIndex = this.users.read.indexOf(user.id);
-    var writeIndex = this.users.write.indexOf(user.id);
+    var readIndex = this.usersRead.indexOf(user.id);
+    var writeIndex = this.usersWrite.indexOf(user.id);
     switch(auth) {
         case 'none':
-            if(readIndex != -1) this.users.read.splice(readIndex, 1);
-            if(writeIndex != -1) this.users.write.splice(writeIndex, 1);
+            if(readIndex != -1) this.usersRead.splice(readIndex, 1);
+            if(writeIndex != -1) this.usersWrite.splice(writeIndex, 1);
             break;
         case 'read':
-            if(readIndex == -1) this.users.read.push(user.id);
-            if(writeIndex != -1) this.users.write.splice(writeIndex, 1);
+            if(readIndex == -1) this.usersRead.push(user.id);
+            if(writeIndex != -1) this.usersWrite.splice(writeIndex, 1);
             break;
         case 'write':
-            if(readIndex != -1) this.users.read.splice(readIndex, 1);
-            if(writeIndex == -1) this.users.write.push(user.id);
+            if(readIndex != -1) this.usersRead.splice(readIndex, 1);
+            if(writeIndex == -1) this.usersWrite.push(user.id);
             break;
     }
 };
@@ -141,8 +144,8 @@ ProjectSchema.statics.queries.getAccessibleClientNames = function(filter, user, 
     var Project = mongoose.model('Project');
     Project.where('clientName').equals(new RegExp(filter, 'i'))
            .or([
-                { 'users.read': user.id },
-                { 'users.write': user.id }
+                { 'usersRead': user.id },
+                { 'usersWrite': user.id }
             ])
             .sort('clientName')
             .distinct('clientName', callback);
@@ -155,8 +158,8 @@ ProjectSchema.statics.queries.findPaginate = function(q, sort, user, paginationO
             q,
             {
                 $or: [
-                    { 'users.read': user.id },
-                    { 'users.write': user.id }
+                    { 'usersRead': user.id },
+                    { 'usersWrite': user.id }
                 ]
             }
         ]
@@ -166,6 +169,10 @@ ProjectSchema.statics.queries.findPaginate = function(q, sort, user, paginationO
 
 ProjectSchema.plugin(require('./plugins/paginate'));
 ProjectSchema.plugin(require('./plugins/modify'));
-ProjectSchema.plugin(require('./plugins/serialize'), { additionalProperties: [ 'users' ] });
+ProjectSchema.plugin(require('./plugins/serialize'), { remove: [ 'usersRead', 'usersWrite'], callback: function(doc, ret, options) {
+    // For an unknown reason mongoose doesn't seem to call toObject() on users by itself, so we bypass it!
+    ret.usersRead = _.map(doc.usersRead, function(user) { return user.toObject ? user.toObject() : user; });
+    ret.usersWrite = _.map(doc.usersWrite, function(user) { return user.toObject ? user.toObject() : user; });
+}});
 
 module.exports = mongoose.model('Project', ProjectSchema);

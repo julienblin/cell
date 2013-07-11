@@ -101,3 +101,9 @@ a.cellLink {
 .gridPadding {
     margin-bottom: 200px;
 }
+
+.nav-tabs .tab-right {
+    float:right;
+    margin-left:10px;
+    margin-right:0;
+}

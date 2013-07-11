@@ -3,16 +3,18 @@
  */
 
 var ProjectEngine = (function() {
-    return function(projectId) {
+    return function(projectId, userId) {
         var self = {};
         self.__proto__ = EventEmitter();
         self.projectId = projectId;
+        self.userId = userId;
         self.renderers = {
             info: new InfoRenderer(self),
             profiles: new ProfilesRenderer(self),
             scales: new ScalesRenderer(self),
             estimationLines: new EstimationLinesRenderer(self),
-            summary: new SummaryRenderer(self)
+            summary: new SummaryRenderer(self),
+            users: new UsersRenderer(self)
         };
 
         self.stats = {

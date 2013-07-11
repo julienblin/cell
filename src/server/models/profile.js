@@ -17,6 +17,6 @@ var ProfileSchema = new Schema({
 
 ProfileSchema.plugin(require('./plugins/paginate'));
 ProfileSchema.plugin(require('./plugins/modify'), { parentModel: 'Project', parentProperty: 'profiles' });
-ProfileSchema.plugin(require('./plugins/serialize'), { additionalProperties: [ 'project' ] });
+ProfileSchema.plugin(require('./plugins/serialize'), { remove: [ 'project' ] });
 
 module.exports = mongoose.model('Profile', ProfileSchema);

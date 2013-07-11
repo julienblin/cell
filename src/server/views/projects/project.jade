@@ -13,6 +13,8 @@ block container
       a(href="#estimations", data-toggle="tab", data-behavior="persistent") Estimations
     li
       a(href="#summary", data-toggle="tab", data-behavior="persistent") Summary
+    li.tab-right
+      a(href="#users", data-toggle="tab", data-behavior="persistent") Users
 
   #content.tab-content
     #info.tab-pane.active
@@ -70,6 +72,23 @@ block container
         .span6
           #scalesEffortsCharts
 
+    #users.tab-pane
+      .row
+        .span6
+          h3
+            | Editors&nbsp;&nbsp;
+            a#linkAddEditor.btn.btn-success.btn-mini(data-behavior="tooltip", title="Add an editor")
+              i.icon-plus.icon-white
+
+          #usersWriteList
+        .span6
+          h3
+            | Readers&nbsp;&nbsp;
+            a#linkAddReader.btn.btn-success.btn-mini(data-behavior="tooltip", title="Add a reader")
+              i.icon-plus.icon-white
+
+          #usersReadList
+
 block foot
 
   script#statistics-template(type="text/x-handlebars-template")
@@ -84,12 +103,13 @@ block foot
 
   include _info
   include _scales
+  include _users
 
   script(type="text/javascript", src="/socket.io/socket.io.js")
   != renderJs('project')
 
   script(type="text/javascript").
     $(function() {
-      window.engine = new ProjectEngine('#{project.id}');
+      window.engine = new ProjectEngine('#{project.id}', '#{req.user.id}');
       window.engine.init();
     });
