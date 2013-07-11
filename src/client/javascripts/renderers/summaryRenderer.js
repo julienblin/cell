@@ -84,6 +84,7 @@ var SummaryRenderer = (function() {
                 }
             });
             result.push(totals);
+            console.log(result);
             return result;
         };
 

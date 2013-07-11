@@ -79,14 +79,27 @@
                         return sum + (totalBaseline * (self.parseFloat(value) / 100));
                     }, totalBaseline);
 
-                    scaleLine.computed.profiles = {};
-
                     scaleLine.computed.totalPrice = _.reduce(scaleLine.values, function(sum, value, key) {
                         var colInfo = _getScaleColumnInfo(scale, key);
                         if(!colInfo) return sum;
 
                         var profile = _getProfile(data, colInfo.profile);
                         if(!(profile && profile.isActive && profile.computed.priceAverage)) return sum;
+
+                        var localUT = self.parseFloat(value);
+                        if(!colInfo.isBaseline)
+                            localUT = totalBaseline * (localUT / 100);
+
+                        return sum + (profile.computed.priceAverage * localUT);
+                    }, 0);
+
+                    scaleLine.computed.profiles = {};
+                    _.each(scaleLine.values, function(value, key) {
+                        var colInfo = _getScaleColumnInfo(scale, key);
+                        if(!colInfo) return;
+
+                        var profile = _getProfile(data, colInfo.profile);
+                        if(!(profile && profile.isActive)) return;
 
                         var localUT = self.parseFloat(value);
                         if(!colInfo.isBaseline)
@@ -99,10 +112,8 @@
                             scaleLine.computed.profiles[profile.id].totalPrice = 0;
                         }
                         scaleLine.computed.profiles[profile.id].totalUT = scaleLine.computed.profiles[profile.id].totalUT + localUT;
-                        scaleLine.computed.profiles[profile.id].totalPrice = scaleLine.computed.profiles[profile.id].totalPrice + (profile.computed.priceAverage * localUT);
-
-                        return sum + (profile.computed.priceAverage * localUT);
-                    }, 0);
+                        scaleLine.computed.profiles[profile.id].totalPrice = scaleLine.computed.profiles[profile.id].totalPrice + (self.parseFloat(profile.computed.priceAverage) * localUT);
+                    });
 
                     _.each(scaleLine.computed.profiles, function(values) {
                         values.percentUT = scaleLine.computed.totalUT == 0 ? 0 : (values.totalUT * 100) / scaleLine.computed.totalUT;
@@ -225,7 +236,7 @@
                 if(!line.lineType) {
                     var coefficient = line.coefficient ? self.parseFloat(line.coefficient) : 1.0;
                     if(scaleLine.computed.totalUT) {
-                        line.computed.totalUT = scaleLine.computed.totalUT * coefficient;
+                        line.computed.totalUT = self.parseFloat(scaleLine.computed.totalUT) * coefficient;
                         if(line.isActive) {
                             headingTotalLine.computed.totalUT = headingTotalLine.computed.totalUT + line.computed.totalUT;
                             currentHeading1.totalUT = currentHeading1.totalUT + line.computed.totalUT;
@@ -247,10 +258,10 @@
                     if(line.isActive) {
                         _.each(scaleLine.computed.profiles, function(values, profileId) {
                             line.computed.profiles[profileId] = {};
-                            line.computed.profiles[profileId].percentUT = values.percentUT;
-                            line.computed.profiles[profileId].percentPrice = values.percentPrice;
-                            line.computed.profiles[profileId].totalUT =  line.computed.totalUT * (values.percentUT / 100);
-                            line.computed.profiles[profileId].totalPrice = line.computed.totalPrice * (values.percentPrice / 100);
+                            line.computed.profiles[profileId].percentUT = self.parseFloat(values.percentUT);
+                            line.computed.profiles[profileId].percentPrice = self.parseFloat(values.percentPrice);
+                            line.computed.profiles[profileId].totalUT =  line.computed.totalUT * (self.parseFloat(values.percentUT) / 100);
+                            line.computed.profiles[profileId].totalPrice = line.computed.totalPrice * (self.parseFloat(values.percentPrice) / 100);
 
                             if(!headingTotalLine.computed.profiles[profileId]) {
                                 headingTotalLine.computed.profiles[profileId] = {
