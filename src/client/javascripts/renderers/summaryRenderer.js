@@ -84,7 +84,6 @@ var SummaryRenderer = (function() {
                 }
             });
             result.push(totals);
-            console.log(result);
             return result;
         };
 
@@ -125,6 +124,9 @@ var SummaryRenderer = (function() {
             $(self.chartsSelectorProfilesEfforts).highcharts({
                 chart: {
                     type: 'pie'
+                },
+                credits: {
+                    enabled: false
                 },
                 plotOptions: {
                     pie: {
@@ -196,6 +198,9 @@ var SummaryRenderer = (function() {
             $(self.chartsSelectorScalesEfforts).highcharts({
                 chart: {
                     type: 'pie'
+                },
+                credits: {
+                    enabled: false
                 },
                 plotOptions: {
                     pie: {
