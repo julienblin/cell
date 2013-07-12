@@ -1,10 +1,14 @@
+/**
+ * Specifications for estimation line model.
+ */
+
+"use strict";
+
 var should = require('should'),
     mongoose = require('mongoose'),
-    ObjectId = mongoose.Schema.ObjectId,
-    async = require('async'),
     config = require('../../config.js'),
+    factory = require('../../../server/factory'),
     Project = require('../../../server/models/project'),
-    User = require('../../../server/models/user'),
     EstimationLine = require('../../../server/models/estimationLine');
 
 describe("EstimationLines", function(){
@@ -19,8 +23,8 @@ describe("EstimationLines", function(){
     });
 
     it("should integrate create modifications", function(done) {
-        var user = new User();
-        Project.create({ clientName: 'CGI', projectName: 'Cell' }, user, function(err, project) {
+        var user = factory.make('user');
+        factory.makeAndSave('project', { usersWrite: [user] }, function(err, project) {
             should.not.exists(err);
             var modificationLot = {
                 projectId: project.id,
@@ -88,10 +92,10 @@ describe("EstimationLines", function(){
     });
 
     it("should integrate update modifications", function(done) {
-        var user = new User();
-        Project.create({ clientName: 'CGI', projectName: 'Cell' }, user, function(err, project) {
+        var user = factory.make('user');
+        factory.makeAndSave('project', { usersWrite: [user] }, function(err, project) {
             should.not.exists(err);
-            EstimationLine.create({ project: project.id }, function(err, line) {
+            factory.makeAndSave('estimationLine', { project: project.id }, function(err, line) {
                 should.not.exists(err);
                 var modificationLot = {
                     projectId: project.id,
@@ -102,14 +106,16 @@ describe("EstimationLines", function(){
                             id: line.id,
                             action: 'update',
                             property: 'isActive',
-                            newValue: true
+                            newValue: true,
+                            oldValue: line.isActive
                         },
                         {
                             model: 'EstimationLine',
                             id: line.id,
                             action: 'update',
                             property: 'title',
-                            newValue: 'Here is the first title'
+                            newValue: 'Here is the first title',
+                            oldValue: line.title
                         },
                         {
                             model: 'EstimationLine',
@@ -148,51 +154,38 @@ describe("EstimationLines", function(){
     });
 
     it("should integrate delete modifications", function(done) {
-        var user = new User();
-        Project.create({ clientName: 'CGI', projectName: 'Cell' }, user, function(err, project) {
+        var user = factory.make('user');
+        var project = factory.make('project', { usersWrite: [user] });
+        factory.makeAndSave('estimationLine', { project: project }, function(err, estimationLine1) {
             should.not.exists(err);
-            var modificationLot = {
-                projectId: project.id,
-                user: user,
-                modifications: [
-                    {
-                        model: 'EstimationLine',
-                        action: 'create',
-                        values: {
-                            isActive: true,
-                            title: 'Test el'
-                        }
-                    },
-                    {
-                        model: 'EstimationLine',
-                        action: 'create',
-                        values: {
-                            isActive: false,
-                            title: 'Test el'
-                        }
-                    }
-                ]
-            };
-            Project.applyModifications(modificationLot, function(err, response) {
+            factory.makeAndSave('estimationLine', { project: project }, function(err, estimationLine2) {
                 should.not.exists(err);
-                var elIdToDelete = response.results[1].id;
-                modificationLot.modifications = [
-                    {
-                        model: 'EstimationLine',
-                        action: 'delete',
-                        id: elIdToDelete
-                    }
-                ];
-                Project.applyModifications(modificationLot, function(err, response) {
+                project.estimationLines = [ estimationLine1, estimationLine2 ];
+                project.save(function(err) {
                     should.not.exists(err);
-                    response.results.should.have.length(1);
-                    response.results[0].status.should.equal('success');
-                    Project.findById(project.id).populate('estimationLines').exec(function(err, refProject) {
-                        refProject.estimationLines.should.have.length(1);
-                        EstimationLine.findById(elIdToDelete, function(err, refEstimationLine) {
-                            should.not.exists(err);
-                            should.not.exists(refEstimationLine);
-                            done();
+                    var modificationLot = {
+                        projectId: project.id,
+                        user: user,
+                        modifications: [
+                            {
+                                model: 'EstimationLine',
+                                action: 'delete',
+                                id: estimationLine1.id
+                            }
+                        ]
+                    };
+
+                    Project.applyModifications(modificationLot, function(err, response) {
+                        should.not.exists(err);
+                        response.results.should.have.length(1);
+                        response.results[0].status.should.equal('success');
+                        Project.findById(project.id).populate('estimationLines').exec(function(err, refProject) {
+                            refProject.estimationLines.should.have.length(1);
+                            EstimationLine.findById(estimationLine1.id, function(err, refEstimationLine) {
+                                should.not.exists(err);
+                                should.not.exists(refEstimationLine);
+                                done();
+                            });
                         });
                     });
                 });
@@ -201,10 +194,9 @@ describe("EstimationLines", function(){
     });
 
     it("should not serialize internal properties", function() {
-        var el = new EstimationLine({ title: "Scale title"});
-        var elObj = el.toObject();
-        should.not.exists(elObj._id);
-        should.not.exists(elObj.__v);
-        should.not.exists(elObj.project);
+        var estimationLine = factory.make('estimationLine').toObject();
+        should.not.exists(estimationLine._id);
+        should.not.exists(estimationLine.__v);
+        should.not.exists(estimationLine.project);
     });
 });
