@@ -170,7 +170,7 @@ describe("ScaleLines", function(){
                             done();
                         });
                     });
-                })
+                });
             });
         });
     });

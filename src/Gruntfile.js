@@ -22,6 +22,14 @@ module.exports = function(grunt) {
                 },
                 files: { src: ['Gruntfile.js', 'server/**/*.js'] }
             },
+            serverTest: {
+                options: {
+                    node:true,
+                    predef: [ 'describe', 'it', 'beforeEach', 'afterEach' ],
+                    '-W030': true // Expected an assignment or function call and instead saw an expression. (should.be.ok)
+                },
+                files: { src: ['test/server/**/*.js'] }
+            },
             client: {
                 options: {
                     browser:true,

@@ -163,7 +163,7 @@ describe("ScaleColumns", function(){
                             done();
                         });
                     });
-                })
+                });
             });
         });
     });

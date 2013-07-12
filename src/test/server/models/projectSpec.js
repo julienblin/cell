@@ -121,7 +121,7 @@ describe("Projects", function(){
                 done();
             });
         });
-    })
+    });
 
     it("should not serialize internal properties", function() {
         var project = factory.make('project').toObject();
