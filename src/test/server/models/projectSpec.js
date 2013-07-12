@@ -1,7 +1,14 @@
+/**
+ * Specifications for project model.
+ */
+
+"use strict";
+
 var should = require('should'),
     mongoose = require('mongoose'),
     async = require('async'),
     config = require('../../config.js'),
+    factory = require('../../../server/factory'),
     Project = require('../../../server/models/project'),
     User = require('../../../server/models/user');
 
@@ -17,24 +24,24 @@ describe("Projects", function(){
     });
 
     it('should authorize read', function() {
-        var user = new User();
-        var project = new Project();
+        var user = factory.make('user');
+        var project = factory.make('project');
         project.setAuth('read', user);
         project.isAuth('read', user).should.be.ok;
         project.isAuth('write', user).should.be.ko;
     });
 
     it('should authorize write', function() {
-        var user = new User();
-        var project = new Project();
+        var user = factory.make('user');
+        var project = factory.make('project');
         project.setAuth('write', user);
         project.isAuth('read', user).should.be.ok;
         project.isAuth('write', user).should.be.ok;
     });
 
     it('should authorize none', function() {
-        var user = new User();
-        var project = new Project();
+        var user = factory.make('user');
+        var project = factory.make('project');
         project.setAuth('write', user);
         project.setAuth('none', user);
         project.isAuth('read', user).should.be.ko;
@@ -42,7 +49,8 @@ describe("Projects", function(){
     });
 
     it('should create a project with user set as write', function(done) {
-        var user = new User();
+        var user = factory.make('user');
+        var project = factory.make('project');
         Project.create({ clientName: 'CGI', projectName: 'Cell' }, user, function(err, project) {
             should.not.exists(err);
             project.isAuth('write', user).should.be.ok;
@@ -51,20 +59,19 @@ describe("Projects", function(){
     });
 
     it('should not create a project with the same client and the same project name', function(done) {
-        var user = new User();
-        Project.create({ clientName: 'CGI', projectName: 'Cell' }, user, function(err, project) {
+        factory.makeAndSave('project', function(err, project) {
             should.not.exists(err);
-            Project.create({ clientName: project.clientName, projectName: project.projectName }, user, function(anotherErr, anotherProject) {
-                should.exists(anotherErr.errors);
-                should.exists(anotherProject.errors.projectName);
+            factory.makeAndSave('project', { clientName: project.clientName, projectName: project.projectName }, function(err, anotherProject) {
+                should.exists(err.errors);
+                should.not.exists(anotherProject);
                 done();
             });
         });
     });
 
     it('should retrieve client names that are accessible by the user', function(done) {
-        var user1 = new User();
-        var user2 = new User();
+        var user1 = factory.make('user');
+        var user2 = factory.make('user');
         async.parallel([
             function(callback) {
                 Project.create({ clientName: 'CGI', projectName: 'Cell' }, user1, function(err, project) { callback(err); });
@@ -94,8 +101,8 @@ describe("Projects", function(){
     });
 
     it('should find projects that are accessible by the user', function(done) {
-        var user1 = new User();
-        var user2 = new User();
+        var user1 = factory.make('user');
+        var user2 = factory.make('user');
         async.parallel([
             function(callback) {
                 Project.create({ clientName: 'CGI', projectName: 'Cell' }, user1, function(err, project) { callback(err); });
@@ -117,20 +124,13 @@ describe("Projects", function(){
     })
 
     it("should not serialize internal properties", function() {
-        var user1 = new User({ username: 'foo', email: 'foo@cgi.com', password: 'foo'});
-        var user2 = new User({ username: 'bar', email: 'bar@cgi.com', password: 'bar'});
-        var project = new Project({
-            projectName: "Cell",
-            userReads:[ user1 ],
-            usersWrite: [ user2 ]
-        });
-        var projectObj = project.toObject();
-        should.not.exists(projectObj._id);
-        should.not.exists(projectObj.__v);
+        var project = factory.make('project').toObject();
+        should.not.exists(project._id);
+        should.not.exists(project.__v);
     });
 
     it('should not apply modifications when the project is locked, except for isLocked.', function(done) {
-        var user = new User();
+        var user = factory.make('user');
         Project.create({ clientName: 'CGI', projectName: 'Cell', isLocked: true }, user, function(err, project) {
             should.not.exists(err);
             var modificationLot = {
