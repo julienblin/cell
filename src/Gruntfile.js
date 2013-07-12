@@ -13,7 +13,8 @@ module.exports = function(grunt) {
         jshint: {
             options: {
                 strict: true,
-                laxbreak: true
+                laxbreak: true,
+                proto: true
             },
             server: {
                 options: {
@@ -26,19 +27,18 @@ module.exports = function(grunt) {
                     browser:true,
                     jquery: true,
                     '-W064': true, // Missing 'new' prefix when invoking a constructor
-                    '-W103': true // The '__proto__' property is deprecated.
                 },
                 files: { src: ['client/javascripts/**/*.js', '!client/javascripts/lib/**/*.js', '!client/javascripts/projectCalculator.js'] }
             }
         },
 
         mochaTest: {
-            test: {
-                options: {
-                    reporter: 'spec',
-                    ui: 'bdd'
-                },
-                src: ['test/**/*.js']
+            options: {
+                reporter: 'spec',
+                ui: 'bdd'
+            },
+            server: {
+                src: ['test/server/**/*.js']
             }
         },
 

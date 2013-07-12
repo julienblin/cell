@@ -1,18 +1,18 @@
+/**
+ * Specifications for user model.
+ */
+
+"use strict";
+
 var should = require('should'),
     mongoose = require('mongoose'),
     config = require('../../config.js'),
+    factory = require('../../../server/factory'),
     User = require('../../../server/models/user');
 
-var VALID_PASSWORD = '1234';
-var saveValidUser = function(callback) {
-    var user = new User({ email:'julien.blin@cgi.com', username:'Julien Blin', password: VALID_PASSWORD });
-    user.save(function(err){
-        should.not.exists(err);
-        callback(user);
-    });
-};
-
 describe("Users", function(){
+
+    var VALID_PASSWORD = 'MyPassword123';
 
     beforeEach(function(done){
         mongoose.connect(config.db.url, function() {
@@ -25,34 +25,36 @@ describe("Users", function(){
     });
 
     it('should not create a user with the same username', function(done) {
-        saveValidUser(function(user){
-            var user2 = new User({username: user.username, email: 'asf@foo.com', password: VALID_PASSWORD});
-            user2.save(function(err) {
+        factory.makeAndSave('user', function(err, user) {
+            should.not.exists(err);
+            var user2 = factory.makeAndSave('user', { username: user.username}, function(err, user) {
                 should.exists(err.errors);
                 done();
-            })
+            });
         });
     });
 
     it('should not create a user with the same email', function(done) {
-        saveValidUser(function(user){
-            var user2 = new User({username: 'FooBar', email: user.email, password: VALID_PASSWORD});
-            user2.save(function(err) {
+        factory.makeAndSave('user', function(err, user) {
+            should.not.exists(err);
+            var user2 = factory.makeAndSave('user', { email: user.email}, function(err, user) {
                 should.exists(err.errors);
                 done();
-            })
+            });
         });
     });
 
     it('should encrypt passwords', function(done) {
-        saveValidUser(function(user){
+        factory.makeAndSave('user', { password: VALID_PASSWORD }, function(err, user) {
+            should.not.exists(err);
             user.password.should.not.equal(VALID_PASSWORD);
             done();
         });
     });
 
     it('should compare valid passwords', function(done) {
-        saveValidUser(function(user){
+        factory.makeAndSave('user', { password: VALID_PASSWORD }, function(err, user) {
+            should.not.exists(err);
             user.comparePassword(VALID_PASSWORD, function(err, isMatch) {
                 should.not.exists(err);
                 isMatch.should.be.ok;
@@ -62,7 +64,8 @@ describe("Users", function(){
     });
 
     it('should compare invalid passwords', function(done) {
-        saveValidUser(function(user){
+        factory.makeAndSave('user', { password: VALID_PASSWORD }, function(err, user) {
+            should.not.exists(err);
             user.comparePassword(VALID_PASSWORD + '1', function(err, isMatch) {
                 should.not.exists(err);
                 isMatch.should.not.be.ok;
@@ -72,7 +75,8 @@ describe("Users", function(){
     });
 
     it('should authenticate valid users', function(done) {
-        saveValidUser(function(user){
+        factory.makeAndSave('user', { password: VALID_PASSWORD }, function(err, user) {
+            should.not.exists(err);
             User.authenticate(user.username, VALID_PASSWORD, function(err, authenticatedUser) {
                 authenticatedUser.username.should.be.equal(user.username);
                 done();
@@ -81,8 +85,9 @@ describe("Users", function(){
     });
 
     it('should not authenticate valid users with wrong password', function(done) {
-        saveValidUser(function(user){
-            User.authenticate(user.username, VALID_PASSWORD + '1', function(err, authenticatedUser) {
+        factory.makeAndSave('user', function(err, user) {
+            should.not.exists(err);
+            User.authenticate(user.username, 'wrongPassword', function(err, authenticatedUser) {
                 authenticatedUser.should.not.be.ok;
                 done();
             });
@@ -90,9 +95,9 @@ describe("Users", function(){
     });
 
     it('should not authenticate inactive users', function(done) {
-        var user = new User({ email:'julien.blin@cgi.com', username:'Julien Blin', password: VALID_PASSWORD, isActive: false });
-        user.save(function(err){
-            User.authenticate(user.username, '1234', function(err, authenticatedUser) {
+        factory.makeAndSave('user', { isActive: false, password: VALID_PASSWORD }, function(err, user) {
+            should.not.exists(err);
+            User.authenticate(user.username, VALID_PASSWORD, function(err, authenticatedUser) {
                 authenticatedUser.should.not.be.ok;
                 done();
             });
@@ -108,20 +113,20 @@ describe("Users", function(){
     });
 
     it('should not ensure default user when a user already exists.', function(done) {
-        saveValidUser(function(user){
+        factory.makeAndSave('user', function(err, user) {
+            should.not.exists(err);
             User.ensureDefaultUser(function(err, user){
                 should.not.exists(err);
                 should.not.exists(user);
                 done();
-            })
+            });
         });
     });
 
     it("should not serialize internal properties", function() {
-        var user = new User({ email:'julien.blin@cgi.com', username:'Julien Blin', password: VALID_PASSWORD, isActive: false });
-        var userObj = user.toObject();
-        should.not.exists(userObj._id);
-        should.not.exists(userObj.__v);
-        should.not.exists(userObj.password);
+        var user = factory.make('user').toObject();
+        should.not.exists(user._id);
+        should.not.exists(user.__v);
+        should.not.exists(user.password);
     });
 });
