@@ -1,12 +1,15 @@
+/**
+ * Specifications for scale line model.
+ */
+
+"use strict";
+
 var should = require('should'),
     mongoose = require('mongoose'),
-    ObjectId = mongoose.Schema.ObjectId,
-    async = require('async'),
-    _ = require('underscore'),
     config = require('../../config.js'),
+    factory = require('../../../server/factory'),
     Project = require('../../../server/models/project'),
     Scale = require('../../../server/models/scale'),
-    User = require('../../../server/models/user'),
     ScaleLine = require('../../../server/models/scaleLine');
 
 describe("ScaleLines", function(){
@@ -21,10 +24,10 @@ describe("ScaleLines", function(){
     });
 
     it("should integrate create modifications", function(done) {
-        var user = new User();
-        Project.create({ clientName: 'CGI', projectName: 'Cell' }, user, function(err, project) {
+        var user = factory.make('user');
+        factory.makeAndSave('project', { usersWrite: [user] }, function(err, project) {
             should.not.exists(err);
-            Scale.create({ project: project.id, title: 'Test scale' }, function(err, scale) {
+            factory.makeAndSave('scale', { project: project.id }, function(err, scale) {
                 should.not.exists(err);
                 var modificationLot = {
                     projectId: project.id,
@@ -109,12 +112,12 @@ describe("ScaleLines", function(){
     });
 
     it("should integrate update modifications", function(done) {
-        var user = new User();
-        Project.create({ clientName: 'CGI', projectName: 'Cell' }, user, function(err, project) {
+        var user = factory.make('user');
+        factory.makeAndSave('project', { usersWrite: [user] }, function(err, project) {
             should.not.exists(err);
-            Scale.create({ project: project.id, title: 'Test scale' }, function(err, scale) {
+            factory.makeAndSave('scale', { project: project.id }, function(err, scale) {
                 should.not.exists(err);
-                ScaleLine.create({ scale: scale.id, complexity: 'Simple' }, function(err, scaleLine) {
+                factory.makeAndSave('scaleLine', { scale: scale.id }, function(err, scaleLine) {
                     should.not.exists(err);
                     var modificationLot = {
                         projectId: project.id,
@@ -125,7 +128,8 @@ describe("ScaleLines", function(){
                                 id: scaleLine.id,
                                 action: 'update',
                                 property: 'isActive',
-                                newValue: true
+                                newValue: true,
+                                oldValue: scaleLine.isActive
                             },
                             {
                                 model: 'ScaleLine',
@@ -172,55 +176,41 @@ describe("ScaleLines", function(){
     });
 
     it("should integrate delete modifications", function(done) {
-        var user = new User();
-        Project.create({ clientName: 'CGI', projectName: 'Cell' }, user, function(err, project) {
+        var user = factory.make('user');
+        factory.makeAndSave('project', { usersWrite: [user] }, function(err, project) {
             should.not.exists(err);
-            Scale.create({ project: project.id, title: 'Test scale' }, function(err, scale) {
+
+            var scale = factory.make('scale');
+            factory.makeAndSave('scaleLine', { scale: scale.id }, function(err, scaleLine1) {
                 should.not.exists(err);
-                var modificationLot = {
-                    projectId: project.id,
-                    user: user,
-                    modifications: [
-                        {
-                            model: 'ScaleLine',
-                            parentId: scale.id,
-                            action: 'create',
-                            values: {
-                                isActive: true,
-                                complexity: 'Test scale line'
-                            }
-                        },
-                        {
-                            model: 'ScaleLine',
-                            parentId: scale.id,
-                            action: 'create',
-                            values: {
-                                isActive: false,
-                                complexity: 'Test scale line 2'
-                            }
-                        }
-                    ]
-                };
-                Project.applyModifications(modificationLot, function(err, response) {
+                factory.makeAndSave('scaleLine', { scale: scale.id }, function(err, scaleLine2) {
                     should.not.exists(err);
-                    var scaleLineIdToDelete = response.results[1].id;
-                    modificationLot.modifications = [
-                        {
-                            model: 'ScaleLine',
-                            action: 'delete',
-                            id: scaleLineIdToDelete
-                        }
-                    ];
-                    Project.applyModifications(modificationLot, function(err, response) {
+                    scale.lines = [scaleLine1, scaleLine2];
+                    scale.save(function(err) {
                         should.not.exists(err);
-                        response.results.should.have.length(1);
-                        response.results[0].status.should.equal('success');
-                        Scale.findById(scale.id).populate('lines').exec(function(err, refScale) {
-                            refScale.lines.should.have.length(1);
-                            ScaleLine.findById(scaleLineIdToDelete, function(err, refScaleLine) {
-                                should.not.exists(err);
-                                should.not.exists(refScaleLine);
-                                done();
+                        var modificationLot = {
+                            projectId: project.id,
+                            user: user,
+                            modifications: [
+                                {
+                                    model: 'ScaleLine',
+                                    action: 'delete',
+                                    id: scaleLine1.id
+                                }
+                            ]
+                        };
+
+                        Project.applyModifications(modificationLot, function(err, response) {
+                            should.not.exists(err);
+                            response.results.should.have.length(1);
+                            response.results[0].status.should.equal('success');
+                            Scale.findById(scale.id).populate('lines').exec(function(err, refScale) {
+                                refScale.lines.should.have.length(1);
+                                ScaleLine.findById(scaleLine1.id, function(err, refScaleLine) {
+                                    should.not.exists(err);
+                                    should.not.exists(refScaleLine);
+                                    done();
+                                });
                             });
                         });
                     });
@@ -230,10 +220,9 @@ describe("ScaleLines", function(){
     });
 
     it("should not serialize internal properties", function() {
-        var scaleLine = new ScaleLine({ complexity: "Simple"});
-        var scaleLineObj = scaleLine.toObject();
-        should.not.exists(scaleLineObj._id);
-        should.not.exists(scaleLineObj.__v);
-        should.not.exists(scaleLineObj.scale);
+        var scaleLine = factory.make('scaleLine').toObject();
+        should.not.exists(scaleLine._id);
+        should.not.exists(scaleLine.__v);
+        should.not.exists(scaleLine.scale);
     });
 });
