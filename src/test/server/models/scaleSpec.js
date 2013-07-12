@@ -1,10 +1,14 @@
+/**
+ * Specifications for scale model.
+ */
+
+"use strict";
+
 var should = require('should'),
     mongoose = require('mongoose'),
-    ObjectId = mongoose.Schema.ObjectId,
-    async = require('async'),
     config = require('../../config.js'),
+    factory = require('../../../server/factory'),
     Project = require('../../../server/models/project'),
-    User = require('../../../server/models/user'),
     Scale = require('../../../server/models/scale');
 
 describe("Scales", function(){
@@ -19,8 +23,8 @@ describe("Scales", function(){
     });
 
     it("should integrate create modifications", function(done) {
-        var user = new User();
-        Project.create({ clientName: 'CGI', projectName: 'Cell' }, user, function(err, project) {
+        var user = factory.make('user');
+        factory.makeAndSave('project', { usersWrite: [user] }, function(err, project) {
             should.not.exists(err);
             var modificationLot = {
                 projectId: project.id,
@@ -87,10 +91,10 @@ describe("Scales", function(){
     });
 
     it("should integrate update modifications", function(done) {
-        var user = new User();
-        Project.create({ clientName: 'CGI', projectName: 'Cell' }, user, function(err, project) {
+        var user = factory.make('user');
+        factory.makeAndSave('project', { usersWrite: [user] }, function(err, project) {
             should.not.exists(err);
-            Scale.create({ project: project.id }, function(err, line) {
+            factory.makeAndSave('scale', { project: project.id }, function(err, scale) {
                 should.not.exists(err);
                 var modificationLot = {
                     projectId: project.id,
@@ -98,21 +102,23 @@ describe("Scales", function(){
                     modifications: [
                         {
                             model: 'Scale',
-                            id: line.id,
+                            id: scale.id,
                             action: 'update',
                             property: 'isActive',
-                            newValue: true
+                            newValue: true,
+                            oldValue: scale.isActive
                         },
                         {
                             model: 'Scale',
-                            id: line.id,
+                            id: scale.id,
                             action: 'update',
                             property: 'name',
-                            newValue: 'Here is the first name'
+                            newValue: 'Here is the first name',
+                            oldValue: scale.name
                         },
                         {
                             model: 'Scale',
-                            id: line.id,
+                            id: scale.id,
                             action: 'update',
                             property: 'name',
                             newValue: 'Here is the last name',
@@ -120,7 +126,7 @@ describe("Scales", function(){
                         },
                         {
                             model: 'Scale',
-                            id: line.id,
+                            id: scale.id,
                             action: 'update',
                             property: 'name',
                             newValue: 'Here is the wrong name',
@@ -135,7 +141,7 @@ describe("Scales", function(){
                     response.results[1].status.should.equal('success');
                     response.results[2].status.should.equal('success');
                     response.results[3].status.should.equal('concurrencyError');
-                    Scale.findById(line.id, function(err, refScale) {
+                    Scale.findById(scale.id, function(err, refScale) {
                         should.not.exists(err);
                         refScale.isActive.should.be.ok;
                         refScale.name.should.equal('Here is the last name');
@@ -147,53 +153,38 @@ describe("Scales", function(){
     });
 
     it("should integrate delete modifications", function(done) {
-        var user = new User();
-        Project.create({ clientName: 'CGI', projectName: 'Cell' }, user, function(err, project) {
+        var user = factory.make('user');
+        var project = factory.make('project', { usersWrite: [user] });
+        factory.makeAndSave('scale', { project: project }, function(err, scale1) {
             should.not.exists(err);
-            var modificationLot = {
-                projectId: project.id,
-                user: user,
-                modifications: [
-                    {
-                        model: 'Scale',
-                        action: 'create',
-                        values: {
-                            isActive: true,
-                            name: 'Test profile',
-                            percentageSenior: 25
-                        }
-                    },
-                    {
-                        model: 'Scale',
-                        action: 'create',
-                        values: {
-                            isActive: false,
-                            name: 'Test profile 2',
-                            percentageSenior: 50
-                        }
-                    }
-                ]
-            };
-            Project.applyModifications(modificationLot, function(err, response) {
+            factory.makeAndSave('scale', { project: project }, function(err, scale2) {
                 should.not.exists(err);
-                var profileIdToDelete = response.results[1].id;
-                modificationLot.modifications = [
-                    {
-                        model: 'Scale',
-                        action: 'delete',
-                        id: profileIdToDelete
-                    }
-                ];
-                Project.applyModifications(modificationLot, function(err, response) {
+                project.scales = [ scale1, scale2 ];
+                project.save(function(err) {
                     should.not.exists(err);
-                    response.results.should.have.length(1);
-                    response.results[0].status.should.equal('success');
-                    Project.findById(project.id).populate('scales').exec(function(err, refProject) {
-                        refProject.scales.should.have.length(1);
-                        Scale.findById(profileIdToDelete, function(err, refScale) {
-                            should.not.exists(err);
-                            should.not.exists(refScale);
-                            done();
+                    var modificationLot = {
+                        projectId: project.id,
+                        user: user,
+                        modifications: [
+                            {
+                                model: 'Scale',
+                                action: 'delete',
+                                id: scale1.id
+                            }
+                        ]
+                    };
+
+                    Project.applyModifications(modificationLot, function(err, response) {
+                        should.not.exists(err);
+                        response.results.should.have.length(1);
+                        response.results[0].status.should.equal('success');
+                        Project.findById(project.id).populate('scales').exec(function(err, refProject) {
+                            refProject.scales.should.have.length(1);
+                            Scale.findById(scale1.id, function(err, refScale) {
+                                should.not.exists(err);
+                                should.not.exists(refScale);
+                                done();
+                            });
                         });
                     });
                 });
@@ -202,10 +193,9 @@ describe("Scales", function(){
     });
 
     it("should not serialize internal properties", function() {
-        var scale = new Scale({ name: "Scale name"});
-        var scaleObj = scale.toObject();
-        should.not.exists(scaleObj._id);
-        should.not.exists(scaleObj.__v);
-        should.not.exists(scaleObj.project);
+        var scale = factory.make('scale').toObject();
+        should.not.exists(scale._id);
+        should.not.exists(scale.__v);
+        should.not.exists(scale.project);
     });
 });

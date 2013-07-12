@@ -9,7 +9,6 @@ var should = require('should'),
     config = require('../../config.js'),
     factory = require('../../../server/factory'),
     Project = require('../../../server/models/project'),
-    User = require('../../../server/models/user'),
     Profile = require('../../../server/models/profile');
 
 describe("Profiles", function(){
