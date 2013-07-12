@@ -69,7 +69,8 @@
 
                     line.computed = {
                         lineTotalUT: undefined,
-                        lineTotalPrice: undefined
+                        lineTotalPrice: undefined,
+                        profiles: {}
                     };
                     if (!line.id) continue;
 
@@ -91,7 +92,8 @@
 
                     line.computed = {
                         lineTotalUT: 0,
-                        lineTotalPrice: 0
+                        lineTotalPrice: 0,
+                        profiles: {}
                     };
 
                     for(var columnId in line.values) {
@@ -102,12 +104,49 @@
                         var profile = data.nav.profiles[column.profile];
                         if(!(profile && profile.isActive)) continue;
 
-                        var valueUT = column.isBaseline ? self.parseFloat(value) : (totalBaseline * (self.parseFloat(value) / 100));
-                        line.computed.lineTotalUT = line.computed.lineTotalUT + valueUT;
+                        var valueUT = column.isBaseline ? self.parseFloat(value) : ((totalBaseline * (self.parseFloat(value) / 100)).toFixed(2));
+                        line.computed.lineTotalUT = +line.computed.lineTotalUT + +valueUT;
                         if(profile.computed.profileAveragePrice) {
-                            line.computed.lineTotalPrice = line.computed.lineTotalPrice + (valueUT * profile.computed.profileAveragePrice);
+                            line.computed.lineTotalPrice = +line.computed.lineTotalPrice + +(valueUT * profile.computed.profileAveragePrice);
                         }
+
+                        if(!line.computed.profiles[profile.id]) {
+                            line.computed.profiles[profile.id] = {
+                                lineTotalUT: 0,
+                                lineTotalPrice: 0
+                            }
+                        }
+
+                        line.computed.profiles[profile.id].lineTotalUT = +line.computed.profiles[profile.id].lineTotalUT + +valueUT;
+                        line.computed.profiles[profile.id].lineTotalPrice = +line.computed.profiles[profile.id].lineTotalPrice + +(valueUT * profile.computed.profileAveragePrice);
                     }
+                }
+            }
+        };
+
+        var _processEstimationLines = function(data) {
+            // We process backwards for headings accumulation
+            for(var lineIndex = data.estimationLines.length - 1; lineIndex >= 0; --lineIndex) {
+                var line = data.estimationLines[lineIndex];
+                line.computed = {
+                    lineTotalUT: undefined,
+                    lineTotalPrice: undefined,
+                    profiles: {}
+                };
+
+                if(!line.id) continue;
+                if(!(line.scale && line.complexity)) continue;
+
+                var scaleLine = data.nav.scaleLines[line.complexity];
+                if(!(scaleLine && scaleLine.isActive)) continue;
+
+                var coefficient = line.coefficient ? self.parseFloat(line.coefficient) : 1;
+                line.computed.lineTotalUT = scaleLine.computed.lineTotalUT * coefficient;
+                line.computed.lineTotalPrice = scaleLine.computed.lineTotalPrice * coefficient;
+                for(var profileId in scaleLine.computed.profiles) {
+                    line.computed.profiles[profileId] = {};
+                    line.computed.profiles[profileId].lineTotalUT = scaleLine.computed.profiles[profileId].lineTotalUT * coefficient;
+                    line.computed.profiles[profileId].lineTotalPrice = scaleLine.computed.profiles[profileId].lineTotalPrice * coefficient;
                 }
             }
         };
@@ -140,6 +179,7 @@
             if(!data.nav) data.nav = {};
             _processProfiles(data);
             _processScales(data);
+            _processEstimationLines(data);
         };
 
         return self;
