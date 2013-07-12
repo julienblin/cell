@@ -47,6 +47,9 @@ module.exports = function(grunt) {
             },
             server: {
                 src: ['test/server/**/*.js']
+            },
+            client: {
+                src: ['test/client/**/*.js']
             }
         },
 
@@ -55,5 +58,13 @@ module.exports = function(grunt) {
         }
     });
 
-    grunt.registerTask('default', ['jshint', 'mochaTest', 'cucumberjs']);
+    grunt.registerTask('lint', 'jshint');
+
+    grunt.registerTask('unit-test', 'mochaTest');
+    grunt.registerTask('unit-test:client', 'mochaTest:client');
+    grunt.registerTask('unit-test:server', 'mochaTest:server');
+
+    grunt.registerTask('integration-test', 'cucumberjs');
+
+    grunt.registerTask('default', ['lint', 'unit-test', 'integration-test']);
 };
