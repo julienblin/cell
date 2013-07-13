@@ -35,8 +35,16 @@ module.exports = function(grunt) {
                     browser:true,
                     jquery: true,
                     '-W064': true, // Missing 'new' prefix when invoking a constructor
+                    '-W007': true // Confusing pluses
                 },
-                files: { src: ['client/javascripts/**/*.js', '!client/javascripts/lib/**/*.js', '!client/javascripts/projectCalculator.js'] }
+                files: { src: ['client/javascripts/**/*.js', '!client/javascripts/lib/**/*.js'] }
+            },
+            clientTest: {
+                options: {
+                    browser:true,
+                    predef: [ 'describe', 'it', 'beforeEach', 'afterEach' ]
+                },
+                files: { src: ['test/client/**/*.js'] }
             }
         },
 

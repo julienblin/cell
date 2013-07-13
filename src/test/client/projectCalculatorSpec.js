@@ -2,14 +2,14 @@
  * Specifications for the project calculator
  */
 
-"use strict";
-
 var should = require('should'),
     _ = require('underscore'),
     factory = require('../../server/factory'),
     ProjectCalculator = require('../../client/javascripts/projectCalculator').ProjectCalculator;
 
 describe('ProjectCalculator', function(){
+    "use strict";
+
     var _calc = new ProjectCalculator();
 
     var _makeProfile = function() {
@@ -36,7 +36,7 @@ describe('ProjectCalculator', function(){
     };
 
     var _makeLine = function() {
-        if(arguments.length == 0)
+        if(arguments.length === 0)
             return factory.make('estimationLine', {}).toObject();
 
         if(arguments.length === 1)
@@ -65,7 +65,7 @@ describe('ProjectCalculator', function(){
         _lineDocHomepage, _lineDocContentPages, _lineDocUserWorkflow;
 
     var _lineHeading1Web, _lineHeading2WebFront, _lineHeading2WebBack,
-        _lineWebFrontUIDesign, _lineWebFrontMainPage, _lineWebBackUserMgtNoScale, _lineWebBackCompute, _lineWebBackDisabled
+        _lineWebFrontUIDesign, _lineWebFrontMainPage, _lineWebBackUserMgtNoScale, _lineWebBackCompute, _lineWebBackDisabled;
 
     var _project;
 
@@ -105,6 +105,7 @@ describe('ProjectCalculator', function(){
 
         _scaleLineJavaSimple = _makeScaleLine(_scaleJava.columns, [5, 2, 20, 10]); // totalUT: 6, total$: 4,750
         _scaleLineJavaMediumDisabled = _makeScaleLine(_scaleJava.columns, [10, 3, 20, 10]); // totalUT: 12, total$: 9,500
+        _scaleLineJavaMediumDisabled.isActive = false;
         _scaleLineJavaComplex = _makeScaleLine(_scaleJava.columns, [20, 20, 20, 10]); // totalUT: 24, total$: 19,000
         _scaleJava.lines = [_scaleLineJavaSimple, _scaleLineJavaMediumDisabled, _scaleLineJavaComplex];
 
@@ -256,9 +257,6 @@ describe('ProjectCalculator', function(){
     it('should process estimation lines', function() {
         _calc.performCalculations(_project);
 
-        var simpleLines = [_lineDocHomepage, _lineDocContentPages, _lineDocUserWorkflow, _lineWebFrontUIDesign, _lineWebFrontMainPage,
-                           _lineWebBackUserMgtNoScale, _lineWebBackCompute, _lineWebBackDisabled];
-
         _lineDocHomepage.computed.lineTotalUT.should.equal(10.4);
         _lineDocHomepage.computed.lineTotalPrice.should.equal(7350);
         _lineDocHomepage.computed.profiles[_profileAnalystValid.id].lineTotalUT.should.equal(3);
@@ -269,15 +267,74 @@ describe('ProjectCalculator', function(){
         _lineDocContentPages.computed.profiles[_profilePMValid.id].lineTotalUT.should.equal(1.5);
         _lineDocContentPages.computed.profiles[_profilePMValid.id].lineTotalPrice.should.equal(2250);
 
-        /*_lineWebFrontMainPage.computed.lineTotalUT.should.equal(0);
-        _lineWebFrontMainPage.computed.lineTotalPrice.should.equal(0);*/
+        should.not.exists(_lineWebFrontMainPage.computed.lineTotalUT);
+        should.not.exists(_lineWebFrontMainPage.computed.lineTotalPrice);
+        should.exists(_lineWebFrontMainPage.computed.profiles);
+
+        should.not.exists(_lineWebBackUserMgtNoScale.computed.lineTotalUT);
+        should.not.exists(_lineWebBackUserMgtNoScale.computed.lineTotalPrice);
+        should.exists(_lineWebBackUserMgtNoScale.computed.profiles);
+
+        _lineWebBackDisabled.computed.lineTotalUT.should.equal(24);
+        _lineWebBackDisabled.computed.lineTotalPrice.should.equal(19000);
+        _lineWebBackDisabled.computed.profiles[_profileDeveloperValid.id].lineTotalPrice.should.equal(13000);
+
+        _lineHeading2DocWorkflows.computed.lineTotalUT.should.equal(20.25);
+        _lineHeading2DocWorkflows.computed.lineTotalPrice.should.equal(14750);
+        _lineHeading2DocWorkflows.computed.profiles[_profileArchitectValid.id].lineTotalUT.should.equal(2.25);
+        _lineHeading2DocWorkflows.computed.profiles[_profileArchitectValid.id].lineTotalPrice.should.equal(2250);
+
+        _lineHeading2DocDoc.computed.lineTotalUT.should.equal(20.15);
+        _lineHeading2DocDoc.computed.lineTotalPrice.should.equal(14350);
+        _lineHeading2DocDoc.computed.profiles[_profileDeveloperValid.id].lineTotalUT.should.equal(10);
+        _lineHeading2DocDoc.computed.profiles[_profileDeveloperValid.id].lineTotalPrice.should.equal(6500);
+
+        _lineHeading1Doc.computed.lineTotalUT.should.equal(40.4);
+        _lineHeading1Doc.computed.lineTotalPrice.should.equal(29100);
+        _lineHeading1Doc.computed.profiles[_profileDeveloperValid.id].lineTotalUT.should.equal(20);
+        _lineHeading1Doc.computed.profiles[_profileDeveloperValid.id].lineTotalPrice.should.equal(13000);
+
+        _lineHeading2WebBack.computed.lineTotalUT.should.equal(24);
+        _lineHeading2WebBack.computed.lineTotalPrice.should.equal(19000);
+        _lineHeading2WebBack.computed.profiles[_profileDeveloperValid.id].lineTotalUT.should.equal(20);
+        _lineHeading2WebBack.computed.profiles[_profileDeveloperValid.id].lineTotalPrice.should.equal(13000);
+
+        _lineHeading2WebFront.computed.lineTotalUT.should.equal(60);
+        _lineHeading2WebFront.computed.lineTotalPrice.should.equal(47500);
+        _lineHeading2WebFront.computed.profiles[_profilePMValid.id].lineTotalUT.should.equal(10);
+        _lineHeading2WebFront.computed.profiles[_profilePMValid.id].lineTotalPrice.should.equal(15000);
+
+        _lineHeading1Web.computed.lineTotalUT.should.equal(84);
+        _lineHeading1Web.computed.lineTotalPrice.should.equal(66500);
+        _lineHeading1Web.computed.profiles[_profileDeveloperValid.id].lineTotalUT.should.equal(70);
+        _lineHeading1Web.computed.profiles[_profileDeveloperValid.id].lineTotalPrice.should.equal(45500);
+
+        var headingTotal = _project.estimationLines[0];
+        headingTotal.lineType.should.equal('headingTotal');
+        headingTotal.computed.lineTotalUT.should.equal(124.4);
+        headingTotal.computed.lineTotalPrice.should.equal(95600);
+        headingTotal.computed.profiles[_profileDeveloperValid.id].lineTotalUT.should.equal(90);
+        headingTotal.computed.profiles[_profileDeveloperValid.id].lineTotalPrice.should.equal(58500);
     });
 
-    it('should be fast', function() {
-        var startTime = new Date().getTime();
+    it('should create and reposition grand total', function() {
+        var numberOfEstimationLines = _project.estimationLines.length;
         _calc.performCalculations(_project);
-        var endTime = new Date().getTime();
-        var timeTaken = endTime - startTime;
-        timeTaken.should.be.below(10);
+        _project.estimationLines.length.should.equal(numberOfEstimationLines + 1);
+        _calc.performCalculations(_project);
+        _project.estimationLines.length.should.equal(numberOfEstimationLines + 1);
+        var headingLine = _project.estimationLines.splice(0, 1);
+        _project.estimationLines.splice(3, 0, headingLine[0]);
+        _calc.performCalculations(_project);
+        _project.estimationLines.length.should.equal(numberOfEstimationLines + 1);
+        _project.estimationLines[0].lineType.should.equal('headingTotal');
+    });
+
+    it('should report results on project', function() {
+        _calc.performCalculations(_project);
+        _project.computed.totalUT.should.equal(124.4);
+        _project.computed.totalPrice.should.equal(95600);
+        _project.computed.profiles[_profileDeveloperValid.id].totalUT.should.equal(90);
+        _project.computed.profiles[_profileDeveloperValid.id].totalPrice.should.equal(58500);
     });
 });
