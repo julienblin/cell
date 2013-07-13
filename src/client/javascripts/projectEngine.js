@@ -287,7 +287,7 @@ var ProjectEngine = (function() {
         };
 
         // Event subscriptions
-        
+
         window.onerror = function(msg, url, line) {
             alerts.fatal('Execution error. Reason: ' + msg + '.');
             statusBar.changeIcon('error');

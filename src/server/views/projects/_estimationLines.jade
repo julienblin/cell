@@ -1,0 +1,9 @@
+script#estimationLines-details-totalUT-template(type="text/x-handlebars-template")
+  table.table.table-condensed
+    tbody
+      {{#each profiles}}
+      tr
+        td {{title}}
+        td(style="text-align: right;") {{lineTotalUT}} ut
+        td(style="text-align: right;") {{lineTotalPrice}} $
+      {{/each}}

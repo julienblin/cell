@@ -10,7 +10,7 @@ var EstimationLinesRenderer = (function() {
         self.__proto__ = BaseTabRenderer('#estimations', engine);
         self.gridSelector = '#estimationsGrid';
 
-        var _cachedGrid = null;
+        var _cachedGrid, _currentPopoverCell;
         var _shadowData = {};
 
         var _scalesSource = function() {
@@ -322,6 +322,41 @@ var EstimationLinesRenderer = (function() {
                         });
                     });
                     self.engine.applyModifications(modifications);
+                },
+                afterSelectionEnd: function(row, col, endRow, endCol) {
+                    if(_currentPopoverCell) {
+                        $(_currentPopoverCell).popover('destroy');
+                        _currentPopoverCell = null;
+                    }
+
+                    if(((col === 5) || (col === 6)) && (col === endCol)) {
+                        var cell = _cachedGrid.getCell(row, col);
+                        var line = self.engine.data.estimationLines[row];
+                        if(!line.id && !line.lineType) return;
+                        var profiles = _.map(self.engine.data.profiles, function(profile) {
+                            return {
+                                title: profile.title,
+                                lineTotalUT: line.computed.profiles[profile.id] ? numeral(line.computed.profiles[profile.id].lineTotalUT).format('0.0') : 0,
+                                lineTotalPrice: line.computed.profiles[profile.id] ? numeral(line.computed.profiles[profile.id].lineTotalPrice).format('0,0.0') : 0
+                            };
+                        });
+                        if(profiles.length === 0) return;
+
+                        $(cell).popover({
+                            title: line.title,
+                            content: self.getTemplate('#estimationLines-details-totalUT-template')({ profiles: profiles }),
+                            placement: 'left',
+                            container: self.tabSelector,
+                            html: true
+                        });
+                        _currentPopoverCell = cell;
+                    }
+                },
+                afterDeselect: function() {
+                    if(_currentPopoverCell) {
+                        $(_currentPopoverCell).popover('destroy');
+                        _currentPopoverCell = null;
+                    }
                 }
             });
             _cachedGrid = $(self.gridSelector).data('handsontable');
