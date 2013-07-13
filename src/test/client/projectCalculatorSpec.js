@@ -336,5 +336,18 @@ describe('ProjectCalculator', function(){
         _project.computed.totalPrice.should.equal(95600);
         _project.computed.profiles[_profileDeveloperValid.id].totalUT.should.equal(90);
         _project.computed.profiles[_profileDeveloperValid.id].totalPrice.should.equal(58500);
+
+        _project.computed.scaleLines[_scaleLineSharepointSimple.id].totalUT.should.equal(9.75);
+        _project.computed.scaleLines[_scaleLineSharepointSimple.id].totalPrice.should.equal(7000);
+        _project.computed.scaleLines[_scaleLineSharepointMedium.id].totalUT.should.equal(10.4);
+        _project.computed.scaleLines[_scaleLineSharepointMedium.id].totalPrice.should.equal(7350);
+        _project.computed.scaleLines[_scaleLineSharepointComplex.id].totalUT.should.equal(20.25);
+        _project.computed.scaleLines[_scaleLineSharepointComplex.id].totalPrice.should.equal(14750);
+
+        _project.computed.scales[_scaleSharepoint.id].totalUT.should.equal(40.4);
+        _project.computed.scales[_scaleSharepoint.id].totalPrice.should.equal(29100);
+
+        _project.computed.scales[_scaleJava.id].totalUT.should.equal(84);
+        _project.computed.scales[_scaleJava.id].totalPrice.should.equal(66500);
     });
 });

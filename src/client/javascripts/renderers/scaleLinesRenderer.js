@@ -35,8 +35,8 @@ var ScaleLinesRenderer = (function() {
                 columns.push({ data: 'values.' + column.id, type: column.isBaseline ? 'ut' : 'percent', readOnly: self.engine.isReadOnly });
             });
             columns.push({ type: 'ut', readOnly: self.engine.isReadOnly });
-            columns.push({ data: 'computed.totalUT', type: 'ut', readOnly: true });
-            columns.push({ data: 'computed.totalPrice', type: 'price', readOnly: true });
+            columns.push({ data: 'computed.lineTotalUT', type: 'ut', readOnly: true });
+            columns.push({ data: 'computed.lineTotalPrice', type: 'price', readOnly: true });
             return columns;
         };
 
@@ -118,7 +118,7 @@ var ScaleLinesRenderer = (function() {
                         var th = $(TH);
                         var scaleColumn = self.scale.columns[col - 2] || {};
                         var scaleColumnBefore = (col > 2) ? self.scale.columns[col - 3] : {};
-                        var profile = _.findWhere(self.engine.data.profiles, { id: scaleColumn.profile });
+                        var profile = self.engine.data.nav.profiles[scaleColumn.profile];
                         var content = self.getTemplate('#scale-colheader-template')({ column: scaleColumn, profile: profile, before: scaleColumnBefore, profiles: self.engine.data.profiles, readOnly: self.engine.isReadOnly });
                         th.html(content);
                         th.css('overflow','initial');
@@ -134,8 +134,8 @@ var ScaleLinesRenderer = (function() {
                                 cellProperties.invalid = !(scaleLine.complexity);
                             }
                             break;
-                        case 'computed.totalUT':
-                        case 'computed.totalPrice':
+                        case 'computed.lineTotalUT':
+                        case 'computed.lineTotalPrice':
                             cellProperties.computed = true;
                             break;
                     }
@@ -223,7 +223,7 @@ var ScaleLinesRenderer = (function() {
             var modifications = [];
 
             if(columnId) {
-                var column = _.findWhere(self.scale.columns, { id: columnId });
+                var column = self.engine.data.nav.scaleColumns[columnId];
                 if(column) {
                     modifications.push({
                         model: 'ScaleColumn',
@@ -260,7 +260,7 @@ var ScaleLinesRenderer = (function() {
             var modifications = [];
 
             if(columnId) {
-                var column = _.findWhere(self.scale.columns, { id: columnId });
+                var column = self.engine.data.nav.scaleColumns[columnId];
                 if(column) {
                     modifications.push({
                         model: 'ScaleColumn',
@@ -295,7 +295,7 @@ var ScaleLinesRenderer = (function() {
             var modifications = [];
 
             if(columnId) {
-                var column = _.findWhere(self.scale.columns, { id: columnId });
+                var column = self.engine.data.nav.scaleColumns[columnId];
                 if(column) {
                     modifications.push({
                         model: 'ScaleColumn',

@@ -39,15 +39,15 @@ var ProfilesRenderer = (function() {
                 rowHeaders: true,
                 minSpareRows: 1,
                 columns: [
-                    { data: 'isActive',               type: 'cellCheckbox', readOnly: self.engine.isReadOnly },
-                    { data: 'title',                  type: 'title', readOnly: self.engine.isReadOnly },
-                    { data: 'percentageJunior',       type: 'percent', readOnly: self.engine.isReadOnly },
-                    { data: 'priceJunior',            type: 'price', readOnly: self.engine.isReadOnly },
-                    { data: 'percentageIntermediary', type: 'percent', readOnly: self.engine.isReadOnly },
-                    { data: 'priceIntermediary',      type: 'price', readOnly: self.engine.isReadOnly },
-                    { data: 'percentageSenior',       type: 'percent', readOnly: self.engine.isReadOnly },
-                    { data: 'priceSenior',            type: 'price', readOnly: self.engine.isReadOnly },
-                    { data: 'computed.priceAverage',  type: 'price', readOnly: true }
+                    { data: 'isActive',                      type: 'cellCheckbox', readOnly: self.engine.isReadOnly },
+                    { data: 'title',                         type: 'title',        readOnly: self.engine.isReadOnly },
+                    { data: 'percentageJunior',              type: 'percent',      readOnly: self.engine.isReadOnly },
+                    { data: 'priceJunior',                   type: 'price',        readOnly: self.engine.isReadOnly },
+                    { data: 'percentageIntermediary',        type: 'percent',      readOnly: self.engine.isReadOnly },
+                    { data: 'priceIntermediary',             type: 'price',        readOnly: self.engine.isReadOnly },
+                    { data: 'percentageSenior',              type: 'percent',      readOnly: self.engine.isReadOnly },
+                    { data: 'priceSenior',                   type: 'price',        readOnly: self.engine.isReadOnly },
+                    { data: 'computed.profileAveragePrice',  type: 'price',        readOnly: true }
                 ],
                 contextMenu: self.engine.isReadOnly ? null : ['row_above', 'row_below', 'remove_row'],
                 cells: function (row, col, prop) {
@@ -70,7 +70,7 @@ var ProfilesRenderer = (function() {
                                     cellProperties.invalid = (totalPercentage != 100);
                                 }
                                 break;
-                            case 'computed.priceAverage':
+                            case 'computed.profileAveragePrice':
                                 cellProperties.computed = true;
                                 break;
                         }

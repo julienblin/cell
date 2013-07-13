@@ -19,7 +19,7 @@ var EstimationLinesRenderer = (function() {
 
         var _complexitySource = function(scaleId) {
             if(!scaleId) return null;
-            var scale = _.findWhere(self.engine.data.scales, { id: scaleId });
+            var scale = self.engine.data.nav.scales[scaleId];
             if(!scale) return null;
             return _.pluck(_.filter(scale.lines, function(value) { return value.id; }), 'complexity');
         };
@@ -35,7 +35,7 @@ var EstimationLinesRenderer = (function() {
             }
             if(!line) line = {};
             if(typeof value === 'undefined') {
-                scale = _.findWhere(self.engine.data.scales, { id: line.scale });
+                scale = self.engine.data.nav.scales[line.scale];
                 return scale ? scale.name : null;
             } else {
                 scale = _.findWhere(self.engine.data.scales, { name: value });
@@ -48,7 +48,7 @@ var EstimationLinesRenderer = (function() {
             if (options) {
                 if (options.propertyName) return 'complexity';
                 if (options.inverseGet) {
-                    scale = _.findWhere(self.engine.data.scales, { id: line.scale });
+                    scale = self.engine.data.nav.scales[line.scale];
                     if(!scale) return null;
                     scaleLine = _.findWhere(scale.lines, { complexity: value });
                     return scaleLine ? scaleLine.id : null;
@@ -56,12 +56,10 @@ var EstimationLinesRenderer = (function() {
             }
             if(!line) line = {};
             if(typeof value === 'undefined') {
-                scale = _.findWhere(self.engine.data.scales, { id: line.scale });
-                if(!scale) return null;
-                scaleLine = _.findWhere(scale.lines, { id: line.complexity });
+                scaleLine = self.engine.data.nav.scaleLines[line.complexity];
                 return scaleLine ? scaleLine.complexity : null;
             } else {
-                scale = _.findWhere(self.engine.data.scales, { id: line.scale });
+                scale = self.engine.data.nav.scales[line.scale];
                 if(!scale) return null;
                 scaleLine = _.findWhere(scale.lines, { complexity: value });
                 line.complexity = scaleLine ? scaleLine.id : null;
@@ -102,8 +100,8 @@ var EstimationLinesRenderer = (function() {
                         editor: Handsontable.AutocompleteEditor
                     }, readOnly: self.engine.isReadOnly},
                     { data: 'coefficient', type: 'cellNumeric', readOnly: self.engine.isReadOnly },
-                    { data: 'computed.totalUT',     type: 'ut', readOnly: true },
-                    { data: 'computed.totalPrice',  type: 'price', readOnly: true }
+                    { data: 'computed.lineTotalUT',     type: 'ut', readOnly: true },
+                    { data: 'computed.lineTotalPrice',  type: 'price', readOnly: true }
                 ],
                 cells: function (row, col, prop) {
                     var cellProperties = {};
@@ -165,8 +163,8 @@ var EstimationLinesRenderer = (function() {
                                 cellProperties.readOnly = true;
                             }
                             break;
-                        case 'computed.totalUT':
-                        case 'computed.totalPrice':
+                        case 'computed.lineTotalUT':
+                        case 'computed.lineTotalPrice':
                             cellProperties.computed = (line.id) && true;
                             break;
                     }
@@ -269,8 +267,8 @@ var EstimationLinesRenderer = (function() {
                                             target: line
                                         }
                                     });
-                                    if (property === 'scale') {
-                                        // We also nullify the complexity.
+                                    if ((property === 'scale') && (oldValue !== newValue)) {
+                                        // We also nullify the complexity if value is different.
                                         modifications.push({
                                             model: 'EstimationLine',
                                             id: line.id,

@@ -48,7 +48,7 @@ var SummaryRenderer = (function() {
                         line.percentageUTJunior = computedProfile.percentUT * (profile.percentageJunior / 100);
                         totals.percentageUTJunior = totals.percentageUTJunior + line.percentageUTJunior;
 
-                        line.priceJunior = computedProfile.totalPrice * (profile.computed.percentPriceJunior / 100);
+                        line.priceJunior = computedProfile.totalPrice * (profile.computed.profilePercentPriceJunior / 100);
                         totals.priceJunior = totals.priceJunior + line.priceJunior;
 
                         // Intermediary
@@ -58,7 +58,7 @@ var SummaryRenderer = (function() {
                         line.percentageUTIntermediary = computedProfile.percentUT * (profile.percentageIntermediary / 100);
                         totals.percentageUTIntermediary = totals.percentageUTIntermediary + line.percentageUTIntermediary;
 
-                        line.priceIntermediary = computedProfile.totalPrice * (profile.computed.percentPriceIntermediary / 100);
+                        line.priceIntermediary = computedProfile.totalPrice * (profile.computed.profilePercentPriceIntermediary / 100);
                         totals.priceUTIntermediary = totals.priceUTIntermediary + line.priceUTIntermediary;
 
                         // Senior
@@ -68,7 +68,7 @@ var SummaryRenderer = (function() {
                         line.percentageUTSenior = computedProfile.percentUT * (profile.percentageSenior / 100);
                         totals.percentageUTSenior = totals.percentageUTSenior + line.percentageUTSenior;
 
-                        line.priceSenior = computedProfile.totalPrice * (profile.computed.percentPriceSenior / 100);
+                        line.priceSenior = computedProfile.totalPrice * (profile.computed.profilePercentPriceSenior / 100);
                         totals.priceSenior = totals.priceSenior + line.priceSenior;
 
                         // Aggregate
@@ -171,14 +171,9 @@ var SummaryRenderer = (function() {
         var _renderChartsScalesEfforts = function() {
             var colors = Highcharts.getOptions().colors;
 
-            var scalesData = [];
-            var scaleLinesData = [];
+            var scalesData = [], scaleLinesData = [];
 
             _.each(self.engine.data.scales, function(scale, index) {
-                if(!scale.computed.aggregates) scale.computed.aggregates = {
-                    totalUT: 0
-                };
-
                 _.each(scale.lines, function(scaleLine) {
                     var scaleLineValues = self.engine.data.computed.scaleLines[scaleLine.id];
                     if(scaleLineValues) {
@@ -187,12 +182,12 @@ var SummaryRenderer = (function() {
                             y: _calculator.parseFloat(scaleLineValues.totalUT),
                             color: colors[index]
                         });
-                        scale.computed.aggregates.totalUT = scale.computed.aggregates.totalUT + scaleLineValues.totalUT;
                     }
                 });
+
                 scalesData.push({
                     name: scale.name,
-                    y: _calculator.parseFloat(scale.computed.aggregates.totalUT),
+                    y: self.engine.data.computed.scales[scale.id] ? self.engine.data.computed.scales[scale.id].totalUT : 0.0,
                     color: colors[index]
                 });
             });

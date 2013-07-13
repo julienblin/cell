@@ -51,7 +51,7 @@ var ScalesRenderer = (function() {
             // Removing non relevant tabs
             _.each($('a[data-toggle="tab"]', _scalesTabsSelector), function(tabLink) {
                 var scaleId = $(tabLink).data('id');
-                if(!_.findWhere(self.engine.data.scales, { id: scaleId })) {
+                if(!self.engine.data.nav.scales[scaleId]) {
                     $(tabLink).parent().remove();
                     $('div.tab-pane[data-id="' + scaleId + '"]', _scalesTabsContentSelector).remove();
                 }
@@ -81,7 +81,7 @@ var ScalesRenderer = (function() {
 
             // Remove non-relevant renderers
             _.each(self.scaleLinesRenderer, function(renderer, scaleId) {
-                if(!_.findWhere(self.engine.data.scales, { id: scaleId })) {
+                if(!self.engine.data.nav.scales[scaleId]) {
                     delete self.scaleLinesRenderer[scaleId];
                 }
             });
@@ -144,7 +144,7 @@ var ScalesRenderer = (function() {
             if(self.engine.isReadOnly) return;
 
             var currentScaleId = $(this).closest('[data-id]').data('id');
-            var currentScale = _.findWhere(self.engine.data.scales, { id: currentScaleId });
+            var currentScale = self.engine.data.nav.scales[currentScaleId];
             $('input[name="name"]', _modalRenameScaleSelector).val(currentScale.name);
             $('input[name="id"]', _modalRenameScaleSelector).val(currentScale.id);
             $('input[name="oldValue"]', _modalRenameScaleSelector).val(currentScale.name);
@@ -173,7 +173,7 @@ var ScalesRenderer = (function() {
             if(self.engine.isReadOnly) return;
 
             var currentScaleId = $(this).closest('[data-id]').data('id');
-            var currentScale = _.findWhere(self.engine.data.scales, { id: currentScaleId });
+            var currentScale = self.engine.data.nav.scales[currentScaleId];
             $('input[name="id"]', _modalDeleteScaleSelector).val(currentScale.id);
             $('#deleteScaleName').text(currentScale.name);
             $(_modalDeleteScaleSelector).modal('show');
