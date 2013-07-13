@@ -109,7 +109,7 @@ var ScaleLinesRenderer = (function() {
                                 insertAfter: insertAfterScaleColumns.id,
                                 values: {}
                             });
-                            self.emit('applyModifications', modifications);
+                            self.engine.applyModifications(modifications);
                         }
                     }
                 },
@@ -190,7 +190,7 @@ var ScaleLinesRenderer = (function() {
                                     modifications.push(createModif);
                                 }
                             });
-                            self.emit('applyModifications', modifications);
+                            self.engine.applyModifications(modifications);
                             break;
                     }
                 },
@@ -210,7 +210,7 @@ var ScaleLinesRenderer = (function() {
                             }
                         });
                     });
-                    self.emit('applyModifications', modifications);
+                    self.engine.applyModifications(modifications);
                 }
             });
             _cachedGrid = $(self.gridSelector).data('handsontable');
@@ -250,7 +250,7 @@ var ScaleLinesRenderer = (function() {
                 });
             }
 
-            self.emit('applyModifications', modifications);
+            self.engine.applyModifications(modifications);
             e.preventDefault();
         });
 
@@ -286,7 +286,7 @@ var ScaleLinesRenderer = (function() {
                 });
             }
 
-            self.emit('applyModifications', modifications);
+            self.engine.applyModifications(modifications);
             e.preventDefault();
         });
 
@@ -309,7 +309,7 @@ var ScaleLinesRenderer = (function() {
                 }
             }
 
-            self.emit('applyModifications', modifications);
+            self.engine.applyModifications(modifications);
             e.preventDefault();
         });
 

@@ -287,15 +287,7 @@ var ProjectEngine = (function() {
         };
 
         // Event subscriptions
-        _.each(self.renderers, function(renderer) {
-            renderer.on('applyModifications', function(modifications) {
-                _apply(modifications);
-                _projectCalculator.performCalculations(self.data);
-                self.emit('modified');
-                _broadcast(modifications);
-            });
-        });
-
+        
         window.onerror = function(msg, url, line) {
             alerts.fatal('Execution error. Reason: ' + msg + '.');
             statusBar.changeIcon('error');
@@ -380,6 +372,13 @@ var ProjectEngine = (function() {
             self.socket.on('userJoined', function(user) {
                 alerts.info(user.username + ' just joined the conversation.', 3000);
             });
+        };
+
+        self.applyModifications = function(modifications) {
+            _apply(modifications);
+            _projectCalculator.performCalculations(self.data);
+            self.emit('modified');
+            _broadcast(modifications);
         };
 
         self.setAuth = function(userId, auth) {

@@ -37,7 +37,7 @@ var InfoRenderer = (function() {
 
         $('[contenteditable]', self.tabSelector).on('change', function(e) {
             var target = $(this);
-            self.emit('applyModifications', [{
+            self.engine.applyModifications([{
                 model: 'Project',
                 action: 'update',
                 property: target.data('property'),
@@ -47,7 +47,7 @@ var InfoRenderer = (function() {
         });
 
         $('#btnLockProject').on('click', function(e) {
-            self.emit('applyModifications', [{
+            self.engine.applyModifications([{
                 model: 'Project',
                 action: 'update',
                 property: 'isLocked',

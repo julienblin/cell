@@ -230,7 +230,7 @@ var EstimationLinesRenderer = (function() {
                                         modification.newValue = null;
                                         break;
                                 }
-                                self.emit('applyModifications', [modification]);
+                                self.engine.applyModifications([modification]);
                             }
                         }
                     }
@@ -302,7 +302,7 @@ var EstimationLinesRenderer = (function() {
                                     modifications.push(createModif);
                                 }
                             });
-                            self.emit('applyModifications', modifications);
+                            self.engine.applyModifications(modifications);
                             break;
                     }
                 },
@@ -321,7 +321,7 @@ var EstimationLinesRenderer = (function() {
                             }
                         });
                     });
-                    self.emit('applyModifications', modifications);
+                    self.engine.applyModifications(modifications);
                 }
             });
             _cachedGrid = $(self.gridSelector).data('handsontable');

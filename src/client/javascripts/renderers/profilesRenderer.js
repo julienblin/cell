@@ -130,7 +130,7 @@ var ProfilesRenderer = (function() {
                                     modifications.push(createModif);
                                 }
                             });
-                            self.emit('applyModifications', modifications);
+                            self.engine.applyModifications(modifications);
                         break;
                     }
                 },
@@ -149,7 +149,7 @@ var ProfilesRenderer = (function() {
                             }
                         });
                     });
-                    self.emit('applyModifications', modifications);
+                    self.engine.applyModifications(modifications);
                 }
             });
             _cachedGrid = $(self.gridSelector).data('handsontable');

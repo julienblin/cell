@@ -73,9 +73,6 @@ var ScalesRenderer = (function() {
 
                 if(!self.scaleLinesRenderer[scale.id]) {
                     self.scaleLinesRenderer[scale.id] = new ScaleLinesRenderer(scale, self.engine);
-                    self.scaleLinesRenderer[scale.id].on('applyModifications', function(modifications) {
-                        self.emit('applyModifications', modifications);
-                    });
                 }
             });
 
@@ -133,7 +130,7 @@ var ScalesRenderer = (function() {
                         columns: []
                     }
                 }];
-                self.emit('applyModifications', modifications);
+                self.engine.applyModifications(modifications);
                 $(_modalNewScaleSelector).modal('hide');
             }
             e.preventDefault();
@@ -162,7 +159,7 @@ var ScalesRenderer = (function() {
                     oldValue: $('input[name="oldValue"]', _modalRenameScaleSelector).val(),
                     newValue: scaleName
                 }];
-                self.emit('applyModifications', modifications);
+                self.engine.applyModifications(modifications);
                 $(_modalRenameScaleSelector).modal('hide');
             }
             e.preventDefault();
@@ -185,7 +182,7 @@ var ScalesRenderer = (function() {
                 action: 'delete',
                 id: $('input[name="id"]', _modalDeleteScaleSelector).val()
             }];
-            self.emit('applyModifications', modifications);
+            self.engine.applyModifications(modifications);
             $(_modalDeleteScaleSelector).modal('hide');
             e.preventDefault();
         });
