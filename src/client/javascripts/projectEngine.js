@@ -13,8 +13,8 @@ var ProjectEngine = (function() {
 
         // Must be there before the renderes top make sure value is updated before they refresh.
         self.on('modified', function() {
-            self.isUserReadOnly = _.findWhere(self.data.usersRead, { id: self.userId }) ? true : false;
-            self.isReadOnly = (self.data.isLocked || self.isUserReadOnly);
+            self.isUserReadOnly = self.isSnapshot || _.findWhere(self.data.usersRead, { id: self.userId }) ? true : false;
+            self.isReadOnly = (self.isSnapshot || self.data.isLocked || self.isUserReadOnly);
         });
 
         self.renderers = {
@@ -312,66 +312,75 @@ var ProjectEngine = (function() {
         });
 
         // Public functions
-        self.init = function() {
+        self.init = function(snapshotData) {
             if (navigator.userAgent.indexOf('Zombie.js') != -1) {
                 alerts.warning("Zombie.js navigator detected - socket.io disabled.");
                 return;
             }
 
-            var loadingAlert = alerts.info('Loading project...');
-            statusBar.changeIcon('loading');
-
-            var socketUrl = window.location.protocol + '//' + window.location.hostname;
-            if (window.location.port) {
-                socketUrl += ':' + window.location.port;
-            }
-            self.socket = io.connect(socketUrl + '/project');
-
-            self.stats.state = 'connected';
-
-            self.socket.on('disconnect', function() {
-                alerts.fatal("You've been disconnected from the server.");
-                statusBar.changeIcon('error');
-                self.stats.state = 'disconnected';
-            });
-
-            self.socket.emit('getDataAndSubscribe', projectId, function(err, data) {
-                loadingAlert.dismiss();
-                statusBar.changeIcon('ok');
-                if (err) {
-                    statusBar.changeIcon('error');
-                    alerts.fatal("There has been an error while loading project data. Reason: " + err.message);
-                    return;
-                }
-                self.data = data;
-                _projectCalculator.performCalculations(self.data);
+            if(snapshotData) {
+                self.isSnapshot = true;
+                self.data = JSON.parse(snapshotData.data);
+                self.snapshotTitle = snapshotData.title;
                 self.emit('modified');
-                alerts.success('Project loaded - good to go!', 3000);
-            });
+            } else {
+                self.isSnapshot = false;
 
-            self.socket.on('receiveUpdates', function(modifications) {
+                var loadingAlert = alerts.info('Loading project...');
                 statusBar.changeIcon('loading');
-                ++self.stats.numberOfReceivedUpdates;
-                if(!self.data) {
-                    alerts.fatal("There has been an concurrency error while loading project.");
-                    statusBar.changeIcon('error');
-                    return;
+
+                var socketUrl = window.location.protocol + '//' + window.location.hostname;
+                if (window.location.port) {
+                    socketUrl += ':' + window.location.port;
                 }
+                self.socket = io.connect(socketUrl + '/project');
 
-                _apply(modifications);
-                _projectCalculator.performCalculations(self.data);
-                self.emit('modified');
-                statusBar.changeIcon('ok');
-            });
+                self.stats.state = 'connected';
 
-            self.socket.on('setAuth', function(user, auth) {
-                ++self.stats.numberOfReceivedUpdates;
-                _integrateSetAuth(user, auth);
-            });
+                self.socket.on('disconnect', function() {
+                    alerts.fatal("You've been disconnected from the server.");
+                    statusBar.changeIcon('error');
+                    self.stats.state = 'disconnected';
+                });
 
-            self.socket.on('userJoined', function(user) {
-                alerts.info(user.username + ' just joined the conversation.', 3000);
-            });
+                self.socket.emit('getDataAndSubscribe', projectId, function(err, data) {
+                    loadingAlert.dismiss();
+                    statusBar.changeIcon('ok');
+                    if (err) {
+                        statusBar.changeIcon('error');
+                        alerts.fatal("There has been an error while loading project data. Reason: " + err.message);
+                        return;
+                    }
+                    self.data = data;
+                    _projectCalculator.performCalculations(self.data);
+                    self.emit('modified');
+                    alerts.success('Project loaded - good to go!', 3000);
+                });
+
+                self.socket.on('receiveUpdates', function(modifications) {
+                    statusBar.changeIcon('loading');
+                    ++self.stats.numberOfReceivedUpdates;
+                    if(!self.data) {
+                        alerts.fatal("There has been an concurrency error while loading project.");
+                        statusBar.changeIcon('error');
+                        return;
+                    }
+
+                    _apply(modifications);
+                    _projectCalculator.performCalculations(self.data);
+                    self.emit('modified');
+                    statusBar.changeIcon('ok');
+                });
+
+                self.socket.on('setAuth', function(user, auth) {
+                    ++self.stats.numberOfReceivedUpdates;
+                    _integrateSetAuth(user, auth);
+                });
+
+                self.socket.on('userJoined', function(user) {
+                    alerts.info(user.username + ' just joined the conversation.', 3000);
+                });
+            }
         };
 
         self.applyModifications = function(modifications) {

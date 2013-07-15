@@ -52,3 +52,14 @@ exports.openSnapshot = function(req, res, next) {
         });
     });
 };
+
+exports.showSnapshot = function(req, res, next) {
+    Snapshot.findById(req.params.snapshotId, function(err, snapshot) {
+        if(err) return next(err);
+        res.render('projects/project', {
+            title: req.project.clientName + ' - ' + req.project.projectName,
+            project: req.project,
+            snapshot: JSON.stringify(snapshot)
+        });
+    });
+};

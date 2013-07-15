@@ -22,6 +22,7 @@ block container
         .span9
           h1(contenteditable, data-property="projectName")
           h3(contenteditable, data-property="clientName")
+          h3(data-property="snapshotTitle")
         .span3.text-center
           p#createdAt.muted
           .well(style="margin-left: 20px; margin-right: 20px")
@@ -120,5 +121,5 @@ block foot
   script(type="text/javascript").
     $(function() {
       window.engine = new ProjectEngine('#{project.id}', '#{req.user.id}');
-      window.engine.init();
+      window.engine.init(!{snapshot});
     });

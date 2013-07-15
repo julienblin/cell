@@ -15,6 +15,9 @@ var InfoRenderer = (function() {
             $('[data-property="projectName"]').prop('contenteditable', !self.engine.isReadOnly);
             $('[data-property="clientName"]').text(engine.data.clientName);
             $('[data-property="clientName"]').prop('contenteditable', !self.engine.isReadOnly);
+            if(self.engine.isSnapshot) {
+                $('[data-property="snapshotTitle"]').text('Snapshot: ' + engine.snapshotTitle);
+            }
             $('#createdAt').text('Created:' + new Date(engine.data.created).toLocaleString());
 
             if(self.engine.data.isLocked) {
@@ -79,7 +82,7 @@ var InfoRenderer = (function() {
                 success: function(data) {
                     if(data.status === 'success') {
                         $('#modalTakeSnapshot').modal('hide');
-                        var snapshotUrl = '/projects/' + self.engine.projectId + '/snapshots/' + data.id
+                        var snapshotUrl = '/projects/' + self.engine.projectId + '/snapshots/' + data.id;
                         alerts.info('Snapshot successfully taken. <a href="' + snapshotUrl + '">Open it.</a>', 10000);
                         behaviors.displayValidationErrors({});
                     } else {
