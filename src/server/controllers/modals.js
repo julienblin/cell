@@ -75,7 +75,6 @@ exports.addUser = function(req, res, next) {
         };
     }
 
-    console.log(searchQuery);
     User.paginate(searchQuery, "username", { currentPage: req.query.page, pageSize: 10 }, function(err, pagination, results){
         if (err) return next(err);
         res.render(req.query.search || req.query.page ? 'modals/_formAddUser' : 'modals/addUser', {

@@ -32,6 +32,8 @@ module.exports = function (app, passport) {
     app.get('/modals/addUser', auth.requiresLogin, modals.addUser);
 
     // Projects
+    app.get('/projects/:id/snapshots', auth.project, projects.openSnapshot);
+    app.post('/projects/:id/snapshots', auth.project, projects.createSnapshot);
     app.get('/projects/:id', auth.project, projects.show);
     app.delete('/projects/:id', auth.project, projects.delete);
 

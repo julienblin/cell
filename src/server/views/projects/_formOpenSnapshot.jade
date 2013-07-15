@@ -1,0 +1,28 @@
+form#formOpenSnapshot(action="/projects/#{projectId}/snapshots", method="get", data-behavior="ajax")
+  input(type="hidden", name="search", value="search")
+  table#tableSnapshots.table.table-hover.table-condensed
+    thead
+      th
+        .dropdown.inline-dropdown.input-dropdown
+          a.dropdown-toggle(data-toggle="dropdown")
+            span
+              | Title
+              if title
+                |  (#{title})
+
+            span.caret
+          ul.dropdown-menu.input-dropdown-menu
+            li
+              input.pull-left.input-first(type="search", name="title", placeholder="(filter)", value=title, autocomplete="off", autofocus)
+              button.btn(type="submit") Search
+
+      th Created at
+
+    tbody
+      each snapshot in results
+        tr
+          td.span2
+            a.cellLink(href="/projects/#{projectId}/snapshots/#{snapshot.id}")= snapshot.title
+          td
+            a.cellLink(href="/projects/#{projectId}/snapshots/#{snapshot.id}")= moment(snapshot.createdAt).calendar()
+  != paginate(req, pagination, { ajaxTarget: "#formOpenSnapshot" })

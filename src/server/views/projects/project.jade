@@ -30,10 +30,13 @@ block container
                 i.icon-pencil
                 span
                   | &nbsp;Lock
+            hr
             p
-              button#btnTakeSnapshot.btn(style="width: 150px")
+              button#btnTakeSnapshot.btn(style="width: 150px", href="#modalTakeSnapshot", data-toggle="modal")
                 i.icon-camera
                 | &nbsp;Take a snapshot
+            p
+              button#btnOpenSnapshot.btn(style="width: 150px") Open a snapshot
             hr
             p
               button#btnDeleteProject.btn.btn-danger(style="width: 150px", href="#modalDeleteProject", data-toggle="modal")

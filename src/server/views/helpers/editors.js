@@ -44,7 +44,7 @@ module.exports.text = function(obj, path, opt) {
         options.autofocus ? 'autofocus' : '');
 
     if (hasErrors) {
-        str += util.format('<span class="help-inline">%s', obj.errors[path].message);
+        str += util.format('<span class="help-inline">%s</span>', obj.errors[path].message);
     }
 
     str += '</div>';
@@ -72,7 +72,7 @@ module.exports.bool = function(obj, path, opt) {
     str += util.format('<span %s>%s</span>', options.labelClass ? util.format('class="%s"', options.labelClass) : '', options.label);
 
     if (hasErrors) {
-        str += util.format('<span class="help-inline">%s', obj.errors[path].message);
+        str += util.format('<span class="help-inline">%s</span>', obj.errors[path].message);
     }
 
     str += '</label>';

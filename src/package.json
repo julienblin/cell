@@ -1,49 +1,50 @@
 {
-    "name": "Cell",
-    "description" : "Next generation estimation web application",
-    "version": "0.1.0",
-    "author": {
-        "name": "Julien Blin",
-        "email": "julien.blin@cgi.com"
-    },
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/julienblin/cell"
-    },
-    "readme" : "../README.md",
-    "private": true,
-    "main": "cell.js",
-    "scripts": {
-        "start": "node cell.js"
-    },
-    "engines": {
-        "node": ">0.10.11"
-    },
-    "dependencies": {
-        "express": "3.x",
-        "socket.io": ">0.9",
-        "jade": "*",
-        "underscore" : "1.4.x",
-        "winston": "*",
-        "mongoose": "3.x",
-        "mongoose-fakery": "*",
-        "bcrypt": "*",
-        "bundle-up" : "*",
-        "passport" : "*",
-        "passport-local" : "*",
-        "passport.socketio" : "*",
-        "connect-mongo" : "*",
-        "connect-flash" : "*",
-        "validator" : "*",
-        "async" : "*"
-    },
-    "devDependencies": {
-        "should": "*",
-        "cucumber": "*",
-        "zombie": "*",
-        "grunt": "*",
-        "grunt-contrib-jshint": "*",
-        "grunt-mocha-test": "*",
-        "grunt-cucumber": "*"
-    }
+  "name": "Cell",
+  "description": "Next generation estimation web application",
+  "version": "0.1.0",
+  "author": {
+    "name": "Julien Blin",
+    "email": "julien.blin@cgi.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/julienblin/cell"
+  },
+  "readme": "../README.md",
+  "private": true,
+  "main": "cell.js",
+  "scripts": {
+    "start": "node cell.js"
+  },
+  "engines": {
+    "node": ">0.10.11"
+  },
+  "dependencies": {
+    "express": "3.x",
+    "socket.io": ">0.9",
+    "jade": "*",
+    "underscore": "1.4.x",
+    "winston": "*",
+    "mongoose": "3.x",
+    "mongoose-fakery": "*",
+    "bcrypt": "*",
+    "bundle-up": "*",
+    "passport": "*",
+    "passport-local": "*",
+    "passport.socketio": "*",
+    "connect-mongo": "*",
+    "connect-flash": "*",
+    "validator": "*",
+    "async": "*",
+    "moment": "~2.1.0"
+  },
+  "devDependencies": {
+    "should": "*",
+    "cucumber": "*",
+    "zombie": "*",
+    "grunt": "*",
+    "grunt-contrib-jshint": "*",
+    "grunt-mocha-test": "*",
+    "grunt-cucumber": "*"
+  }
 }

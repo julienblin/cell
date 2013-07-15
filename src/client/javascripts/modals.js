@@ -28,23 +28,27 @@ window.modals = (function(){
         addUser: function(filteredUserIds, callback) {
             _openModal('#modalAddUser', '/modals/addUser?filter=' + filteredUserIds.join(), callback);
         },
+        openModal: function(modalId, url, callback) {
+            _openModal(modalId, url, callback);
+        },
         close: function(modal) {
-            var modalId;
+            var modalSelector;
             switch(modal) {
                 case 'new':
-                    modalId = '#modalNew';
+                    modalSelector = '#modalNew';
                     break;
                 case 'open':
-                    modalId = '#modalOpen';
+                    modalSelector = '#modalOpen';
                     break;
                 case 'addUser':
-                    modalId = '#modalAddUser';
+                    modalSelector = '#modalAddUser';
                     break;
                 default:
-                    throw new Error('unknown modal ' + modal);
+                    modalSelector = modal;
+                    break;
             }
 
-            $(modalId).modal('hide');
+            $(modalSelector).modal('hide');
         }
     };
 })();

@@ -57,8 +57,38 @@ var InfoRenderer = (function() {
             e.preventDefault();
         });
 
-        $('#btnTakeSnapshot').on('click', function(e) {
-            alerts.warning('Not implemented yet. Stay tuned!', 5000);
+        $('#btnOpenSnapshot').on('click', function(e) {
+            e.preventDefault();
+            modals.openModal('#modalOpenSnapshot', '/projects/' + self.engine.projectId + '/snapshots');
+        });
+
+        $('#modalTakeSnapshotForm').on('submit', function(e) {
+            e.preventDefault();
+            var form$ = $(this);
+            $.ajax({
+                url:form$.attr('action'),
+                method: form$.attr('method'),
+                data: {
+                    id: self.engine.projectId,
+                    title: $('input[name="title"]', form$).val(),
+                    data: JSON.stringify(self.engine.data)
+                },
+                error: function(xhr, testStatus, errorThrown) {
+                    alerts.fatal('An internal error has occurred. Reason:' + errorThrown);
+                },
+                success: function(data) {
+                    if(data.status === 'success') {
+                        $('#modalTakeSnapshot').modal('hide');
+                        var snapshotUrl = '/projects/' + self.engine.projectId + '/snapshots/' + data.id
+                        alerts.info('Snapshot successfully taken. <a href="' + snapshotUrl + '">Open it.</a>', 10000);
+                        behaviors.displayValidationErrors({});
+                    } else {
+                        if(data.error) {
+                            behaviors.displayValidationErrors(data.error.errors);
+                        }
+                    }
+                }
+            });
         });
 
         return self;

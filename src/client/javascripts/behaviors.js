@@ -79,6 +79,19 @@ window.behaviors = (function() {
         },
         isChangingHash: function() {
             return _changingHash;
+        },
+        displayValidationErrors: function(errors, formSelector) {
+            $('input', formSelector).each(function(index) {
+                var input$ = $(this);
+                var inputName = input$.attr('name');
+                input$.closest('.control-group').removeClass('error');
+                input$.next('span.help-inline').remove();
+
+                if(errors[inputName]) {
+                    input$.closest('.control-group').addClass('error');
+                    input$.after('<span class="help-inline">' + errors[inputName].message + '</span>');
+                }
+            });
         }
     };
 })();

@@ -1,3 +1,15 @@
+#modalTakeSnapshot.modal.hide.fade(role="dialog", aria-labelledby="modalTakeSnapshot", aria-hidden="true", data-backdrop="static")
+  .modal-header
+    button.close(data-dismiss="modal", aria-hidden="true") x
+    h3 Take a snapshot
+  .modal-body
+    form#modalTakeSnapshotForm.form-horizontal.no-margin(action="/projects/#{project.id}/snapshots", method="POST")
+      != editors.text(null, 'title', { placeholder: '(Unique title for the snapshot)', inputClass: 'input-xlarge', autofocus: true })
+  .modal-footer
+    button.btn(data-dismiss="modal", aria-hidden="true") Cancel
+    button#confirmDeleteProject.btn.btn-primary(href="#modalTakeSnapshotForm", data-behavior="submit") Create
+
+
 #modalDeleteProject.modal.hide.fade(role="dialog", aria-labelledby="modalDeleteProject", aria-hidden="true", data-backdrop="static")
   .modal-header
     button.close(data-dismiss="modal", aria-hidden="true") x

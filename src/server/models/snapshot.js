@@ -22,6 +22,7 @@ var SnapshotSchema = new Schema({
     data: { type: Schema.Types.Mixed }
 });
 
+SnapshotSchema.plugin(require('./plugins/createdAt'));
 SnapshotSchema.plugin(require('./plugins/paginate'));
 SnapshotSchema.plugin(require('./plugins/serialize'));
 
