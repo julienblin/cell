@@ -63,13 +63,3 @@ Feature: Project management
     When I click the "#tableProjects tbody a" link
     Then I should be on the project page
      And the page title should contain Microsoft
-
-  Scenario: Delete a project
-    When I visit the home page
-    And I click the Open link
-    When I click the "#tableProjects tbody a" link
-    Then I should be on the project page
-    When I press the "#btnDeleteProject" button
-     And I press the "#confirmDeleteProject" button
-    Then I should be on the home page
-     And the flash message should contain "has been deleted successfully"

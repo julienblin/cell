@@ -9,60 +9,60 @@ var InfoRenderer = (function() {
         var self = {};
         self.__proto__ = BaseTabRenderer("#info", engine);
 
+        var _attachEventHandlers = function() {
+            $('[contenteditable]', self.tabSelector).on('change', function(e) {
+                var target = $(this);
+                self.engine.applyModifications([{
+                    model: 'Project',
+                    action: 'update',
+                    property: target.data('property'),
+                    oldValue: target.data('before'),
+                    newValue: target.text()
+                }]);
+            });
+
+            $('#btnLockProject').on('click', function(e) {
+                self.engine.applyModifications([{
+                    model: 'Project',
+                    action: 'update',
+                    property: 'isLocked',
+                    oldValue: self.engine.data.isLocked,
+                    newValue: !self.engine.data.isLocked
+                }]);
+                e.preventDefault();
+            });
+
+            $('#btnOpenSnapshot').on('click', function(e) {
+                e.preventDefault();
+                modals.openModal('#modalOpenSnapshot', '/projects/' + self.engine.projectId + '/snapshots');
+            });
+        };
+
         // Event subscriptions
         self.on('render', function() {
-            $('[data-property="projectName"]').text(engine.data.projectName);
-            $('[data-property="projectName"]').prop('contenteditable', !self.engine.isReadOnly);
-            $('[data-property="clientName"]').text(engine.data.clientName);
-            $('[data-property="clientName"]').prop('contenteditable', !self.engine.isReadOnly);
+            $('#infoMain').html(self.getTemplate('#info-main-template')({
+                projectName: self.engine.data.projectName,
+                clientName: self.engine.data.clientName,
+                isReadOnly: self.engine.isReadOnly
+            }));
+
             if(self.engine.isSnapshot) {
-                $('[data-property="snapshotTitle"]').text('Snapshot: ' + engine.snapshotTitle);
-            }
-            $('#createdAt').text('Created:' + moment(engine.data.created).calendar());
-
-            if(self.engine.data.isLocked) {
-                $('#btnLockProject').addClass('active');
-                $('#btnLockProject i').removeClass();
-                $('#btnLockProject i').addClass('icon-lock');
-                $('#btnLockProject span').text(' Locked!');
+                $('#infoGutter').html(self.getTemplate('#info-gutter-snapshot-template')({
+                    projectId: self.engine.projectId,
+                    snapshotTitle: self.engine.snapshotTitle
+                }));
             } else {
-                $('#btnLockProject').removeClass('active');
-                $('#btnLockProject i').removeClass();
-                $('#btnLockProject i').addClass('icon-pencil');
-                $('#btnLockProject span').text(' Lock');
+                $('#infoGutter').html(self.getTemplate('#info-gutter-project-template')({
+                    isLocked: self.engine.data.isLocked,
+                    isReadOnly: self.engine.data.isReadOnly,
+                    isUserReadOnly: self.engine.data.isUserReadOnly
+                }));
             }
 
+            _attachEventHandlers();
+
+            $('#createdAt').text('Created:' + moment(self.engine.data.createdAt).calendar());
             document.title = "Cell - " + engine.data.clientName + ' - ' + engine.data.projectName;
-
-            $('#btnLockProject').prop('disabled', self.engine.isUserReadOnly);
-            $('#btnDeleteProject').prop('disabled', self.engine.isReadOnly);
-        });
-
-        $('[contenteditable]', self.tabSelector).on('change', function(e) {
-            var target = $(this);
-            self.engine.applyModifications([{
-                model: 'Project',
-                action: 'update',
-                property: target.data('property'),
-                oldValue: target.data('before'),
-                newValue: target.text()
-            }]);
-        });
-
-        $('#btnLockProject').on('click', function(e) {
-            self.engine.applyModifications([{
-                model: 'Project',
-                action: 'update',
-                property: 'isLocked',
-                oldValue: self.engine.data.isLocked,
-                newValue: !self.engine.data.isLocked
-            }]);
-            e.preventDefault();
-        });
-
-        $('#btnOpenSnapshot').on('click', function(e) {
-            e.preventDefault();
-            modals.openModal('#modalOpenSnapshot', '/projects/' + self.engine.projectId + '/snapshots');
         });
 
         $('#modalTakeSnapshotForm').on('submit', function(e) {

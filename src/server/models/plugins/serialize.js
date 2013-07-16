@@ -8,7 +8,7 @@
 module.exports = function serializePlugin (schema, pluginOptions) {
     if (!pluginOptions) pluginOptions = {};
     if (!pluginOptions.remove) pluginOptions.remove = [];
-    schema.set('toObject', { transform: function (doc, ret , options) {
+    schema.set('toObject', { virtuals: true, transform: function (doc, ret , options) {
         ret.id = ret._id;
         delete ret._id;
         delete ret.__v;

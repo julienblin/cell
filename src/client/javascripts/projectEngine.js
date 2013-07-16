@@ -316,7 +316,9 @@ var ProjectEngine = (function() {
 
             if(snapshotData) {
                 self.isSnapshot = true;
+                $('#tabUser').remove();
                 self.data = JSON.parse(snapshotData.data);
+                self.data.createdAt = snapshotData.createdAt;
                 self.snapshotTitle = snapshotData.title;
                 self.emit('modified');
             } else {

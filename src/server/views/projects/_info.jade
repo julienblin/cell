@@ -7,7 +7,7 @@
       != editors.text(null, 'title', { placeholder: '(Unique title for the snapshot)', inputClass: 'input-xlarge', autofocus: true })
   .modal-footer
     button.btn(data-dismiss="modal", aria-hidden="true") Cancel
-    button#confirmDeleteProject.btn.btn-primary(href="#modalTakeSnapshotForm", data-behavior="submit") Create
+    button.btn.btn-primary(href="#modalTakeSnapshotForm", data-behavior="submit") Create
 
 
 #modalDeleteProject.modal.hide.fade(role="dialog", aria-labelledby="modalDeleteProject", aria-hidden="true", data-backdrop="static")
@@ -21,3 +21,43 @@
   .modal-footer
     button.btn(data-dismiss="modal", aria-hidden="true") Cancel
     button#confirmDeleteProject.btn.btn-danger(href="#modalDeleteProjectForm", data-behavior="submit") Delete
+
+script#info-main-template(type="text/x-handlebars-template").
+  <h1 {{#unless isReadOnly}}contenteditable{{/unless}} data-property="projectName">{{projectName}}</h1>
+  <h3 {{#unless isReadOnly}}contenteditable{{/unless}} data-property="clientName">{{clientName}}</h3>
+
+script#info-gutter-project-template(type="text/x-handlebars-template").
+  <p>
+    <button id="btnLockProject" class="btn {{#if isLocked}}active{{/if}}" style="width: 150px;" {{#if isUserReadOnly}}disabled{{/if}}>
+      <i class="{{#if isLocked}}icon-lock{{else}}icon-pencil{{/if}}"></i> {{#if isLocked}}Locked! {{else}}Lock{{/if}}
+    </button>
+  </p>
+
+  <hr>
+
+  <p>
+    <button id="btnTakeSnapshot" href="#modalTakeSnapshot" data-toggle="modal" class="btn" style="width: 150px;">
+      <i class="icon-camera"></i> Take a snapshot
+    </button>
+  </p>
+  <p>
+    <button id="btnOpenSnapshot" class="btn" style="width: 150px;">Open a snapshot</button>
+  </p>
+
+  <hr>
+
+  <p>
+    <button id="btnDeleteProject" href="#modalDeleteProject" data-toggle="modal" class="btn btn-danger" style="width: 150px;" {{#if isReadOnly}}disabled{{/if}}>
+      <i class="icon-remove icon-white"></i> Delete
+    </button>
+  </p>
+
+script#info-gutter-snapshot-template(type="text/x-handlebars-template").
+  <h3>Snapshot</h3>
+  <h4>{{snapshotTitle}}</h4>
+
+  <hr>
+
+  <p>
+    <a href="/projects/{{projectId}}" class="btn" style="width: 150px;"><i class="icon-arrow-left"></i> Back to project.</a>
+  </p>

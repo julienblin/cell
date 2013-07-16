@@ -13,36 +13,17 @@ block container
       a(href="#estimations", data-toggle="tab", data-behavior="persistent") Estimations
     li
       a(href="#summary", data-toggle="tab", data-behavior="persistent") Summary
-    li.tab-right
+    li#tabUser.tab-right
       a(href="#users", data-toggle="tab", data-behavior="persistent") Users
 
   #content.tab-content
     #info.tab-pane.active
       .row
-        .span9
-          h1(contenteditable, data-property="projectName")
-          h3(contenteditable, data-property="clientName")
-          h3(data-property="snapshotTitle")
+        #infoMain.span9
+
         .span3.text-center
           p#createdAt.muted
-          .well(style="margin-left: 20px; margin-right: 20px")
-            p
-              button#btnLockProject.btn(style="width: 150px")
-                i.icon-pencil
-                span
-                  | &nbsp;Lock
-            hr
-            p
-              button#btnTakeSnapshot.btn(style="width: 150px", href="#modalTakeSnapshot", data-toggle="modal")
-                i.icon-camera
-                | &nbsp;Take a snapshot
-            p
-              button#btnOpenSnapshot.btn(style="width: 150px") Open a snapshot
-            hr
-            p
-              button#btnDeleteProject.btn.btn-danger(style="width: 150px", href="#modalDeleteProject", data-toggle="modal")
-                i.icon-remove.icon-white
-                | &nbsp;Delete
+          #infoGutter.well(style="margin-left: 20px; margin-right: 20px")
 
     #profiles.tab-pane
       .row
