@@ -18,7 +18,7 @@ var InfoRenderer = (function() {
             if(self.engine.isSnapshot) {
                 $('[data-property="snapshotTitle"]').text('Snapshot: ' + engine.snapshotTitle);
             }
-            $('#createdAt').text('Created:' + new Date(engine.data.created).toLocaleString());
+            $('#createdAt').text('Created:' + moment(engine.data.created).calendar());
 
             if(self.engine.data.isLocked) {
                 $('#btnLockProject').addClass('active');

@@ -34,7 +34,6 @@ var ProjectSchema = new Schema({
     clientName: { type: String, required: true, index: true },
     projectName: { type: String, required: true, validate: [validations.uniqueFieldInsensitive('Project', 'projectName', 'clientName')], index: true },
     description: { type: String },
-    created: { type: Date, required: true, default: Date.now },
     isLocked: { type: Boolean, default: false },
 
     usersRead: [{ type: Schema.Types.ObjectId, ref: 'User' }],
@@ -199,6 +198,7 @@ ProjectSchema.statics.queries.findPaginate = function(q, sort, user, paginationO
     Project.paginate(finalQuery, sort, paginationOptions, callback);
 };
 
+ProjectSchema.plugin(require('./plugins/createdAt'));
 ProjectSchema.plugin(require('./plugins/paginate'));
 ProjectSchema.plugin(require('./plugins/modify'));
 ProjectSchema.plugin(require('./plugins/serialize'), { remove: [ 'usersRead', 'usersWrite'], callback: function(doc, ret, options) {

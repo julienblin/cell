@@ -8,6 +8,7 @@ module.exports = function(assets) {
     assets.addJs('/javascripts/lib/bootstrap.min.js');
     assets.addJs('/javascripts/lib/jquery.pnotify.js');
     assets.addJs('/javascripts/lib/numeral.js');
+    assets.addJs('/javascripts/lib/moment.min.js');
     assets.addJs('/javascripts/math.js');
     assets.addJs('/javascripts/notifications.js');
     assets.addJs('/javascripts/eventEmitter.js');
