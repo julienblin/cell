@@ -137,13 +137,13 @@ var ProjectEngine = (function() {
                             if(modification.insertAfter) {
                                 var previousDoc = _findTargetDoc(modification.model, modification.insertAfter, modification.parentId);
                                 if(!previousDoc) {
-                                    alerts.fatal("Unable to apply changes. Reason: unable to find previous document for model " + modification.model + " with id " + modification.insertAfter);
+                                    notify.fatal("Unable to apply changes. Reason: unable to find previous document for model " + modification.model + " with id " + modification.insertAfter);
                                 }
                                 previousDoc[1].splice(previousDoc[1].indexOf(previousDoc[0]) + 1, 0, newDoc);
                             } else {
                                 var parentCollection = _findTargetDoc(modification.model, null, modification.parentId);
                                 if(!parentCollection) {
-                                    alerts.fatal("Unable to apply changes. Reason: unable to find collection for model " + modification.model);
+                                    notify.fatal("Unable to apply changes. Reason: unable to find collection for model " + modification.model);
                                     return;
                                 }
                                 parentCollection[1].splice(0, 0, newDoc);
@@ -154,7 +154,7 @@ var ProjectEngine = (function() {
                         case 'update':
                             targetDoc = _findTargetDoc(modification.model, modification.id, modification.parentId);
                             if(!targetDoc) {
-                                alerts.fatal("Unable to apply changes. Reason: unable to find model " + modification.model + " with id " + modification.id);
+                                notify.fatal("Unable to apply changes. Reason: unable to find model " + modification.model + " with id " + modification.id);
                                 return;
                             }
                             var currentValue = _getValueAtPath(targetDoc[0], modification.property);
@@ -168,7 +168,7 @@ var ProjectEngine = (function() {
                         case 'delete':
                             targetDoc = _findTargetDoc(modification.model, modification.id, modification.parentId);
                             if(!targetDoc) {
-                                alerts.fatal("Unable to apply changes. Reason: unable to find model " + modification.model + " with id " + modification.id);
+                                notify.fatal("Unable to apply changes. Reason: unable to find model " + modification.model + " with id " + modification.id);
                                 return;
                             }
                             modification.localInfo = modification.localInfo || {};
@@ -177,7 +177,7 @@ var ProjectEngine = (function() {
                             targetDoc[1].splice(modification.localInfo.position, 1);
                             break;
                         default:
-                            alerts.fatal('Internal error - unrecognized action ' + modification.action);
+                            notify.fatal('Internal error - unrecognized action ' + modification.action);
                             break;
                     }
                 }
@@ -200,7 +200,7 @@ var ProjectEngine = (function() {
                     self.stats.latencies.push(endTime - startTime);
                     statusBar.changeIcon('ok');
                     if (err) {
-                        alerts.fatal("Unable to send modifications to server. Reason:" + err.message);
+                        notify.fatal("Unable to send modifications to server. Reason:" + err.message);
                         statusBar.changeIcon('error');
                         return;
                     }
@@ -228,7 +228,7 @@ var ProjectEngine = (function() {
 
                     if(failedModifications.length > 0) {
                         _.each(failedModifications, function(failedModif) {
-                            alerts.warning("Some changes have been reverted. Reason:" + failedModif.result.statusMessage, 5000);
+                            notify.warning("Some changes have been reverted. Reason:" + failedModif.result.statusMessage);
 
                             var modification = failedModif.modification,
                                 parentCollection;
@@ -289,13 +289,9 @@ var ProjectEngine = (function() {
         // Event subscriptions
 
         window.onerror = function(msg, url, line) {
-            alerts.fatal('Execution error. Reason: ' + msg + '.');
+            notify.fatal('Execution error. Reason: ' + msg + '.');
             statusBar.changeIcon('error');
         };
-
-        $(window).unload(function() {
-            alerts.clear();
-        });
 
         // Statistics popover on icon status bar
         $(statusBar.getStatusIconSelector()).popover({
@@ -314,7 +310,7 @@ var ProjectEngine = (function() {
         // Public functions
         self.init = function(snapshotData) {
             if (navigator.userAgent.indexOf('Zombie.js') != -1) {
-                alerts.warning("Zombie.js navigator detected - socket.io disabled.");
+                notify.warning("Zombie.js navigator detected - socket.io disabled.");
                 return;
             }
 
@@ -326,7 +322,7 @@ var ProjectEngine = (function() {
             } else {
                 self.isSnapshot = false;
 
-                var loadingAlert = alerts.info('Loading project...');
+                var loadingNotification = notify.info('Loading project...');
                 statusBar.changeIcon('loading');
 
                 var socketUrl = window.location.protocol + '//' + window.location.hostname;
@@ -338,30 +334,33 @@ var ProjectEngine = (function() {
                 self.stats.state = 'connected';
 
                 self.socket.on('disconnect', function() {
-                    alerts.fatal("You've been disconnected from the server.");
+                    notify.fatal("You've been disconnected from the server.");
                     statusBar.changeIcon('error');
                     self.stats.state = 'disconnected';
                 });
 
                 self.socket.emit('getDataAndSubscribe', projectId, function(err, data) {
-                    loadingAlert.dismiss();
                     statusBar.changeIcon('ok');
                     if (err) {
+                        loadingNotification.dismiss();
                         statusBar.changeIcon('error');
-                        alerts.fatal("There has been an error while loading project data. Reason: " + err.message);
+                        notify.fatal("There has been an error while loading project data. Reason: " + err.message);
                         return;
                     }
                     self.data = data;
                     _projectCalculator.performCalculations(self.data);
                     self.emit('modified');
-                    alerts.success('Project loaded - good to go!', 3000);
+                    loadingNotification.transform({
+                        text: 'Project loaded - good to go!',
+                        type: 'success'
+                    });
                 });
 
                 self.socket.on('receiveUpdates', function(modifications) {
                     statusBar.changeIcon('loading');
                     ++self.stats.numberOfReceivedUpdates;
                     if(!self.data) {
-                        alerts.fatal("There has been an concurrency error while loading project.");
+                        notify.fatal("There has been an concurrency error while loading project.");
                         statusBar.changeIcon('error');
                         return;
                     }
@@ -378,7 +377,7 @@ var ProjectEngine = (function() {
                 });
 
                 self.socket.on('userJoined', function(user) {
-                    alerts.info(user.username + ' just joined the conversation.', 3000);
+                    notify.info(user.username + ' just joined the conversation.');
                 });
             }
         };
@@ -397,7 +396,7 @@ var ProjectEngine = (function() {
                 self.socket.emit('setAuth', userId, auth, function(err, newUser) {
                     if (err) {
                         statusBar.changeIcon('error');
-                        alerts.fatal("There has been an error while adding user. Reason: " + err.message);
+                        notify.fatal("There has been an error while adding user. Reason: " + err.message);
                         return;
                     }
                     _integrateSetAuth(newUser, auth);

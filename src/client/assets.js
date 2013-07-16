@@ -6,9 +6,10 @@ module.exports = function(assets) {
     assets.root = __dirname;
     assets.addJs('/javascripts/lib/jquery.min.js');
     assets.addJs('/javascripts/lib/bootstrap.min.js');
+    assets.addJs('/javascripts/lib/jquery.pnotify.js');
     assets.addJs('/javascripts/lib/numeral.js');
     assets.addJs('/javascripts/math.js');
-    assets.addJs('/javascripts/alerts.js');
+    assets.addJs('/javascripts/notifications.js');
     assets.addJs('/javascripts/eventEmitter.js');
     assets.addJs('/javascripts/statusBar.js');
     assets.addJs('/javascripts/modals.js');
@@ -36,6 +37,7 @@ module.exports = function(assets) {
     assets.addJs('/javascripts/projectEngine.js', 'project');
 
     assets.addCss('/stylesheets/bootstrap.min.css');
+    assets.addCss('/stylesheets/jquery.pnotify.default.css');
     assets.addCss('/stylesheets/jquery.handsontable.css');
     assets.addCss('/stylesheets/jquery.handsontable.bootstrap.css');
     assets.addCss('/stylesheets/jquery.contextMenu.css');

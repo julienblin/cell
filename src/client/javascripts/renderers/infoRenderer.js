@@ -77,13 +77,13 @@ var InfoRenderer = (function() {
                     data: JSON.stringify(self.engine.data)
                 },
                 error: function(xhr, testStatus, errorThrown) {
-                    alerts.fatal('An internal error has occurred. Reason:' + errorThrown);
+                    notify.fatal('An internal error has occurred. Reason:' + errorThrown);
                 },
                 success: function(data) {
                     if(data.status === 'success') {
                         $('#modalTakeSnapshot').modal('hide');
                         var snapshotUrl = '/projects/' + self.engine.projectId + '/snapshots/' + data.id;
-                        alerts.info('Snapshot successfully taken. <a href="' + snapshotUrl + '">Open it.</a>', 10000);
+                        notify.info('Snapshot successfully taken.<br><a href="' + snapshotUrl + '">Open it.</a>', { hide: false });
                         behaviors.displayValidationErrors({});
                     } else {
                         if(data.error) {

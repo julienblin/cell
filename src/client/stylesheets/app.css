@@ -23,12 +23,6 @@ body.login {
     margin-top: 20px;
 }
 
-#flashes {
-    position: fixed;
-    z-index: 9999;
-    top: 45px;
-}
-
 .largerModal {
     width: 800px;
     margin-left: -400px;

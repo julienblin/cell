@@ -8,7 +8,7 @@ window.modals = (function(){
     var _openModal = function(modalId, url, callback) {
         $('#modals').load(url, function(responseText, textStatus, req) {
             if (textStatus == "error") {
-                alerts.error('There has been an error while loading modal.');
+                notify.error('There has been an error while loading modal.');
                 if (callback) callback(false, modalId);
             } else {
                 behaviors.apply(modalId);
