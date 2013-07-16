@@ -24,7 +24,16 @@ module.exports = function (config) {
     app.use(express.favicon());
     app.use(express.compress());
     if (config.env === 'development') {
-        app.use(express.logger('dev'));
+        var regex = /(?:\/generated\/|\/images\/)/;
+        app.use(express.logger({
+            format: 'dev',
+            stream: {
+                write: function(message){
+                    if(!regex.test(message))
+                        winston.debug(message);
+                }
+            }
+        }));
     }
 
     bundle(app, __dirname + '/../client/assets', {
