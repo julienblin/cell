@@ -15,7 +15,7 @@ var mongoose = require('mongoose'),
 var ProfilePriceSchema = new Schema({
     project: { type: Schema.Types.ObjectId, ref: 'Project', index: true },
     isActive: { type: Boolean },
-    title: { type: String, validate: [validations.uniqueFieldInsensitive('Profile', 'title', 'project')], index: true },
+    title: { type: String, validate: [validations.uniqueFieldInsensitive('ProfilePrice', 'title', 'project')], index: true },
     priceJunior: { type: Number },
     priceIntermediary: { type: Number },
     priceSenior: { type: Number }
