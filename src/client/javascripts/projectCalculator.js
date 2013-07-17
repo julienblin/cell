@@ -45,7 +45,7 @@
 
                 if((self.parseInt(profileProject.percentageJunior) + self.parseInt(profileProject.percentageIntermediary) + self.parseInt(profileProject.percentageSenior)) != 100) continue;
                 var profilePrice = profileProject.profilePrice ? data.nav.profilePrices[profileProject.profilePrice] : undefined;
-                if(!profilePrice) continue;
+                if(!(profilePrice && profilePrice.isActive)) continue;
 
                 profileProject.computed.profileAveragePrice =
                     (self.parseInt(profilePrice.priceJunior) * self.parseInt(profileProject.percentageJunior) +

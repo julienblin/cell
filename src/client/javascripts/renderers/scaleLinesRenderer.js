@@ -118,8 +118,8 @@ var ScaleLinesRenderer = (function() {
                         var th = $(TH);
                         var scaleColumn = self.scale.columns[col - 2] || {};
                         var scaleColumnBefore = (col > 2) ? self.scale.columns[col - 3] : {};
-                        var profile = self.engine.data.nav.profiles[scaleColumn.profile];
-                        var content = self.getTemplate('#scale-colheader-template')({ column: scaleColumn, profile: profile, before: scaleColumnBefore, profiles: self.engine.data.profiles, readOnly: self.engine.isReadOnly });
+                        var profileProject = self.engine.data.nav.profileProjects[scaleColumn.profileProject];
+                        var content = self.getTemplate('#scale-colheader-template')({ column: scaleColumn, profileProject: profileProject, before: scaleColumnBefore, profileProjects: self.engine.data.profileProjects, readOnly: self.engine.isReadOnly });
                         th.html(content);
                         th.css('overflow','initial');
                         th.css('height', '150px');
@@ -216,10 +216,10 @@ var ScaleLinesRenderer = (function() {
             _cachedGrid = $(self.gridSelector).data('handsontable');
         });
 
-        $(self.gridSelector).on('click', 'a[data-behavior~="selectProfileColumn"]', function(e) {
+        $(self.gridSelector).on('click', 'a[data-behavior~="selectProfileProjectColumn"]', function(e) {
             var columnId = $(this).data('column-id');
             var columnBeforeId = $(this).data('column-before-id');
-            var profileId = $(this).data('profile-id');
+            var profileProjectId = $(this).data('profile-project-id');
             var modifications = [];
 
             if(columnId) {
@@ -230,9 +230,9 @@ var ScaleLinesRenderer = (function() {
                         id: column.id,
                         parentId: self.scale.id,
                         action: 'update',
-                        property: 'profile',
-                        oldValue: column.profile,
-                        newValue: profileId,
+                        property: 'profileProject',
+                        oldValue: column.profileProject,
+                        newValue: profileProjectId,
                         localInfo: {
                             target: column
                         }
@@ -245,7 +245,7 @@ var ScaleLinesRenderer = (function() {
                     action: 'create',
                     insertAfter: columnBeforeId,
                     values : {
-                        profile: profileId
+                        profileProject: profileProjectId
                     }
                 });
             }

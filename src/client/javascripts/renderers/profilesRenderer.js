@@ -128,20 +128,20 @@ var ProfilesRenderer = (function() {
         };
 
         var _dataProfilePrice = function profilePrice(profileProject, value, options) {
-            var profilePrice;
+            var targetProfilePrice;
             if (options) {
                 if (options.inverseGet) {
-                    profilePrice = _.findWhere(self.engine.data.profilePrices, { title: value });
-                    return profilePrice ? profilePrice.id : null;
+                    targetProfilePrice = _.findWhere(self.engine.data.profilePrices, { title: value });
+                    return targetProfilePrice ? targetProfilePrice.id : null;
                 }
             }
             if(!profileProject) profileProject = {};
             if(typeof value === 'undefined') {
-                profilePrice = self.engine.data.nav.profilePrices[profileProject.profilePrice];
-                return profilePrice ? profilePrice.title : null;
+                targetProfilePrice = self.engine.data.nav.profilePrices[profileProject.profilePrice];
+                return targetProfilePrice ? targetProfilePrice.title : null;
             } else {
-                profilePrice = _.findWhere(self.engine.data.profilePrices, { title: value });
-                profileProject.profilePrice = profilePrice ? profilePrice.id : null;
+                targetProfilePrice = _.findWhere(self.engine.data.profilePrices, { title: value });
+                profileProject.profilePrice = targetProfilePrice ? targetProfilePrice.id : null;
             }
         };
 
@@ -178,6 +178,10 @@ var ProfilesRenderer = (function() {
                 cells: function (row, col, prop) {
                     var cellProperties = {};
                     var profileProject = self.engine.data.profileProjects[row];
+
+                    if(typeof prop === 'function')
+                        prop = prop.name;
+
                     if(profileProject) {
                         switch(prop) {
                             case 'title':

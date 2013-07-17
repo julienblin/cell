@@ -63,8 +63,8 @@ script#scale-tab-content-template(type="text/x-handlebars-template")
 script#scale-colheader-template(type="text/x-handlebars-template")
   .relative
     .colHeader
-      .text-vertical.text-left(style="margin-bottom: 15px; margin-left: 10px; {{#unless profile.isActive}}text-decoration: line-through;{{/unless}}")
-        {{profile.title}}{{#if profile.title}} ({{#if column.isBaseline}}UT{{else}}%{{/if}}){{/if}}
+      .text-vertical.text-left(style="margin-bottom: 15px; margin-left: 10px; {{#unless profileProject.isActive}}text-decoration: line-through;{{/unless}}")
+        {{profileProject.title}}{{#if profileProject.title}} ({{#if column.isBaseline}}UT{{else}}%{{/if}}){{/if}}
       div(style="text-align: center;")
         {{#unless readOnly}}
         <input type="checkbox" data-behavior="checkBaseline" data-column-id="{{column.id}}" class="htCheckboxRendererInput" {{#if column.isBaseline}}checked{{/if}} style="margin-top: 0; margin-right: 5px;">
@@ -72,10 +72,10 @@ script#scale-colheader-template(type="text/x-handlebars-template")
           a.btn.btn-mini.dropdown-toggle(href="#", role="button", data-toggle="dropdown")
             span.caret
           ul.dropdown-menu.text-left
-            {{#each profiles}}
+            {{#each profileProjects}}
             {{#if id}}
             li
-              a(href="#", data-behavior="selectProfileColumn", data-profile-id="{{id}}", data-column-id="{{../../column.id}}", data-column-before-id="{{../../before.id}}", style="{{#unless isActive}}text-decoration: line-through;{{/unless}}")
+              a(href="#", data-behavior="selectProfileProjectColumn", data-profile-project-id="{{id}}", data-column-id="{{../../column.id}}", data-column-before-id="{{../../before.id}}", style="{{#unless isActive}}text-decoration: line-through;{{/unless}}")
                 {{title}}
             {{/if}}
             {{/each}}
