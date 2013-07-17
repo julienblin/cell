@@ -8,79 +8,54 @@ var ProfilesRenderer = (function() {
     return function(engine) {
         var self = {};
         self.__proto__ = BaseTabRenderer('#profiles', engine);
-        self.gridSelector = '#profilesInputGrid';
+        self.gridPricesSelector = '#profilePricesInputGrid';
+        self.gridProjectsSelector = '#profileProjectsInputGrid';
 
-        var _cachedGrid = null;
-        var _calculator = new ProjectCalculator();
-        var _shadowData = {};
+        var _cachedPricesGrid = null;
+        var _cachedProjectsGrid = null;
 
-        // Event subscriptions
-        self.on('render', function() {
+        var _shadowDataPrices = {};
+        var _shadowDataProjects = {};
 
-            if(_cachedGrid) {
-                _cachedGrid.render();
+        var _renderPricesGrid = function() {
+            if(_cachedPricesGrid) {
+                _cachedPricesGrid.render();
                 return;
             }
 
-            $(self.gridSelector).handsontable({
-                data: self.engine.data.profiles,
-                colHeaders: [ "Act.", "Title", "Junior", "Intermediary", "Senior", "$ / UT" ],
-                colWidths:  [15, 600, 30, 30, 30, 30, 30, 30, 60],
-                afterGetColHeader: function (col, TH) {
-                    switch(col) {
-                        case 2:
-                        case 3:
-                        case 4:
-                            $(TH).attr('colspan', 2);
-                            break;
-                    }
-                },
+            $(self.gridPricesSelector).handsontable({
+                data: self.engine.data.profilePrices,
+                colHeaders: [ "Act.", "Title", "Junior", "Intermediary", "Senior" ],
+                colWidths:  [15, 600, 60, 60, 60],
                 stretchH: 'all',
                 rowHeaders: true,
                 minSpareRows: 1,
                 columns: [
                     { data: 'isActive',                      type: 'cellCheckbox', readOnly: self.engine.isReadOnly },
                     { data: 'title',                         type: 'title',        readOnly: self.engine.isReadOnly },
-                    { data: 'percentageJunior',              type: 'percent',      readOnly: self.engine.isReadOnly },
                     { data: 'priceJunior',                   type: 'price',        readOnly: self.engine.isReadOnly },
-                    { data: 'percentageIntermediary',        type: 'percent',      readOnly: self.engine.isReadOnly },
                     { data: 'priceIntermediary',             type: 'price',        readOnly: self.engine.isReadOnly },
-                    { data: 'percentageSenior',              type: 'percent',      readOnly: self.engine.isReadOnly },
-                    { data: 'priceSenior',                   type: 'price',        readOnly: self.engine.isReadOnly },
-                    { data: 'computed.profileAveragePrice',  type: 'price',        readOnly: true }
+                    { data: 'priceSenior',                   type: 'price',        readOnly: self.engine.isReadOnly }
                 ],
                 contextMenu: self.engine.isReadOnly ? null : ['row_above', 'row_below', 'remove_row'],
                 cells: function (row, col, prop) {
                     var cellProperties = {};
-                    var profile = self.engine.data.profiles[row];
-                    if(profile) {
+                    var profilePrice = self.engine.data.profilePrices[row];
+                    if(profilePrice) {
                         switch(prop) {
                             case 'title':
-                                if(profile.id) {
-                                    cellProperties.invalid = !(profile.title);
+                                if(profilePrice.id) {
+                                    cellProperties.invalid = !(profilePrice.title);
                                 }
-                                break;
-                            case 'percentageJunior':
-                            case 'percentageIntermediary':
-                            case 'percentageSenior':
-                                if(profile.id) {
-                                    var totalPercentage = _calculator.parseInt(profile.percentageJunior)
-                                        + _calculator.parseInt(profile.percentageIntermediary)
-                                        + _calculator.parseInt(profile.percentageSenior);
-                                    cellProperties.invalid = (totalPercentage != 100);
-                                }
-                                break;
-                            case 'computed.profileAveragePrice':
-                                cellProperties.computed = true;
                                 break;
                         }
 
-                        cellProperties.muted = !profile.isActive;
+                        cellProperties.muted = !profilePrice.isActive;
                     }
                     return cellProperties;
                 },
                 beforeRender: function() {
-                    _shadowData.profiles = _.clone(self.engine.data.profiles);
+                    _shadowDataPrices.profilePrices = _.clone(self.engine.data.profilePrices);
                 },
                 afterChange: function(changes, operation) {
                     switch(operation) {
@@ -89,70 +64,82 @@ var ProfilesRenderer = (function() {
                         case 'paste':
                             var modifications = [];
                             _.each(changes, function(change) {
-                                var profile = self.engine.data.profiles[change[0]];
-                                if (profile.id) {
+                                var profilePrice = self.engine.data.profilePrices[change[0]];
+                                if (profilePrice.id) {
                                     modifications.push({
-                                        model: 'Profile',
-                                        id: profile.id,
+                                        model: 'ProfilePrice',
+                                        id: profilePrice.id,
                                         action: 'update',
                                         property: change[1],
                                         oldValue: change[2],
                                         newValue: change[3],
                                         localInfo: {
                                             alreadyApplied: true,
-                                            target: profile
+                                            target: profilePrice
                                         }
                                     });
                                 } else {
                                     var createModif = {
-                                        model: 'Profile',
+                                        model: 'ProfilePrice',
                                         action: 'create',
                                         values: {},
                                         localInfo: {
                                             alreadyApplied: true,
-                                            target: profile
+                                            target: profilePrice
                                         }
                                     };
                                     createModif.values[change[1]] = change[3];
                                     if(change[1] === 'title') {
-                                        profile.isActive = true;
-                                        profile.percentageJunior = 25;
-                                        profile.percentageIntermediary = 50;
-                                        profile.percentageSenior = 25;
+                                        profilePrice.isActive = true;
                                         createModif.values.isActive = true;
-                                        createModif.values.percentageJunior = 25;
-                                        createModif.values.percentageIntermediary = 50;
-                                        createModif.values.percentageSenior = 25;
                                     }
                                     if(change[0] > 0) {
-                                        createModif.insertAfter = self.engine.data.profiles[change[0] - 1].id;
+                                        createModif.insertAfter = self.engine.data.profilePrices[change[0] - 1].id;
                                     }
                                     modifications.push(createModif);
                                 }
                             });
                             self.engine.applyModifications(modifications);
-                        break;
+                            break;
                     }
                 },
                 afterRemoveRow: function(index, amount) {
-                    var profilesToDelete = _shadowData.profiles.slice(index, index + amount);
+                    var profilePricesToDelete = _shadowDataPrices.profilePrices.slice(index, index + amount);
                     var modifications = [];
-                    _.each(profilesToDelete, function(profile, profileIndex) {
+                    _.each(profilePricesToDelete, function(profilePrice, profilePriceIndex) {
                         modifications.push({
-                            model: 'Profile',
-                            id: profile.id,
+                            model: 'ProfilePrice',
+                            id: profilePrice.id,
                             action: 'delete',
                             localInfo: {
                                 alreadyApplied: true,
-                                target: profile,
-                                position: (index + profileIndex)
+                                target: profilePrice,
+                                position: (index + profilePriceIndex)
                             }
                         });
                     });
                     self.engine.applyModifications(modifications);
                 }
             });
-            _cachedGrid = $(self.gridSelector).data('handsontable');
+            _cachedPricesGrid = $(self.gridPricesSelector).data('handsontable');
+        };
+
+        var _renderProjectsGrid = function() {
+            if(_cachedProjectsGrid) {
+                _cachedProjectsGrid.render();
+                return;
+            }
+
+            $(self.gridProjectsSelector).handsontable({
+
+            });
+            _cachedProjectsGrid = $(self.gridProjectsSelector).data('handsontable');
+        };
+
+        // Event subscriptions
+        self.on('render', function() {
+            _renderPricesGrid();
+            _renderProjectsGrid();
         });
 
         return self;

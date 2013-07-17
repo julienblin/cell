@@ -49,11 +49,16 @@ var ProjectEngine = (function() {
             switch(model) {
                 case 'Project':
                     return [self.data, null, null];
-                case 'Profile':
-                    if(!id) return [null, self.data.profiles];
-                    var profile = _.findWhere(self.data.profiles, { id: id });
-                    if(!profile) return null;
-                    return [profile, self.data.profiles];
+                case 'ProfilePrice':
+                    if(!id) return [null, self.data.profilePrices];
+                    var profilePrice = _.findWhere(self.data.profilePrices, { id: id });
+                    if(!profilePrice) return null;
+                    return [profilePrice, self.data.profilePrices];
+                case 'ProfileProject':
+                    if(!id) return [null, self.data.profileProjects];
+                    var profileProject = _.findWhere(self.data.profileProjects, { id: id });
+                    if(!profileProject) return null;
+                    return [profileProject, self.data.profileProjects];
                 case 'Scale':
                     if(!id) return [null, self.data.scales];
                     var scale = _.findWhere(self.data.scales, { id: id });
