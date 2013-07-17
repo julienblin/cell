@@ -12,17 +12,6 @@ describe('ProjectCalculator', function(){
 
     var _calc = new ProjectCalculator();
 
-    var _makeProfile = function() {
-        return factory.make('profile', {
-            percentageJunior: arguments[0],
-            priceJunior: arguments[1],
-            percentageIntermediary: arguments[2],
-            priceIntermediary: arguments[3],
-            percentageSenior: arguments[4],
-            priceSenior: arguments[5]
-        }).toObject();
-    };
-
     var _makeProfilePrice = function() {
         return factory.make('profilePrice', {
             priceJunior: arguments[0],
@@ -40,8 +29,8 @@ describe('ProjectCalculator', function(){
         }).toObject();
     };
 
-    var _makeScaleColumn = function(profile, isBaseline) {
-        return factory.make('scaleColumn', { profile: profile ? profile.id : undefined, isBaseline: isBaseline }).toObject();
+    var _makeScaleColumn = function(profileProject, isBaseline) {
+        return factory.make('scaleColumn', { profileProject: profileProject ? profileProject.id : undefined, isBaseline: isBaseline }).toObject();
     };
 
     var _makeScaleLine = function(columns, values) {
@@ -71,10 +60,6 @@ describe('ProjectCalculator', function(){
     var _profileProjectDeveloperValid, _profileProjectArchitectValid, _profileProjectAnalystValid, _profileProjectPMValid,
         _profileProjectSpecialistDisabled, _profileProjectNoPrice,
         _profileProjectInvalid1, _profileProjectInvalid2;
-
-    var _profileDeveloperValid, _profileArchitectValid, _profileAnalystValid, _profilePMValid,
-        _profileSpecialistDisabled,
-        _profileInvalid1, _profileInvalid2, _profileInvalid3;
 
     var _scaleSharepoint;
     var _scaleColumnSharepointDeveloper, _scaleColumnSharepointAnalyst, _scaleColumnSharepointArchitect, _scaleColumnSharepointPM;
@@ -112,23 +97,12 @@ describe('ProjectCalculator', function(){
         _profileProjectNoPrice = _makeProfileProject(_profilePriceNoPrice, undefined, 100, undefined);
         _profileProjectInvalid2 = _makeProfileProject();
 
-        // Profiles
-        _profileDeveloperValid = _makeProfile(25, 450, 50, 650, 25, 850); // average$: 650
-        _profileArchitectValid = _makeProfile(25, 800, 50, 1000, 25, 1200); // average$: 1000
-        _profileAnalystValid = _makeProfile(undefined, undefined, 100, 300, undefined, undefined); // average$: 300
-        _profileSpecialistDisabled = _makeProfile(25, 800, 50, 1000, 25, 1200); // average$: 1000
-        _profileSpecialistDisabled.isActive = false;
-        _profilePMValid = _makeProfile(undefined, undefined, undefined, undefined, 100, 1500); // average$: 1500
-        _profileInvalid1 = _makeProfile(25, 450, 100, 650, 25, 850);
-        _profileInvalid2 = _makeProfile(undefined, undefined, 100, undefined, undefined, undefined);
-        _profileInvalid3 = _makeProfile();
-
         // Scales - Sharepoint
         _scaleSharepoint = factory.make('scale').toObject();
-        _scaleColumnSharepointDeveloper = _makeScaleColumn(_profileDeveloperValid, true);
-        _scaleColumnSharepointAnalyst = _makeScaleColumn(_profileAnalystValid, true);
-        _scaleColumnSharepointArchitect = _makeScaleColumn(_profileArchitectValid, false);
-        _scaleColumnSharepointPM =_makeScaleColumn(_profilePMValid, false);
+        _scaleColumnSharepointDeveloper = _makeScaleColumn(_profileProjectDeveloperValid, true);
+        _scaleColumnSharepointAnalyst = _makeScaleColumn(_profileProjectAnalystValid, true);
+        _scaleColumnSharepointArchitect = _makeScaleColumn(_profileProjectArchitectValid, false);
+        _scaleColumnSharepointPM =_makeScaleColumn(_profileProjectPMValid, false);
         _scaleSharepoint.columns = [_scaleColumnSharepointDeveloper, _scaleColumnSharepointAnalyst, _scaleColumnSharepointArchitect, _scaleColumnSharepointPM];
 
         _scaleLineSharepointSimple = _makeScaleLine(_scaleSharepoint.columns, [1, 0.5, 10, 20]); // totalUT: 1.95, total$: 1,400
@@ -138,9 +112,9 @@ describe('ProjectCalculator', function(){
 
         // Scales - Java
         _scaleJava = factory.make('scale').toObject();
-        _scaleColumnJavaDeveloper = _makeScaleColumn(_profileDeveloperValid, true);
-        _scaleColumnJavaSpecialist = _makeScaleColumn(_profileSpecialistDisabled, true);
-        _scaleColumnJavaPM = _makeScaleColumn(_profilePMValid, false);
+        _scaleColumnJavaDeveloper = _makeScaleColumn(_profileProjectDeveloperValid, true);
+        _scaleColumnJavaSpecialist = _makeScaleColumn(_profileProjectSpecialistDisabled, true);
+        _scaleColumnJavaPM = _makeScaleColumn(_profileProjectPMValid, false);
         _scaleColumnJavaNoProfile = _makeScaleColumn(undefined, true);
         _scaleJava.columns = [_scaleColumnJavaDeveloper, _scaleColumnJavaSpecialist, _scaleColumnJavaPM, _scaleColumnJavaNoProfile];
 
@@ -174,9 +148,7 @@ describe('ProjectCalculator', function(){
         _project.profileProjects = [_profileProjectDeveloperValid, _profileProjectArchitectValid, _profileProjectAnalystValid, _profileProjectPMValid,
             _profileProjectSpecialistDisabled,
             _profileProjectInvalid1, _profileProjectNoPrice, _profileProjectInvalid2];
-        _project.profiles = [_profileDeveloperValid, _profileArchitectValid, _profileAnalystValid, _profilePMValid,
-                             _profileSpecialistDisabled,
-                             _profileInvalid1, _profileInvalid2, _profileInvalid3];
+
         _project.scales = [_scaleSharepoint, _scaleJava];
         _project.estimationLines = [
             _lineHeading1Doc,
@@ -249,61 +221,61 @@ describe('ProjectCalculator', function(){
         // Sharepoint
         _scaleLineSharepointSimple.computed.lineTotalUT.should.equal(1.95);
         _scaleLineSharepointSimple.computed.lineTotalPrice.should.equal(1400);
-        _scaleLineSharepointSimple.computed.profiles[_profileDeveloperValid.id].lineTotalUT.should.equal(1);
-        _scaleLineSharepointSimple.computed.profiles[_profileDeveloperValid.id].lineTotalPrice.should.equal(650);
-        _scaleLineSharepointSimple.computed.profiles[_profileAnalystValid.id].lineTotalUT.should.equal(0.5);
-        _scaleLineSharepointSimple.computed.profiles[_profileAnalystValid.id].lineTotalPrice.should.equal(150);
-        _scaleLineSharepointSimple.computed.profiles[_profileArchitectValid.id].lineTotalUT.should.equal(0.15);
-        _scaleLineSharepointSimple.computed.profiles[_profileArchitectValid.id].lineTotalPrice.should.equal(150);
-        _scaleLineSharepointSimple.computed.profiles[_profilePMValid.id].lineTotalUT.should.equal(0.3);
-        _scaleLineSharepointSimple.computed.profiles[_profilePMValid.id].lineTotalPrice.should.equal(450);
+        _scaleLineSharepointSimple.computed.profileProjects[_profileProjectDeveloperValid.id].lineTotalUT.should.equal(1);
+        _scaleLineSharepointSimple.computed.profileProjects[_profileProjectDeveloperValid.id].lineTotalPrice.should.equal(650);
+        _scaleLineSharepointSimple.computed.profileProjects[_profileProjectAnalystValid.id].lineTotalUT.should.equal(0.5);
+        _scaleLineSharepointSimple.computed.profileProjects[_profileProjectAnalystValid.id].lineTotalPrice.should.equal(150);
+        _scaleLineSharepointSimple.computed.profileProjects[_profileProjectArchitectValid.id].lineTotalUT.should.equal(0.15);
+        _scaleLineSharepointSimple.computed.profileProjects[_profileProjectArchitectValid.id].lineTotalPrice.should.equal(150);
+        _scaleLineSharepointSimple.computed.profileProjects[_profileProjectPMValid.id].lineTotalUT.should.equal(0.3);
+        _scaleLineSharepointSimple.computed.profileProjects[_profileProjectPMValid.id].lineTotalPrice.should.equal(450);
 
         _scaleLineSharepointMedium.computed.lineTotalUT.should.equal(10.4);
         _scaleLineSharepointMedium.computed.lineTotalPrice.should.equal(7350);
-        _scaleLineSharepointMedium.computed.profiles[_profileDeveloperValid.id].lineTotalUT.should.equal(5);
-        _scaleLineSharepointMedium.computed.profiles[_profileDeveloperValid.id].lineTotalPrice.should.equal(3250);
-        _scaleLineSharepointMedium.computed.profiles[_profileAnalystValid.id].lineTotalUT.should.equal(3);
-        _scaleLineSharepointMedium.computed.profiles[_profileAnalystValid.id].lineTotalPrice.should.equal(900);
-        _scaleLineSharepointMedium.computed.profiles[_profileArchitectValid.id].lineTotalUT.should.equal(0.8);
-        _scaleLineSharepointMedium.computed.profiles[_profileArchitectValid.id].lineTotalPrice.should.equal(800);
-        _scaleLineSharepointMedium.computed.profiles[_profilePMValid.id].lineTotalUT.should.equal(1.6);
-        _scaleLineSharepointMedium.computed.profiles[_profilePMValid.id].lineTotalPrice.should.equal(2400);
+        _scaleLineSharepointMedium.computed.profileProjects[_profileProjectDeveloperValid.id].lineTotalUT.should.equal(5);
+        _scaleLineSharepointMedium.computed.profileProjects[_profileProjectDeveloperValid.id].lineTotalPrice.should.equal(3250);
+        _scaleLineSharepointMedium.computed.profileProjects[_profileProjectAnalystValid.id].lineTotalUT.should.equal(3);
+        _scaleLineSharepointMedium.computed.profileProjects[_profileProjectAnalystValid.id].lineTotalPrice.should.equal(900);
+        _scaleLineSharepointMedium.computed.profileProjects[_profileProjectArchitectValid.id].lineTotalUT.should.equal(0.8);
+        _scaleLineSharepointMedium.computed.profileProjects[_profileProjectArchitectValid.id].lineTotalPrice.should.equal(800);
+        _scaleLineSharepointMedium.computed.profileProjects[_profileProjectPMValid.id].lineTotalUT.should.equal(1.6);
+        _scaleLineSharepointMedium.computed.profileProjects[_profileProjectPMValid.id].lineTotalPrice.should.equal(2400);
 
         _scaleLineSharepointComplex.computed.lineTotalUT.should.equal(20.25);
         _scaleLineSharepointComplex.computed.lineTotalPrice.should.equal(14750);
-        _scaleLineSharepointComplex.computed.profiles[_profileDeveloperValid.id].lineTotalUT.should.equal(10);
-        _scaleLineSharepointComplex.computed.profiles[_profileDeveloperValid.id].lineTotalPrice.should.equal(6500);
-        _scaleLineSharepointComplex.computed.profiles[_profileAnalystValid.id].lineTotalUT.should.equal(5);
-        _scaleLineSharepointComplex.computed.profiles[_profileAnalystValid.id].lineTotalPrice.should.equal(1500);
-        _scaleLineSharepointComplex.computed.profiles[_profileArchitectValid.id].lineTotalUT.should.equal(2.25);
-        _scaleLineSharepointComplex.computed.profiles[_profileArchitectValid.id].lineTotalPrice.should.equal(2250);
-        _scaleLineSharepointComplex.computed.profiles[_profilePMValid.id].lineTotalUT.should.equal(3);
-        _scaleLineSharepointComplex.computed.profiles[_profilePMValid.id].lineTotalPrice.should.equal(4500);
+        _scaleLineSharepointComplex.computed.profileProjects[_profileProjectDeveloperValid.id].lineTotalUT.should.equal(10);
+        _scaleLineSharepointComplex.computed.profileProjects[_profileProjectDeveloperValid.id].lineTotalPrice.should.equal(6500);
+        _scaleLineSharepointComplex.computed.profileProjects[_profileProjectAnalystValid.id].lineTotalUT.should.equal(5);
+        _scaleLineSharepointComplex.computed.profileProjects[_profileProjectAnalystValid.id].lineTotalPrice.should.equal(1500);
+        _scaleLineSharepointComplex.computed.profileProjects[_profileProjectArchitectValid.id].lineTotalUT.should.equal(2.25);
+        _scaleLineSharepointComplex.computed.profileProjects[_profileProjectArchitectValid.id].lineTotalPrice.should.equal(2250);
+        _scaleLineSharepointComplex.computed.profileProjects[_profileProjectPMValid.id].lineTotalUT.should.equal(3);
+        _scaleLineSharepointComplex.computed.profileProjects[_profileProjectPMValid.id].lineTotalPrice.should.equal(4500);
 
         // Java
         _scaleLineJavaSimple.computed.lineTotalUT.should.equal(6);
         _scaleLineJavaSimple.computed.lineTotalPrice.should.equal(4750);
-        _scaleLineJavaSimple.computed.profiles[_profileDeveloperValid.id].lineTotalUT.should.equal(5);
-        _scaleLineJavaSimple.computed.profiles[_profileDeveloperValid.id].lineTotalPrice.should.equal(3250);
-        _scaleLineJavaSimple.computed.profiles[_profilePMValid.id].lineTotalUT.should.equal(1);
-        _scaleLineJavaSimple.computed.profiles[_profilePMValid.id].lineTotalPrice.should.equal(1500);
-        should.not.exists(_scaleLineJavaSimple.computed.profiles[_profileSpecialistDisabled.id]);
+        _scaleLineJavaSimple.computed.profileProjects[_profileProjectDeveloperValid.id].lineTotalUT.should.equal(5);
+        _scaleLineJavaSimple.computed.profileProjects[_profileProjectDeveloperValid.id].lineTotalPrice.should.equal(3250);
+        _scaleLineJavaSimple.computed.profileProjects[_profileProjectPMValid.id].lineTotalUT.should.equal(1);
+        _scaleLineJavaSimple.computed.profileProjects[_profileProjectPMValid.id].lineTotalPrice.should.equal(1500);
+        should.not.exists(_scaleLineJavaSimple.computed.profileProjects[_profileProjectSpecialistDisabled.id]);
 
         _scaleLineJavaMediumDisabled.computed.lineTotalUT.should.equal(12);
         _scaleLineJavaMediumDisabled.computed.lineTotalPrice.should.equal(9500);
-        _scaleLineJavaMediumDisabled.computed.profiles[_profileDeveloperValid.id].lineTotalUT.should.equal(10);
-        _scaleLineJavaMediumDisabled.computed.profiles[_profileDeveloperValid.id].lineTotalPrice.should.equal(6500);
-        _scaleLineJavaMediumDisabled.computed.profiles[_profilePMValid.id].lineTotalUT.should.equal(2);
-        _scaleLineJavaMediumDisabled.computed.profiles[_profilePMValid.id].lineTotalPrice.should.equal(3000);
-        should.not.exists(_scaleLineJavaMediumDisabled.computed.profiles[_profileSpecialistDisabled.id]);
+        _scaleLineJavaMediumDisabled.computed.profileProjects[_profileProjectDeveloperValid.id].lineTotalUT.should.equal(10);
+        _scaleLineJavaMediumDisabled.computed.profileProjects[_profileProjectDeveloperValid.id].lineTotalPrice.should.equal(6500);
+        _scaleLineJavaMediumDisabled.computed.profileProjects[_profileProjectPMValid.id].lineTotalUT.should.equal(2);
+        _scaleLineJavaMediumDisabled.computed.profileProjects[_profileProjectPMValid.id].lineTotalPrice.should.equal(3000);
+        should.not.exists(_scaleLineJavaMediumDisabled.computed.profileProjects[_profileProjectSpecialistDisabled.id]);
 
         _scaleLineJavaComplex.computed.lineTotalUT.should.equal(24);
         _scaleLineJavaComplex.computed.lineTotalPrice.should.equal(19000);
-        _scaleLineJavaComplex.computed.profiles[_profileDeveloperValid.id].lineTotalUT.should.equal(20);
-        _scaleLineJavaComplex.computed.profiles[_profileDeveloperValid.id].lineTotalPrice.should.equal(13000);
-        _scaleLineJavaComplex.computed.profiles[_profilePMValid.id].lineTotalUT.should.equal(4);
-        _scaleLineJavaComplex.computed.profiles[_profilePMValid.id].lineTotalPrice.should.equal(6000);
-        should.not.exists(_scaleLineJavaComplex.computed.profiles[_profileSpecialistDisabled.id]);
+        _scaleLineJavaComplex.computed.profileProjects[_profileProjectDeveloperValid.id].lineTotalUT.should.equal(20);
+        _scaleLineJavaComplex.computed.profileProjects[_profileProjectDeveloperValid.id].lineTotalPrice.should.equal(13000);
+        _scaleLineJavaComplex.computed.profileProjects[_profileProjectPMValid.id].lineTotalUT.should.equal(4);
+        _scaleLineJavaComplex.computed.profileProjects[_profileProjectPMValid.id].lineTotalPrice.should.equal(6000);
+        should.not.exists(_scaleLineJavaComplex.computed.profileProjects[_profileProjectSpecialistDisabled.id]);
     });
 
     it('should process estimation lines', function() {
@@ -311,62 +283,62 @@ describe('ProjectCalculator', function(){
 
         _lineDocHomepage.computed.lineTotalUT.should.equal(10.4);
         _lineDocHomepage.computed.lineTotalPrice.should.equal(7350);
-        _lineDocHomepage.computed.profiles[_profileAnalystValid.id].lineTotalUT.should.equal(3);
-        _lineDocHomepage.computed.profiles[_profileAnalystValid.id].lineTotalPrice.should.equal(900);
+        _lineDocHomepage.computed.profileProjects[_profileProjectAnalystValid.id].lineTotalUT.should.equal(3);
+        _lineDocHomepage.computed.profileProjects[_profileProjectAnalystValid.id].lineTotalPrice.should.equal(900);
 
         _lineDocContentPages.computed.lineTotalUT.should.equal(9.75);
         _lineDocContentPages.computed.lineTotalPrice.should.equal(7000);
-        _lineDocContentPages.computed.profiles[_profilePMValid.id].lineTotalUT.should.equal(1.5);
-        _lineDocContentPages.computed.profiles[_profilePMValid.id].lineTotalPrice.should.equal(2250);
+        _lineDocContentPages.computed.profileProjects[_profileProjectPMValid.id].lineTotalUT.should.equal(1.5);
+        _lineDocContentPages.computed.profileProjects[_profileProjectPMValid.id].lineTotalPrice.should.equal(2250);
 
         should.not.exists(_lineWebFrontMainPage.computed.lineTotalUT);
         should.not.exists(_lineWebFrontMainPage.computed.lineTotalPrice);
-        should.exists(_lineWebFrontMainPage.computed.profiles);
+        should.exists(_lineWebFrontMainPage.computed.profileProjects);
 
         should.not.exists(_lineWebBackUserMgtNoScale.computed.lineTotalUT);
         should.not.exists(_lineWebBackUserMgtNoScale.computed.lineTotalPrice);
-        should.exists(_lineWebBackUserMgtNoScale.computed.profiles);
+        should.exists(_lineWebBackUserMgtNoScale.computed.profileProjects);
 
         _lineWebBackDisabled.computed.lineTotalUT.should.equal(24);
         _lineWebBackDisabled.computed.lineTotalPrice.should.equal(19000);
-        _lineWebBackDisabled.computed.profiles[_profileDeveloperValid.id].lineTotalPrice.should.equal(13000);
+        _lineWebBackDisabled.computed.profileProjects[_profileProjectDeveloperValid.id].lineTotalPrice.should.equal(13000);
 
         _lineHeading2DocWorkflows.computed.lineTotalUT.should.equal(20.25);
         _lineHeading2DocWorkflows.computed.lineTotalPrice.should.equal(14750);
-        _lineHeading2DocWorkflows.computed.profiles[_profileArchitectValid.id].lineTotalUT.should.equal(2.25);
-        _lineHeading2DocWorkflows.computed.profiles[_profileArchitectValid.id].lineTotalPrice.should.equal(2250);
+        _lineHeading2DocWorkflows.computed.profileProjects[_profileProjectArchitectValid.id].lineTotalUT.should.equal(2.25);
+        _lineHeading2DocWorkflows.computed.profileProjects[_profileProjectArchitectValid.id].lineTotalPrice.should.equal(2250);
 
         _lineHeading2DocDoc.computed.lineTotalUT.should.equal(20.15);
         _lineHeading2DocDoc.computed.lineTotalPrice.should.equal(14350);
-        _lineHeading2DocDoc.computed.profiles[_profileDeveloperValid.id].lineTotalUT.should.equal(10);
-        _lineHeading2DocDoc.computed.profiles[_profileDeveloperValid.id].lineTotalPrice.should.equal(6500);
+        _lineHeading2DocDoc.computed.profileProjects[_profileProjectDeveloperValid.id].lineTotalUT.should.equal(10);
+        _lineHeading2DocDoc.computed.profileProjects[_profileProjectDeveloperValid.id].lineTotalPrice.should.equal(6500);
 
         _lineHeading1Doc.computed.lineTotalUT.should.equal(40.4);
         _lineHeading1Doc.computed.lineTotalPrice.should.equal(29100);
-        _lineHeading1Doc.computed.profiles[_profileDeveloperValid.id].lineTotalUT.should.equal(20);
-        _lineHeading1Doc.computed.profiles[_profileDeveloperValid.id].lineTotalPrice.should.equal(13000);
+        _lineHeading1Doc.computed.profileProjects[_profileProjectDeveloperValid.id].lineTotalUT.should.equal(20);
+        _lineHeading1Doc.computed.profileProjects[_profileProjectDeveloperValid.id].lineTotalPrice.should.equal(13000);
 
         _lineHeading2WebBack.computed.lineTotalUT.should.equal(24);
         _lineHeading2WebBack.computed.lineTotalPrice.should.equal(19000);
-        _lineHeading2WebBack.computed.profiles[_profileDeveloperValid.id].lineTotalUT.should.equal(20);
-        _lineHeading2WebBack.computed.profiles[_profileDeveloperValid.id].lineTotalPrice.should.equal(13000);
+        _lineHeading2WebBack.computed.profileProjects[_profileProjectDeveloperValid.id].lineTotalUT.should.equal(20);
+        _lineHeading2WebBack.computed.profileProjects[_profileProjectDeveloperValid.id].lineTotalPrice.should.equal(13000);
 
         _lineHeading2WebFront.computed.lineTotalUT.should.equal(60);
         _lineHeading2WebFront.computed.lineTotalPrice.should.equal(47500);
-        _lineHeading2WebFront.computed.profiles[_profilePMValid.id].lineTotalUT.should.equal(10);
-        _lineHeading2WebFront.computed.profiles[_profilePMValid.id].lineTotalPrice.should.equal(15000);
+        _lineHeading2WebFront.computed.profileProjects[_profileProjectPMValid.id].lineTotalUT.should.equal(10);
+        _lineHeading2WebFront.computed.profileProjects[_profileProjectPMValid.id].lineTotalPrice.should.equal(15000);
 
         _lineHeading1Web.computed.lineTotalUT.should.equal(84);
         _lineHeading1Web.computed.lineTotalPrice.should.equal(66500);
-        _lineHeading1Web.computed.profiles[_profileDeveloperValid.id].lineTotalUT.should.equal(70);
-        _lineHeading1Web.computed.profiles[_profileDeveloperValid.id].lineTotalPrice.should.equal(45500);
+        _lineHeading1Web.computed.profileProjects[_profileProjectDeveloperValid.id].lineTotalUT.should.equal(70);
+        _lineHeading1Web.computed.profileProjects[_profileProjectDeveloperValid.id].lineTotalPrice.should.equal(45500);
 
         var headingTotal = _project.estimationLines[0];
         headingTotal.lineType.should.equal('headingTotal');
         headingTotal.computed.lineTotalUT.should.equal(124.4);
         headingTotal.computed.lineTotalPrice.should.equal(95600);
-        headingTotal.computed.profiles[_profileDeveloperValid.id].lineTotalUT.should.equal(90);
-        headingTotal.computed.profiles[_profileDeveloperValid.id].lineTotalPrice.should.equal(58500);
+        headingTotal.computed.profileProjects[_profileProjectDeveloperValid.id].lineTotalUT.should.equal(90);
+        headingTotal.computed.profileProjects[_profileProjectDeveloperValid.id].lineTotalPrice.should.equal(58500);
     });
 
     it('should create and reposition grand total', function() {
@@ -386,8 +358,8 @@ describe('ProjectCalculator', function(){
         _calc.performCalculations(_project);
         _project.computed.totalUT.should.equal(124.4);
         _project.computed.totalPrice.should.equal(95600);
-        _project.computed.profiles[_profileDeveloperValid.id].totalUT.should.equal(90);
-        _project.computed.profiles[_profileDeveloperValid.id].totalPrice.should.equal(58500);
+        _project.computed.profileProjects[_profileProjectDeveloperValid.id].totalUT.should.equal(90);
+        _project.computed.profileProjects[_profileProjectDeveloperValid.id].totalPrice.should.equal(58500);
 
         _project.computed.scaleLines[_scaleLineSharepointSimple.id].totalUT.should.equal(9.75);
         _project.computed.scaleLines[_scaleLineSharepointSimple.id].totalPrice.should.equal(7000);

@@ -16,7 +16,7 @@ var mongoose = require('mongoose'),
 var ScaleColumnSchema = new Schema({
     scale: { type: Schema.Types.ObjectId, ref: 'Scale', index: true },
     isBaseline: { type: Boolean },
-    profile: { type: Schema.Types.ObjectId, ref: 'Profile' }
+    profileProject: { type: Schema.Types.ObjectId, ref: 'ProfileProject' }
 });
 
 ScaleColumnSchema.plugin(require('./plugins/paginate'));

@@ -63,45 +63,12 @@
             }
         };
 
-        var _processProfiles = function(data) {
-            data.nav.profiles = {};
-
-            for(var indexProfile in data.profiles) {
-                var profile = data.profiles[indexProfile];
-                profile.computed = {
-                    profileAveragePrice: undefined,
-                    profilePercentPriceJunior: undefined,
-                    profilePercentPriceIntermediary: undefined,
-                    profilePercentPriceSenior: undefined
-                };
-
-                if (!profile.id) continue;
-
-                data.nav.profiles[profile.id] = profile;
-
-                if((self.parseInt(profile.percentageJunior) + self.parseInt(profile.percentageIntermediary) + self.parseInt(profile.percentageSenior)) != 100) continue;
-                if(!(profile.priceJunior || profile.priceIntermediary || profile.priceSenior)) continue;
-
-
-                profile.computed.profileAveragePrice =
-                    (self.parseInt(profile.priceJunior) * self.parseInt(profile.percentageJunior) +
-                        self.parseInt(profile.priceIntermediary) * self.parseInt(profile.percentageIntermediary) +
-                        self.parseInt(profile.priceSenior) * self.parseInt(profile.percentageSenior)
-                        ) / 100;
-
-                for(var indexLevel in PROFILE_LEVELS) {
-                    var level = PROFILE_LEVELS[indexLevel];
-                    profile.computed['profilePercentPrice' + level] = (self.parseInt(profile['price' + level]) * self.parseInt(profile['percentage' + level])) / profile.computed.profileAveragePrice;
-                }
-            }
-        };
-
         var _processScales = function(data) {
             data.nav.scales = {};
             data.nav.scaleColumns = {};
             data.nav.scaleLines = {};
 
-            var column, columnId, value, profile;
+            var column, columnId, value, profileProject;
 
             for(var indexScale in data.scales) {
                 var scale = data.scales[indexScale];
@@ -120,7 +87,7 @@
                     line.computed = {
                         lineTotalUT: undefined,
                         lineTotalPrice: undefined,
-                        profiles: {}
+                        profileProjects: {}
                     };
                     if (!line.id) continue;
 
@@ -129,10 +96,10 @@
                     var totalBaseline = 0;
                     for(columnId in line.values) {
                         column = data.nav.scaleColumns[columnId];
-                        if(!(column && column.profile)) continue;
+                        if(!(column && column.profileProject)) continue;
 
-                        profile = data.nav.profiles[column.profile];
-                        if(!(profile && profile.isActive)) continue;
+                        profileProject = data.nav.profileProjects[column.profileProject];
+                        if(!(profileProject && profileProject.isActive)) continue;
 
                         value = line.values[columnId];
                         if(column.isBaseline)
@@ -142,32 +109,32 @@
                     line.computed = {
                         lineTotalUT: 0,
                         lineTotalPrice: 0,
-                        profiles: {}
+                        profileProjects: {}
                     };
 
                     for(columnId in line.values) {
                         value = line.values[columnId];
                         column = data.nav.scaleColumns[columnId];
-                        if(!(column && column.profile)) continue;
+                        if(!(column && column.profileProject)) continue;
 
-                        profile = data.nav.profiles[column.profile];
-                        if(!(profile && profile.isActive)) continue;
+                        profileProject = data.nav.profileProjects[column.profileProject];
+                        if(!(profileProject && profileProject.isActive)) continue;
 
                         var valueUT = column.isBaseline ? self.parseFloat(value) : ((totalBaseline * (self.parseFloat(value) / 100)).toFixed(2));
                         line.computed.lineTotalUT = +line.computed.lineTotalUT + +valueUT;
-                        if(profile.computed.profileAveragePrice) {
-                            line.computed.lineTotalPrice = +line.computed.lineTotalPrice + +(valueUT * profile.computed.profileAveragePrice);
+                        if(profileProject.computed.profileAveragePrice) {
+                            line.computed.lineTotalPrice = +line.computed.lineTotalPrice + +(valueUT * profileProject.computed.profileAveragePrice);
                         }
 
-                        if(!line.computed.profiles[profile.id]) {
-                            line.computed.profiles[profile.id] = {
+                        if(!line.computed.profileProjects[profileProject.id]) {
+                            line.computed.profileProjects[profileProject.id] = {
                                 lineTotalUT: 0,
                                 lineTotalPrice: 0
                             };
                         }
 
-                        line.computed.profiles[profile.id].lineTotalUT = +line.computed.profiles[profile.id].lineTotalUT + +valueUT;
-                        line.computed.profiles[profile.id].lineTotalPrice = +line.computed.profiles[profile.id].lineTotalPrice + +(valueUT * profile.computed.profileAveragePrice);
+                        line.computed.profileProjects[profileProject.id].lineTotalUT = +line.computed.profileProjects[profileProject.id].lineTotalUT + +valueUT;
+                        line.computed.profileProjects[profileProject.id].lineTotalPrice = +line.computed.profileProjects[profileProject.id].lineTotalPrice + +(valueUT * profileProject.computed.profileAveragePrice);
                     }
                 }
             }
@@ -194,19 +161,19 @@
                 headings[indexHeading] = {
                     lineTotalUT: 0,
                     lineTotalPrice: 0,
-                    profiles: {},
+                    profileProjects: {},
                     scales: {},
                     scaleLines: {}
                 };
 
             // We process backwards for headings accumulation
             for(var lineIndex = data.estimationLines.length - 1; lineIndex >= 0; --lineIndex) {
-                var profileId, scaleId, scaleLineId;
+                var profileProjectId, scaleId, scaleLineId;
                 var line = data.estimationLines[lineIndex];
                 line.computed = {
                     lineTotalUT: undefined,
                     lineTotalPrice: undefined,
-                    profiles: {},
+                    profileProjects: {},
                     scales: {},
                     scaleLines: {}
                 };
@@ -221,10 +188,10 @@
                     var coefficient = line.coefficient ? self.parseFloat(line.coefficient) : 1;
                     line.computed.lineTotalUT = scaleLine.computed.lineTotalUT * coefficient;
                     line.computed.lineTotalPrice = scaleLine.computed.lineTotalPrice * coefficient;
-                    for(profileId in scaleLine.computed.profiles) {
-                        line.computed.profiles[profileId] = {
-                            lineTotalUT: scaleLine.computed.profiles[profileId].lineTotalUT * coefficient,
-                            lineTotalPrice: scaleLine.computed.profiles[profileId].lineTotalPrice * coefficient
+                    for(profileProjectId in scaleLine.computed.profileProjects) {
+                        line.computed.profileProjects[profileProjectId] = {
+                            lineTotalUT: scaleLine.computed.profileProjects[profileProjectId].lineTotalUT * coefficient,
+                            lineTotalPrice: scaleLine.computed.profileProjects[profileProjectId].lineTotalPrice * coefficient
                         };
                     }
 
@@ -232,15 +199,15 @@
                         for(indexHeading in headings) {
                             headings[indexHeading].lineTotalUT = headings[indexHeading].lineTotalUT + line.computed.lineTotalUT;
                             headings[indexHeading].lineTotalPrice = headings[indexHeading].lineTotalPrice + line.computed.lineTotalPrice;
-                            for(profileId in line.computed.profiles) {
-                                if(!headings[indexHeading].profiles[profileId])
-                                    headings[indexHeading].profiles[profileId] = {
+                            for(profileProjectId in line.computed.profileProjects) {
+                                if(!headings[indexHeading].profileProjects[profileProjectId])
+                                    headings[indexHeading].profileProjects[profileProjectId] = {
                                         lineTotalUT: 0,
                                         lineTotalPrice: 0
                                     };
 
-                                headings[indexHeading].profiles[profileId].lineTotalUT = headings[indexHeading].profiles[profileId].lineTotalUT + line.computed.profiles[profileId].lineTotalUT;
-                                headings[indexHeading].profiles[profileId].lineTotalPrice = headings[indexHeading].profiles[profileId].lineTotalPrice + line.computed.profiles[profileId].lineTotalPrice;
+                                headings[indexHeading].profileProjects[profileProjectId].lineTotalUT = headings[indexHeading].profileProjects[profileProjectId].lineTotalUT + line.computed.profileProjects[profileProjectId].lineTotalUT;
+                                headings[indexHeading].profileProjects[profileProjectId].lineTotalPrice = headings[indexHeading].profileProjects[profileProjectId].lineTotalPrice + line.computed.profileProjects[profileProjectId].lineTotalPrice;
                             }
 
                             if(!headings[indexHeading].scaleLines[scaleLine.id])
@@ -269,10 +236,10 @@
                 } else {
                     line.computed.lineTotalUT = headings[line.lineType].lineTotalUT;
                     line.computed.lineTotalPrice = headings[line.lineType].lineTotalPrice;
-                    for(profileId in headings[line.lineType].profiles) {
-                        line.computed.profiles[profileId] = {
-                            lineTotalUT: headings[line.lineType].profiles[profileId].lineTotalUT,
-                            lineTotalPrice: headings[line.lineType].profiles[profileId].lineTotalPrice
+                    for(profileProjectId in headings[line.lineType].profileProjects) {
+                        line.computed.profileProjects[profileProjectId] = {
+                            lineTotalUT: headings[line.lineType].profileProjects[profileProjectId].lineTotalUT,
+                            lineTotalPrice: headings[line.lineType].profileProjects[profileProjectId].lineTotalPrice
                         };
                     }
                     for(scaleId in headings[line.lineType].scales) {
@@ -291,7 +258,7 @@
                     headings[line.lineType] = {
                         lineTotalUT: 0,
                         lineTotalPrice: 0,
-                        profiles: {},
+                        profileProjects: {},
                         scales: {},
                         scaleLines: {}
                     };
@@ -300,7 +267,7 @@
                         headings.heading2 = {
                             lineTotalUT: 0,
                             lineTotalPrice: 0,
-                            profiles: {},
+                            profileProjects: {},
                             scales: {},
                             scaleLines: {}
                         };
@@ -329,7 +296,7 @@
             data.computed = {
                 totalUT: 0,
                 totalPrice: 0,
-                profiles: {},
+                profileProjects: {},
                 scales: {},
                 scaleLines: {}
             };
@@ -338,10 +305,10 @@
                 var grandTotal = data.estimationLines[0];
                 data.computed.totalUT = grandTotal.computed.lineTotalUT;
                 data.computed.totalPrice = grandTotal.computed.lineTotalPrice;
-                for(var profileId in grandTotal.computed.profiles) {
-                    data.computed.profiles[profileId] = {
-                        totalUT: grandTotal.computed.profiles[profileId].lineTotalUT,
-                        totalPrice: grandTotal.computed.profiles[profileId].lineTotalPrice
+                for(var profileProjectId in grandTotal.computed.profileProjects) {
+                    data.computed.profileProjects[profileProjectId] = {
+                        totalUT: grandTotal.computed.profileProjects[profileProjectId].lineTotalUT,
+                        totalPrice: grandTotal.computed.profileProjects[profileProjectId].lineTotalPrice
                     };
                 }
                 for(var scaleId in grandTotal.computed.scales) {
@@ -388,7 +355,6 @@
             if(!data.nav) data.nav = {};
             _processProfilePrices(data);
             _processProfileProjects(data);
-            _processProfiles(data);
             _processScales(data);
             _processEstimationLines(data);
             _processProject(data);
