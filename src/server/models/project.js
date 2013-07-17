@@ -37,7 +37,6 @@ var ProjectSchema = new Schema({
     usersRead: [{ type: Schema.Types.ObjectId, ref: 'User' }],
     usersWrite: [{ type: Schema.Types.ObjectId, ref: 'User' }],
 
-    profiles: [{ type: Schema.Types.ObjectId, ref: 'Profile' }],
     profilePrices: [{ type: Schema.Types.ObjectId, ref: 'ProfilePrice' }],
     profileProjects: [{ type: Schema.Types.ObjectId, ref: 'ProfileProject' }],
     scales: [{ type: Schema.Types.ObjectId, ref: 'Scale' }],
@@ -46,7 +45,6 @@ var ProjectSchema = new Schema({
 
 ProjectSchema.pre('remove', function(next) {
     var project = this;
-    mongoose.model('Profile').remove({ project: project.id }).exec();
     mongoose.model('ProfilePrice').remove({ project: project.id }).exec();
     mongoose.model('ProfileProject').remove({ project: project.id }).exec();
     mongoose.model('Scale').remove({ project: project.id }).exec();
@@ -107,7 +105,7 @@ ProjectSchema.statics.create = function(values, user, callback) {
 /**
  * Only models listed here will be integrated by applyModifications.
  */
-var MODIFICATIONS_MODELS_WHITE_LIST = [ 'Project', 'Profile', 'ProfilePrice', 'ProfileProject', 'Scale', 'ScaleColumn', 'ScaleLine', 'EstimationLine' ];
+var MODIFICATIONS_MODELS_WHITE_LIST = [ 'Project', 'ProfilePrice', 'ProfileProject', 'Scale', 'ScaleColumn', 'ScaleLine', 'EstimationLine' ];
 
 /**
  * Apply modifications by invoking the modify static methods on corresponding models.

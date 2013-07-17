@@ -29,8 +29,8 @@ describe("ScaleColumns", function(){
             should.not.exists(err);
             factory.makeAndSave('scale', { project: project.id }, function(err, scale) {
                 should.not.exists(err);
-                var profile1 = factory.make('profile');
-                var profile2 = factory.make('profile');
+                var profileProject1 = factory.make('profileProject');
+                var profileProject2 = factory.make('profileProject');
                 var modificationLot = {
                     projectId: project.id,
                     user: user,
@@ -41,7 +41,7 @@ describe("ScaleColumns", function(){
                             action: 'create',
                             values: {
                                 isBaseline: true,
-                                profile: profile1.id
+                                profileProject: profileProject1.id
                             }
                         },
                         {
@@ -50,7 +50,7 @@ describe("ScaleColumns", function(){
                             action: 'create',
                             values: {
                                 isBaseline: false,
-                                profile: profile2.id
+                                profileProject: profileProject2.id
                             }
                         }
                     ]
@@ -64,12 +64,12 @@ describe("ScaleColumns", function(){
                     should.exists(response.results[1].id);
                     ScaleColumn.findById(response.results[1].id, function(err, refScaleColumn) {
                         should.not.exists(err);
-                        refScaleColumn.profile.toString().should.equal(profile2.id);
+                        refScaleColumn.profileProject.toString().should.equal(profileProject2.id);
                         Scale.findById(scale.id).populate('columns').exec(function(err, refScale) {
                             refScale.columns.should.have.length(2);
                             refScale.columns[0].isBaseline.should.not.be.ok;
                             refScale.columns[1].isBaseline.should.be.ok;
-                            var profile3 = factory.make('profile');
+                            var profileProject3 = factory.make('profileProject');
 
                             modificationLot.modifications = [
                                 {
@@ -79,7 +79,7 @@ describe("ScaleColumns", function(){
                                     insertAfter: refScaleColumn.id,
                                     values: {
                                         isBaseline: false,
-                                        profile: profile3.id
+                                        profileProject: profileProject3.id
                                     }
                                 }
                             ];
@@ -88,9 +88,9 @@ describe("ScaleColumns", function(){
                                 should.not.exists(err);
                                 Scale.findById(scale.id).populate('columns').exec(function(err, refScale) {
                                     refScale.columns.should.have.length(3);
-                                    refScale.columns[0].profile.toString().should.equal(profile2.id);
-                                    refScale.columns[1].profile.toString().should.equal(profile3.id);
-                                    refScale.columns[2].profile.toString().should.equal(profile1.id);
+                                    refScale.columns[0].profileProject.toString().should.equal(profileProject2.id);
+                                    refScale.columns[1].profileProject.toString().should.equal(profileProject3.id);
+                                    refScale.columns[2].profileProject.toString().should.equal(profileProject1.id);
                                     done();
                                 });
                             });
@@ -109,9 +109,9 @@ describe("ScaleColumns", function(){
                 should.not.exists(err);
                 factory.makeAndSave('scaleColumn', { scale: scale.id }, function(err, scaleColumn) {
                     should.not.exists(err);
-                    var profile1 = factory.make('profile');
-                    var profile2 = factory.make('profile');
-                    var profile3 = factory.make('profile');
+                    var profileProject1 = factory.make('profileProject');
+                    var profileProject2 = factory.make('profileProject');
+                    var profileProject3 = factory.make('profileProject');
                     var modificationLot = {
                         projectId: project.id,
                         user: user,
@@ -128,24 +128,24 @@ describe("ScaleColumns", function(){
                                 model: 'ScaleColumn',
                                 id: scaleColumn.id,
                                 action: 'update',
-                                property: 'profile',
-                                newValue: profile1.id
+                                property: 'profileProject',
+                                newValue: profileProject1.id
                             },
                             {
                                 model: 'ScaleColumn',
                                 id: scaleColumn.id,
                                 action: 'update',
-                                property: 'profile',
-                                newValue: profile2.id,
-                                oldValue: profile1.id
+                                property: 'profileProject',
+                                newValue: profileProject2.id,
+                                oldValue: profileProject1.id
                             },
                             {
                                 model: 'ScaleColumn',
                                 id: scaleColumn.id,
                                 action: 'update',
-                                property: 'profile',
-                                newValue: profile3.id,
-                                oldValue: profile1.id
+                                property: 'profileProject',
+                                newValue: profileProject3.id,
+                                oldValue: profileProject1.id
                             }
                         ]
                     };
@@ -159,7 +159,7 @@ describe("ScaleColumns", function(){
                         ScaleColumn.findById(scaleColumn.id, function(err, refScaleColumn) {
                             should.not.exists(err);
                             refScaleColumn.isBaseline.should.be.ok;
-                            refScaleColumn.profile.toString().should.equal(profile2.id);
+                            refScaleColumn.profileProject.toString().should.equal(profileProject2.id);
                             done();
                         });
                     });

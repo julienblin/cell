@@ -14,7 +14,7 @@ module.exports = function(io) {
     io.of('/project').on('connection', function (socket) {
 
         socket.on('getDataAndSubscribe', function(projectId, callback) {
-            Project.findById(projectId).populate('profiles scales estimationLines usersRead usersWrite').exec(function(err, project) {
+            Project.findById(projectId).populate('profilePrices profileProjects scales estimationLines usersRead usersWrite').exec(function(err, project) {
                 if (err) return callback(new Error("internal error."), null);
                 if (!project) return callback(new Error("unknown project id."), null);
                 if (!project.isAuth('read', socket.handshake.user)) {
