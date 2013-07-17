@@ -333,18 +333,19 @@ var EstimationLinesRenderer = (function() {
                         var cell = _cachedGrid.getCell(row, col);
                         var line = self.engine.data.estimationLines[row];
                         if(!line.id && !line.lineType) return;
-                        var profiles = _.map(self.engine.data.profiles, function(profile) {
+                        var profileProjects = _.map(self.engine.data.profileProjects, function(profileProject) {
+                            if(!(profileProject.id && profileProject.title)) return;
                             return {
-                                title: profile.title,
-                                lineTotalUT: line.computed.profiles[profile.id] ? numeral(line.computed.profiles[profile.id].lineTotalUT).format('0.0') : 0,
-                                lineTotalPrice: line.computed.profiles[profile.id] ? numeral(line.computed.profiles[profile.id].lineTotalPrice).format('0,0.0') : 0
+                                title: profileProject.title,
+                                lineTotalUT: line.computed.profileProjects[profileProject.id] ? numeral(line.computed.profileProjects[profileProject.id].lineTotalUT).format('0.0') : 0,
+                                lineTotalPrice: line.computed.profileProjects[profileProject.id] ? numeral(line.computed.profileProjects[profileProject.id].lineTotalPrice).format('0,0.0') : 0
                             };
                         });
-                        if(profiles.length === 0) return;
+                        if(profileProjects.length === 0) return;
 
                         $(cell).popover({
                             title: line.title,
-                            content: self.getTemplate('#estimationLines-details-totalUT-template')({ profiles: profiles }),
+                            content: self.getTemplate('#estimationLines-details-template')({ profileProjects: profileProjects }),
                             placement: 'left',
                             container: self.tabSelector,
                             html: true

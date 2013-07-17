@@ -1,9 +1,9 @@
-script#estimationLines-details-totalUT-template(type="text/x-handlebars-template")
+script#estimationLines-details-template(type="text/x-handlebars-template")
   table.table.table-condensed
     tbody
-      {{#each profiles}}
+      {{#each profileProjects}}
       tr
         td {{title}}
-        td(style="text-align: right;") {{lineTotalUT}} ut
-        td(style="text-align: right;") {{lineTotalPrice}} $
+        td(style="text-align: right;") {{lineTotalUT}}&nbsp;ut
+        td(style="text-align: right;") {{lineTotalPrice}}&nbsp;$
       {{/each}}
