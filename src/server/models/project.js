@@ -47,7 +47,9 @@ var ProjectSchema = new Schema({
 ProjectSchema.pre('remove', function(next) {
     var project = this;
     mongoose.model('Profile').remove({ project: project.id }).exec();
-    mongoose.model('Scale').remove({ scale: project.id }).exec();
+    mongoose.model('Scale').remove({ project: project.id }).exec();
+    mongoose.model('EstimationLine').remove({ project: project.id }).exec();
+    mongoose.model('Snapshot').remove({ model: 'Project', ref: project.id.toString() }).exec();
     next();
 });
 
