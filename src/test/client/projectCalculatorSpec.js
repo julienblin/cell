@@ -23,6 +23,23 @@ describe('ProjectCalculator', function(){
         }).toObject();
     };
 
+    var _makeProfilePrice = function() {
+        return factory.make('profilePrice', {
+            priceJunior: arguments[0],
+            priceIntermediary: arguments[1],
+            priceSenior: arguments[2]
+        }).toObject();
+    };
+
+    var _makeProfileProject = function(profilePrice) {
+        return factory.make('profileProject', {
+            profilePrice: profilePrice ? profilePrice.id : undefined,
+            percentageJunior: arguments[1],
+            percentageIntermediary: arguments[2],
+            percentageSenior: arguments[3]
+        }).toObject();
+    };
+
     var _makeScaleColumn = function(profile, isBaseline) {
         return factory.make('scaleColumn', { profile: profile ? profile.id : undefined, isBaseline: isBaseline }).toObject();
     };
@@ -49,6 +66,12 @@ describe('ProjectCalculator', function(){
         }).toObject();
     };
 
+    var _profilePriceDeveloper, _profilePriceArchitect, _profilePriceAnalyst, _profilePricePM, _profilePriceNoPrice;
+
+    var _profileProjectDeveloperValid, _profileProjectArchitectValid, _profileProjectAnalystValid, _profileProjectPMValid,
+        _profileProjectSpecialistDisabled, _profileProjectNoPrice,
+        _profileProjectInvalid1, _profileProjectInvalid2;
+
     var _profileDeveloperValid, _profileArchitectValid, _profileAnalystValid, _profilePMValid,
         _profileSpecialistDisabled,
         _profileInvalid1, _profileInvalid2, _profileInvalid3;
@@ -71,6 +94,24 @@ describe('ProjectCalculator', function(){
 
     // We rebuild the sample project for every test using the previous references.
     beforeEach(function() {
+        // Profile prices
+        _profilePriceDeveloper = _makeProfilePrice(450, 650, 850);
+        _profilePriceArchitect = _makeProfilePrice(800, 1000, 1200);
+        _profilePriceAnalyst = _makeProfilePrice(undefined, 300, undefined);
+        _profilePricePM = _makeProfilePrice(undefined, undefined, 1500);
+        _profilePriceNoPrice = _makeProfilePrice(undefined, undefined, undefined);
+
+        // Profile projects
+        _profileProjectDeveloperValid = _makeProfileProject(_profilePriceDeveloper, 25, 50, 25); // average$: 650
+        _profileProjectArchitectValid = _makeProfileProject(_profilePriceArchitect, 25, 50, 25); // average$: 1000
+        _profileProjectAnalystValid = _makeProfileProject(_profilePriceAnalyst, undefined, 100, undefined); // average$: 300
+        _profileProjectSpecialistDisabled = _makeProfileProject(_profilePriceArchitect, 25, 50, 25); // average$: 1000
+        _profileProjectSpecialistDisabled.isActive = false;
+        _profileProjectPMValid = _makeProfileProject(_profilePricePM, undefined, undefined, 100); // average$: 1500
+        _profileProjectInvalid1 = _makeProfileProject(_profilePriceDeveloper, 25, 100, 25);
+        _profileProjectNoPrice = _makeProfileProject(_profilePriceNoPrice, undefined, 100, undefined);
+        _profileProjectInvalid2 = _makeProfileProject();
+
         // Profiles
         _profileDeveloperValid = _makeProfile(25, 450, 50, 650, 25, 850); // average$: 650
         _profileArchitectValid = _makeProfile(25, 800, 50, 1000, 25, 1200); // average$: 1000
@@ -129,6 +170,10 @@ describe('ProjectCalculator', function(){
 
         // Project
         _project = factory.make('project').toObject();
+        _project.profilePrices = [ _profilePriceDeveloper, _profilePriceAnalyst, _profilePriceArchitect, _profilePricePM, _profilePriceNoPrice ];
+        _project.profileProjects = [_profileProjectDeveloperValid, _profileProjectArchitectValid, _profileProjectAnalystValid, _profileProjectPMValid,
+            _profileProjectSpecialistDisabled,
+            _profileProjectInvalid1, _profileProjectNoPrice, _profileProjectInvalid2];
         _project.profiles = [_profileDeveloperValid, _profileArchitectValid, _profileAnalystValid, _profilePMValid,
                              _profileSpecialistDisabled,
                              _profileInvalid1, _profileInvalid2, _profileInvalid3];
@@ -152,35 +197,42 @@ describe('ProjectCalculator', function(){
         ];
     });
 
-    it('should process profiles', function() {
+    it('should process profile prices', function() {
         _calc.performCalculations(_project);
 
-        _project.nav.profiles[_profileDeveloperValid.id].should.equal(_profileDeveloperValid);
-        _project.nav.profiles[_profileInvalid1.id].should.equal(_profileInvalid1);
+        _project.nav.profilePrices[_profilePriceDeveloper.id].should.equal(_profilePriceDeveloper);
+        _project.nav.profilePrices[_profilePriceNoPrice.id].should.equal(_profilePriceNoPrice);
+    });
 
-        _profileDeveloperValid.computed.profileAveragePrice.should.equal(650);
-        _profileAnalystValid.computed.profileAveragePrice.should.equal(300);
-        should.not.exists(_profileInvalid1.computed.profileAveragePrice);
-        should.not.exists(_profileInvalid2.computed.profileAveragePrice);
-        should.not.exists(_profileInvalid2.computed.profileAveragePrice);
+    it('should process profile projects', function() {
+        _calc.performCalculations(_project);
 
-        _profileDeveloperValid.computed.profilePercentPriceJunior.should.equal(((25*450) / 65000) * 100);
-        _profileAnalystValid.computed.profilePercentPriceJunior.should.equal(0);
-        should.not.exists(_profileInvalid1.computed.profilePercentPriceJunior);
-        should.not.exists(_profileInvalid2.computed.profilePercentPriceJunior);
-        should.not.exists(_profileInvalid3.computed.profilePercentPriceJunior);
+        _project.nav.profileProjects[_profileProjectDeveloperValid.id].should.equal(_profileProjectDeveloperValid);
+        _project.nav.profileProjects[_profileProjectInvalid1.id].should.equal(_profileProjectInvalid1);
 
-        _profileDeveloperValid.computed.profilePercentPriceIntermediary.should.equal(((50*650) / 65000) * 100);
-        _profileAnalystValid.computed.profilePercentPriceIntermediary.should.equal(100);
-        should.not.exists(_profileInvalid1.computed.profilePercentPriceIntermediary);
-        should.not.exists(_profileInvalid2.computed.profilePercentPriceIntermediary);
-        should.not.exists(_profileInvalid3.computed.profilePercentPriceIntermediary);
+        _profileProjectDeveloperValid.computed.profileAveragePrice.should.equal(650);
+        _profileProjectAnalystValid.computed.profileAveragePrice.should.equal(300);
+        _profileProjectNoPrice.computed.profileAveragePrice.should.equal(0);
+        should.not.exists(_profileProjectInvalid1.computed.profileAveragePrice);
+        should.not.exists(_profileProjectInvalid2.computed.profileAveragePrice);
 
-        _profileDeveloperValid.computed.profilePercentPriceSenior.should.equal(((25*850) / 65000) * 100);
-        _profileAnalystValid.computed.profilePercentPriceSenior.should.equal(0);
-        should.not.exists(_profileInvalid1.computed.profilePercentPriceSenior);
-        should.not.exists(_profileInvalid2.computed.profilePercentPriceSenior);
-        should.not.exists(_profileInvalid3.computed.profilePercentPriceSenior);
+        _profileProjectDeveloperValid.computed.profilePercentPriceJunior.should.equal(((25*450) / 65000) * 100);
+        _profileProjectAnalystValid.computed.profilePercentPriceJunior.should.equal(0);
+        _profileProjectNoPrice.computed.profilePercentPriceJunior.should.equal(0);
+        should.not.exists(_profileProjectInvalid1.computed.profilePercentPriceJunior);
+        should.not.exists(_profileProjectInvalid2.computed.profilePercentPriceJunior);
+
+        _profileProjectDeveloperValid.computed.profilePercentPriceIntermediary.should.equal(((50*650) / 65000) * 100);
+        _profileProjectAnalystValid.computed.profilePercentPriceIntermediary.should.equal(100);
+        _profileProjectNoPrice.computed.profilePercentPriceIntermediary.should.equal(0);
+        should.not.exists(_profileProjectInvalid1.computed.profilePercentPriceIntermediary);
+        should.not.exists(_profileProjectInvalid2.computed.profilePercentPriceIntermediary);
+
+        _profileProjectDeveloperValid.computed.profilePercentPriceSenior.should.equal(((25*850) / 65000) * 100);
+        _profileProjectAnalystValid.computed.profilePercentPriceSenior.should.equal(0);
+        _profileProjectNoPrice.computed.profilePercentPriceSenior.should.equal(0);
+        should.not.exists(_profileProjectInvalid1.computed.profilePercentPriceSenior);
+        should.not.exists(_profileProjectInvalid2.computed.profilePercentPriceSenior);
     });
 
     it('should process scales', function() {

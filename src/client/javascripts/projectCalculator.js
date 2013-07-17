@@ -16,6 +16,53 @@
 
         var PROFILE_LEVELS = [ 'Junior', 'Intermediary', 'Senior' ];
 
+        var _processProfilePrices = function(data) {
+            data.nav.profilePrices = {};
+
+            for(var indexProfilePrice in data.profilePrices) {
+                var profilePrice = data.profilePrices[indexProfilePrice];
+                if (!profilePrice.id) continue;
+
+                data.nav.profilePrices[profilePrice.id] = profilePrice;
+            }
+        };
+
+        var _processProfileProjects = function(data) {
+            data.nav.profileProjects = {};
+
+            for(var indexProfileProject in data.profileProjects) {
+                var profileProject = data.profileProjects[indexProfileProject];
+                profileProject.computed = {
+                    profileAveragePrice: undefined,
+                    profilePercentPriceJunior: undefined,
+                    profilePercentPriceIntermediary: undefined,
+                    profilePercentPriceSenior: undefined
+                };
+
+                if (!profileProject.id) continue;
+
+                data.nav.profileProjects[profileProject.id] = profileProject;
+
+                if((self.parseInt(profileProject.percentageJunior) + self.parseInt(profileProject.percentageIntermediary) + self.parseInt(profileProject.percentageSenior)) != 100) continue;
+                var profilePrice = profileProject.profilePrice ? data.nav.profilePrices[profileProject.profilePrice] : undefined;
+                if(!profilePrice) continue;
+
+                profileProject.computed.profileAveragePrice =
+                    (self.parseInt(profilePrice.priceJunior) * self.parseInt(profileProject.percentageJunior) +
+                        self.parseInt(profilePrice.priceIntermediary) * self.parseInt(profileProject.percentageIntermediary) +
+                        self.parseInt(profilePrice.priceSenior) * self.parseInt(profileProject.percentageSenior)
+                        ) / 100;
+
+                for(var indexLevel in PROFILE_LEVELS) {
+                    var level = PROFILE_LEVELS[indexLevel];
+                    if(profileProject.computed.profileAveragePrice === 0)
+                        profileProject.computed['profilePercentPrice' + level] = 0;
+                    else
+                        profileProject.computed['profilePercentPrice' + level] = (self.parseInt(profilePrice['price' + level]) * self.parseInt(profileProject['percentage' + level])) / profileProject.computed.profileAveragePrice;
+                }
+            }
+        };
+
         var _processProfiles = function(data) {
             data.nav.profiles = {};
 
@@ -339,6 +386,8 @@
          */
         self.performCalculations = function(data) {
             if(!data.nav) data.nav = {};
+            _processProfilePrices(data);
+            _processProfileProjects(data);
             _processProfiles(data);
             _processScales(data);
             _processEstimationLines(data);
