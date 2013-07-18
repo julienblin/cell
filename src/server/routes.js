@@ -9,7 +9,8 @@ var auth = require('./middlewares/authorizations'),
     login = require('./controllers/login'),
     modals = require('./controllers/modals'),
     projects = require('./controllers/projects'),
-    users = require('./controllers/system/users');
+    users = require('./controllers/system/users'),
+    logs = require('./controllers/system/logs');
 
 module.exports = function (app, passport) {
     app.get(auth.LOGIN_ROUTE, login.login);
@@ -44,6 +45,8 @@ module.exports = function (app, passport) {
     app.post('/system/users', auth.admin, users.create);
     app.get('/system/users/:id/edit', auth.admin, users.loadUser, users.edit);
     app.put('/system/users/:id', auth.admin, users.loadUser, users.update);
+
+    app.get('/system/logs', auth.admin, logs.index);
 
     app.get('/', auth.requiresLogin, index.index);
 };

@@ -1,0 +1,31 @@
+extends ../../layouts/default
+
+block container
+  .row
+    .span8
+      h3
+        != title
+
+    .title-action-box
+      form.form-search
+        .input-append
+          input#q.span2.search-query(type="text", name="q", value=q, autofocus)
+          button.btn(type="submit") Search
+
+  != paginate(req, pagination)
+  p.text-right Total: #{pagination.totalItems}
+
+  table#tableLogs.table.table-hover.table-condensed
+    thead
+      tr
+        th Timestamp
+        th Level
+        th Message
+    tbody
+      each log in results
+        tr(class="#{log.isCritical ? 'warning' : ''}")
+          td.span2= moment(log.timestamp).calendar()
+          td.span1= log.level
+          td= log.message
+
+  != paginate(req, pagination)
