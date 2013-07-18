@@ -11,13 +11,24 @@ var InfoRenderer = (function() {
 
         var _attachEventHandlers = function() {
             $('[contenteditable]', self.tabSelector).on('change', function(e) {
-                var target = $(this);
+                var target$ = $(this);
                 self.engine.applyModifications([{
                     model: 'Project',
                     action: 'update',
-                    property: target.data('property'),
-                    oldValue: target.data('before'),
-                    newValue: target.text()
+                    property: target$.data('property'),
+                    oldValue: target$.data('before'),
+                    newValue: target$.text()
+                }]);
+            });
+
+            $('#infoNotesArea', self.tabSelector).on('change', function(e) {
+                var target$ = $(this);
+                self.engine.applyModifications([{
+                    model: 'Project',
+                    action: 'update',
+                    property: 'notes',
+                    oldValue: self.engine.data.notes,
+                    newValue: target$.val()
                 }]);
             });
 
@@ -43,6 +54,7 @@ var InfoRenderer = (function() {
             $('#infoMain').html(self.getTemplate('#info-main-template')({
                 projectName: self.engine.data.projectName,
                 clientName: self.engine.data.clientName,
+                notes: self.engine.data.notes,
                 isReadOnly: self.engine.isReadOnly
             }));
 

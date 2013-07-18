@@ -26,6 +26,13 @@ script#info-main-template(type="text/x-handlebars-template").
   <h1 {{#unless isReadOnly}}contenteditable{{/unless}} data-property="projectName">{{projectName}}</h1>
   <h3 {{#unless isReadOnly}}contenteditable{{/unless}} data-property="clientName">{{clientName}}</h3>
 
+  <row>
+    <span12>
+      <label for="infoNotesArea">Notes:</label>
+      <textarea id="infoNotesArea" rows="15" class="span9" {{#if isReadOnly}}readonly{{/if}}>{{notes}}</textarea>
+    </span12>
+  </row>
+
 script#info-gutter-project-template(type="text/x-handlebars-template").
   <p>
     <button id="btnLockProject" class="btn {{#if isLocked}}active{{/if}}" style="width: 150px;" {{#if isUserReadOnly}}disabled{{/if}}>

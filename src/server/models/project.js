@@ -31,7 +31,7 @@ var mongoose = require('mongoose'),
 var ProjectSchema = new Schema({
     clientName: { type: String, required: true, index: true },
     projectName: { type: String, required: true, validate: [validations.uniqueFieldInsensitive('Project', 'projectName', 'clientName')], index: true },
-    description: { type: String },
+    notes: { type: String },
     isLocked: { type: Boolean, default: false },
 
     usersRead: [{ type: Schema.Types.ObjectId, ref: 'User' }],
@@ -114,7 +114,7 @@ var MODIFICATIONS_MODELS_WHITE_LIST = [ 'Project', 'ProfilePrice', 'ProfileProje
  * @param callback
  */
 ProjectSchema.statics.applyModifications = function(modificationLot, callback) {
-    mongoose.model('Project').findById(modificationLot.projectId, function(err, project) {
+    mongoose.model('Project').findById(modificationLot.projectId, 'isLocked usersRead usersWrite', function(err, project) {
         if (err)
             return callback(err, null);
         if (!project)
