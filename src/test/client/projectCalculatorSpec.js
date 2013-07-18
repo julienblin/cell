@@ -285,53 +285,72 @@ describe('ProjectCalculator', function(){
         _lineDocHomepage.computed.lineTotalPrice.should.equal(7350);
         _lineDocHomepage.computed.profileProjects[_profileProjectAnalystValid.id].lineTotalUT.should.equal(3);
         _lineDocHomepage.computed.profileProjects[_profileProjectAnalystValid.id].lineTotalPrice.should.equal(900);
+        _lineDocHomepage.computed.profilePrices[_profilePriceAnalyst.id].lineTotalUT.should.equal(3);
+        _lineDocHomepage.computed.profilePrices[_profilePriceAnalyst.id].lineTotalPrice.should.equal(900);
 
         _lineDocContentPages.computed.lineTotalUT.should.equal(9.75);
         _lineDocContentPages.computed.lineTotalPrice.should.equal(7000);
         _lineDocContentPages.computed.profileProjects[_profileProjectPMValid.id].lineTotalUT.should.equal(1.5);
         _lineDocContentPages.computed.profileProjects[_profileProjectPMValid.id].lineTotalPrice.should.equal(2250);
+        _lineDocContentPages.computed.profilePrices[_profilePricePM.id].lineTotalUT.should.equal(1.5);
+        _lineDocContentPages.computed.profilePrices[_profilePricePM.id].lineTotalPrice.should.equal(2250);
 
         should.not.exists(_lineWebFrontMainPage.computed.lineTotalUT);
         should.not.exists(_lineWebFrontMainPage.computed.lineTotalPrice);
         should.exists(_lineWebFrontMainPage.computed.profileProjects);
+        should.exists(_lineWebFrontMainPage.computed.profilePrices);
 
         should.not.exists(_lineWebBackUserMgtNoScale.computed.lineTotalUT);
         should.not.exists(_lineWebBackUserMgtNoScale.computed.lineTotalPrice);
         should.exists(_lineWebBackUserMgtNoScale.computed.profileProjects);
+        should.exists(_lineWebBackUserMgtNoScale.computed.profilePrices);
 
         _lineWebBackDisabled.computed.lineTotalUT.should.equal(24);
         _lineWebBackDisabled.computed.lineTotalPrice.should.equal(19000);
         _lineWebBackDisabled.computed.profileProjects[_profileProjectDeveloperValid.id].lineTotalPrice.should.equal(13000);
+        _lineWebBackDisabled.computed.profilePrices[_profilePriceDeveloper.id].lineTotalPrice.should.equal(13000);
 
         _lineHeading2DocWorkflows.computed.lineTotalUT.should.equal(20.25);
         _lineHeading2DocWorkflows.computed.lineTotalPrice.should.equal(14750);
         _lineHeading2DocWorkflows.computed.profileProjects[_profileProjectArchitectValid.id].lineTotalUT.should.equal(2.25);
         _lineHeading2DocWorkflows.computed.profileProjects[_profileProjectArchitectValid.id].lineTotalPrice.should.equal(2250);
+        _lineHeading2DocWorkflows.computed.profilePrices[_profilePriceArchitect.id].lineTotalUT.should.equal(2.25);
+        _lineHeading2DocWorkflows.computed.profilePrices[_profilePriceArchitect.id].lineTotalPrice.should.equal(2250);
 
         _lineHeading2DocDoc.computed.lineTotalUT.should.equal(20.15);
         _lineHeading2DocDoc.computed.lineTotalPrice.should.equal(14350);
         _lineHeading2DocDoc.computed.profileProjects[_profileProjectDeveloperValid.id].lineTotalUT.should.equal(10);
         _lineHeading2DocDoc.computed.profileProjects[_profileProjectDeveloperValid.id].lineTotalPrice.should.equal(6500);
+        _lineHeading2DocDoc.computed.profilePrices[_profilePriceDeveloper.id].lineTotalUT.should.equal(10);
+        _lineHeading2DocDoc.computed.profilePrices[_profilePriceDeveloper.id].lineTotalPrice.should.equal(6500);
 
         _lineHeading1Doc.computed.lineTotalUT.should.equal(40.4);
         _lineHeading1Doc.computed.lineTotalPrice.should.equal(29100);
         _lineHeading1Doc.computed.profileProjects[_profileProjectDeveloperValid.id].lineTotalUT.should.equal(20);
         _lineHeading1Doc.computed.profileProjects[_profileProjectDeveloperValid.id].lineTotalPrice.should.equal(13000);
+        _lineHeading1Doc.computed.profilePrices[_profilePriceDeveloper.id].lineTotalUT.should.equal(20);
+        _lineHeading1Doc.computed.profilePrices[_profilePriceDeveloper.id].lineTotalPrice.should.equal(13000);
 
         _lineHeading2WebBack.computed.lineTotalUT.should.equal(24);
         _lineHeading2WebBack.computed.lineTotalPrice.should.equal(19000);
         _lineHeading2WebBack.computed.profileProjects[_profileProjectDeveloperValid.id].lineTotalUT.should.equal(20);
         _lineHeading2WebBack.computed.profileProjects[_profileProjectDeveloperValid.id].lineTotalPrice.should.equal(13000);
+        _lineHeading2WebBack.computed.profilePrices[_profilePriceDeveloper.id].lineTotalUT.should.equal(20);
+        _lineHeading2WebBack.computed.profilePrices[_profilePriceDeveloper.id].lineTotalPrice.should.equal(13000);
 
         _lineHeading2WebFront.computed.lineTotalUT.should.equal(60);
         _lineHeading2WebFront.computed.lineTotalPrice.should.equal(47500);
         _lineHeading2WebFront.computed.profileProjects[_profileProjectPMValid.id].lineTotalUT.should.equal(10);
         _lineHeading2WebFront.computed.profileProjects[_profileProjectPMValid.id].lineTotalPrice.should.equal(15000);
+        _lineHeading2WebFront.computed.profilePrices[_profilePricePM.id].lineTotalUT.should.equal(10);
+        _lineHeading2WebFront.computed.profilePrices[_profilePricePM.id].lineTotalPrice.should.equal(15000);
 
         _lineHeading1Web.computed.lineTotalUT.should.equal(84);
         _lineHeading1Web.computed.lineTotalPrice.should.equal(66500);
         _lineHeading1Web.computed.profileProjects[_profileProjectDeveloperValid.id].lineTotalUT.should.equal(70);
         _lineHeading1Web.computed.profileProjects[_profileProjectDeveloperValid.id].lineTotalPrice.should.equal(45500);
+        _lineHeading1Web.computed.profilePrices[_profilePriceDeveloper.id].lineTotalUT.should.equal(70);
+        _lineHeading1Web.computed.profilePrices[_profilePriceDeveloper.id].lineTotalPrice.should.equal(45500);
 
         var headingTotal = _project.estimationLines[0];
         headingTotal.lineType.should.equal('headingTotal');
@@ -339,6 +358,8 @@ describe('ProjectCalculator', function(){
         headingTotal.computed.lineTotalPrice.should.equal(95600);
         headingTotal.computed.profileProjects[_profileProjectDeveloperValid.id].lineTotalUT.should.equal(90);
         headingTotal.computed.profileProjects[_profileProjectDeveloperValid.id].lineTotalPrice.should.equal(58500);
+        headingTotal.computed.profilePrices[_profilePriceDeveloper.id].lineTotalUT.should.equal(90);
+        headingTotal.computed.profilePrices[_profilePriceDeveloper.id].lineTotalPrice.should.equal(58500);
     });
 
     it('should create and reposition grand total', function() {
@@ -360,6 +381,8 @@ describe('ProjectCalculator', function(){
         _project.computed.totalPrice.should.equal(95600);
         _project.computed.profileProjects[_profileProjectDeveloperValid.id].totalUT.should.equal(90);
         _project.computed.profileProjects[_profileProjectDeveloperValid.id].totalPrice.should.equal(58500);
+        _project.computed.profilePrices[_profilePriceDeveloper.id].totalUT.should.equal(90);
+        _project.computed.profilePrices[_profilePriceDeveloper.id].totalPrice.should.equal(58500);
 
         _project.computed.scaleLines[_scaleLineSharepointSimple.id].totalUT.should.equal(9.75);
         _project.computed.scaleLines[_scaleLineSharepointSimple.id].totalPrice.should.equal(7000);

@@ -55,25 +55,44 @@ block container
 
     #summary.tab-pane
       .row
-        .span6
+        .span12
           blockquote
             h4(data-property="totalUT")
             h4(data-property="totalPrice")
 
-        .span6
-          blockquote
-            h4(data-property="optimalDuration")
-            h4(data-property="optimalResources")
-
       .row
         .span12
-          #profileProjectsComputedGrid
+          .tabbable.tabs-left
+            ul#summaryTabs.nav.nav-tabs
+              li.active
+                a(href="#summaryProfilePrices", data-toggle="tab") Profile prices
+              li
+                a(href="#summaryProfileProjects", data-toggle="tab") Profile projects
+              li
+                a(href="#summaryScales", data-toggle="tab") Scales
 
-      .row(style="margin-top: 20px; margin-bottom: 60px;")
-        .span6
-          #profilesEffortsCharts
-        .span6
-          #scalesEffortsCharts
+            #summaryTabsContent.tab-content
+              #summaryProfilePrices.tab-pane.active
+                .row
+                  .span10
+                    #summaryProfilePricesGrid
+                .row(style="margin-top: 20px; margin-bottom: 60px;")
+                  .span10.text-center
+                    #summaryProfilesPricesChart
+              #summaryProfileProjects.tab-pane
+                .row
+                  .span10
+                    #summaryProfileProjectsGrid
+                .row(style="margin-top: 20px; margin-bottom: 60px;")
+                  .span10.text-center
+                    #summaryProfileProjectsChart
+              #summaryScales.tab-pane
+                .row
+                  .span10
+                    #summaryScalesGrid
+                .row(style="margin-top: 20px; margin-bottom: 60px;")
+                  .span10.text-center
+                    #summaryScalesChart
 
     #users.tab-pane
       .row

@@ -35,6 +35,9 @@ module.exports = function(assets) {
     assets.addJs('/javascripts/renderers/scaleLinesRenderer.js', 'project');
     assets.addJs('/javascripts/renderers/scalesRenderer.js', 'project');
     assets.addJs('/javascripts/renderers/estimationLinesRenderer.js', 'project');
+    assets.addJs('/javascripts/renderers/summaryProfilePricesRenderer.js', 'project');
+    assets.addJs('/javascripts/renderers/summaryProfileProjectsRenderer.js', 'project');
+    assets.addJs('/javascripts/renderers/summaryScalesRenderer.js', 'project');
     assets.addJs('/javascripts/renderers/summaryRenderer.js', 'project');
     assets.addJs('/javascripts/renderers/usersRenderer.js', 'project');
     assets.addJs('/javascripts/projectEngine.js', 'project');

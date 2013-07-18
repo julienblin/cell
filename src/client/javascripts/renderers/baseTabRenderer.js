@@ -12,8 +12,6 @@ var BaseTabRenderer = (function() {
         self.__proto__ = BaseRenderer(engine);
         self.tabSelector = tabSelector;
 
-        var _compiledTemplates = {};
-
         // Event subscriptions
         self.engine.on('modified', function() {
             if(self.isVisible()) {
@@ -28,16 +26,6 @@ var BaseTabRenderer = (function() {
         // Public methods.
         self.isVisible = function() {
             return $(tabSelector).is(':visible');
-        };
-
-        /**
-         * Returns a handlebars compiled templates - templates are cached.
-         */
-        self.getTemplate = function(templateSelector) {
-            if(!_compiledTemplates[templateSelector]) {
-                _compiledTemplates[templateSelector] = Handlebars.compile($(templateSelector).html());
-            }
-            return _compiledTemplates[templateSelector];
         };
 
         return self;

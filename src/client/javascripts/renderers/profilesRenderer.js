@@ -15,7 +15,6 @@ var ProfilesRenderer = (function() {
 
         var _tabsSelector = '#profilesTabs';
         var _profilesTabsContentSelector = '#profilesTabsContent';
-        var _renderNotDone = true;
 
         // Event subscriptions
         self.on('render', function() {
