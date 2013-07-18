@@ -26,19 +26,22 @@ block container
           #infoGutter.well(style="margin-left: 20px; margin-right: 20px")
 
     #profiles.tab-pane
-      .row
-        .span12
-          h3 Price profiles
-      .row
-        .span8.offset2
-          #profilePricesInputGrid
-      .row
-        .span12
-          hr
-          h3 Project profiles
-      .row
-        .span12
-          #profileProjectsInputGrid.gridPadding
+      .tabbable.tabs-left
+        ul#profilesTabs.nav.nav-tabs
+          li.active
+            a(href="#profilePrices", data-toggle="tab") Prices
+          li
+            a(href="#profileProjects", data-toggle="tab") Projects
+        #profilesTabsContent.tab-content
+          #profilePrices.tab-pane.active
+            .row
+              .span10
+                #profilePricesInputGrid
+
+          #profileProjects.tab-pane
+            .row
+              .span10
+                #profileProjectsInputGrid.gridPadding
 
     #scales.tab-pane
       .tabbable.tabs-left
