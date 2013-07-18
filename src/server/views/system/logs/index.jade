@@ -26,6 +26,7 @@ block container
         tr(class="#{log.isCritical ? 'warning' : ''}")
           td.span2= moment(log.timestamp).calendar()
           td.span1= log.level
-          td= log.message
+          td.span9
+            pre(style="background-color: inherit; border:0; padding: 0")= log.message
 
   != paginate(req, pagination)

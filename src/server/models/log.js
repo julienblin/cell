@@ -10,7 +10,7 @@ var mongoose = require('mongoose'),
 
 var LogSchema = new Schema({
     timestamp : { type: Date },
-    level:    { type: String, index: true },
+    level:    { type: String },
     message: { type: String }
 });
 

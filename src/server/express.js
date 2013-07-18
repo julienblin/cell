@@ -63,6 +63,11 @@ module.exports = function (config) {
     app.use(require('./middlewares/helpers'));
     app.use(app.router);
 
+    app.use(function(err, req, res, next){
+        winston.error(err.stack);
+        next(err);
+    });
+
     if (config.env === 'development') {
         app.use(express.errorHandler());
     }

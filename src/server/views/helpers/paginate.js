@@ -22,6 +22,7 @@ module.exports = function(req, pagination, opt) {
         return '';
     }
 
+    if(!opt) opt = {};
     var options = _.defaults(opt, {
         ajaxTarget: ''
     });

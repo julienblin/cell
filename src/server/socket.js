@@ -11,11 +11,20 @@ var io = require('socket.io'),
     passportSocketIo = require("passport.socketio");
 
 module.exports = function (config, app, server) {
+
+    var filterInfo = /handshake/;
+
     io = io.listen(server, {
         logger: {
             error: winston.error,
             warn: winston.warn,
-            info: winston.info,
+            info: function(message) {
+                if(filterInfo.test(message)) {
+                    winston.debug(message);
+                } else {
+                    winston.info(message);
+                }
+            },
             debug: winston.debug
         },
 

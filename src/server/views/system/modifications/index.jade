@@ -1,0 +1,31 @@
+extends ../../layouts/default
+
+block container
+  .row
+    .span8
+      h3
+        != title
+
+  != paginate(req, pagination)
+  p.text-right Total: #{pagination.totalItems}
+
+  table#tableModifications.table.table-hover.table-condensed
+    thead
+      tr
+        th Timestamp
+        th Project
+        th User
+        th Data
+    tbody
+      each modification in results
+        tr
+          td.span2= moment(modification.createdAt).calendar()
+          td.span2
+            = modification.project.clientName
+            | &nbsp;-&nbsp;
+            = modification.project.projectName
+          td.span2= modification.user.username
+          td.span6
+            pre(style="background-color: inherit; border:0; padding: 0")= JSON.stringify(modification.data, undefined, 2)
+
+  != paginate(req, pagination)
