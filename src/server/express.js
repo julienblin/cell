@@ -21,7 +21,7 @@ module.exports = function (config) {
     app.set('views', __dirname + '/views');
     app.set('view engine', 'jade');
 
-    app.use(express.favicon());
+    app.use(express.favicon(__dirname + '/../public/images/favicon.ico'));
     app.use(express.compress());
     if (config.env === 'development') {
         var regex = /(?:\/generated\/|\/images\/)/;

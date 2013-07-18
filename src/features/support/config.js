@@ -10,7 +10,7 @@ module.exports = {
     app: {
         name: 'Cell',
         version: 'latest',
-        copyright: 'Copyright Julien Blin 2013'
+        copyright: '© CGI 2013'
     },
 
     env: 'production',
