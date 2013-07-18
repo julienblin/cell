@@ -25,6 +25,7 @@ module.exports = function(assets) {
     assets.addJs('/javascripts/lib/highcharts.js', 'project');
 
     assets.addJs('/javascripts/handsontableExtensions.js', 'project');
+    assets.addJs('/javascripts/projectCoherenceKeeper.js', 'project');
     assets.addJs('/javascripts/projectCalculator.js', 'project');
     assets.addJs('/javascripts/renderers/baseRenderer.js', 'project');
     assets.addJs('/javascripts/renderers/baseTabRenderer.js', 'project');

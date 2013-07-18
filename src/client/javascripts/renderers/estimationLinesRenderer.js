@@ -267,20 +267,6 @@ var EstimationLinesRenderer = (function() {
                                             target: line
                                         }
                                     });
-                                    if ((property === 'scale') && (oldValue !== newValue)) {
-                                        // We also nullify the complexity if value is different.
-                                        modifications.push({
-                                            model: 'EstimationLine',
-                                            id: line.id,
-                                            action: 'update',
-                                            property: 'complexity',
-                                            oldValue: line.complexity,
-                                            newValue: null,
-                                            localInfo: {
-                                                target: line
-                                            }
-                                        });
-                                    }
                                 } else {
                                     var createModif = {
                                         model: 'EstimationLine',

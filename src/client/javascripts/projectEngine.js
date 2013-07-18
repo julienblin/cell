@@ -37,6 +37,7 @@ var ProjectEngine = (function() {
             numberOfDiscardedUpdates: 0
         };
 
+        var _projectCoherenceKeeper = new ProjectCoherenceKeeper();
         var _projectCalculator = new ProjectCalculator();
 
         /**
@@ -390,6 +391,7 @@ var ProjectEngine = (function() {
         };
 
         self.applyModifications = function(modifications) {
+            _projectCoherenceKeeper.maintainCoherence(modifications, self.data);
             _apply(modifications);
             _projectCalculator.performCalculations(self.data);
             self.emit('modified');
