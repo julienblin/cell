@@ -11,7 +11,7 @@ node["npm_packages"].each do |npm_package|
 	end
 end
 
-execute "setup default redirect to /cell" do
-	command 'echo "cd /cell" >> /home/vagrant/.bashrc'
+execute "setup default redirect to /cell/src" do
+	command 'echo "cd /cell/src" >> /home/vagrant/.bashrc'
 	not_if { `cat /home/vagrant/.bashrc | grep /cell`.chomp =~ /cell/ }
 end

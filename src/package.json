@@ -1,7 +1,7 @@
 {
   "name": "Cell",
   "description": "Next generation estimation web application",
-  "version": "0.1.0",
+  "version": "0.1.0-0-gfb539d8",
   "author": {
     "name": "Julien Blin",
     "email": "julien.blin@cgi.com"
@@ -11,8 +11,8 @@
     "url": "https://github.com/julienblin/cell"
   },
   "bugs": {
-    "url" : "https://github.com/julienblin/cell/issues",
-    "email" : "julien.blin@cgi.com"
+    "url": "https://github.com/julienblin/cell/issues",
+    "email": "julien.blin@cgi.com"
   },
   "readme": "../README.md",
   "private": true,
@@ -50,6 +50,7 @@
     "grunt": "~0.4.1",
     "grunt-contrib-jshint": "~0.6.0",
     "grunt-mocha-test": "~0.5.0",
-    "grunt-cucumber": "~0.2.1"
+    "grunt-cucumber": "~0.2.1",
+    "grunt-git-describe": "~2.0.2"
   }
 }

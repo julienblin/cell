@@ -5,11 +5,21 @@
 module.exports = function(grunt) {
     "use strict";
 
+    grunt.loadNpmTasks('grunt-git-describe');
     grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-mocha-test');
     grunt.loadNpmTasks('grunt-cucumber');
 
     grunt.initConfig({
+        pkg: grunt.file.readJSON('package.json'),
+        'git-describe': {
+            options: {
+                prop: 'git-version',
+                dirtyMark: '',
+                cwd: '..'
+            },
+            cell: {}
+        },
         jshint: {
             options: {
                 strict: true,
@@ -74,5 +84,18 @@ module.exports = function(grunt) {
 
     grunt.registerTask('integration-test', 'cucumberjs');
 
-    grunt.registerTask('default', ['lint', 'unit-test', 'integration-test']);
+    grunt.registerTask('update-version', function() {
+        grunt.task.requires('git-describe:cell');
+        var gitVersion = grunt.config('git-version');
+        var pkg = grunt.config('pkg');
+        var currentVersion = pkg.version;
+        if(gitVersion !== currentVersion) {
+            pkg.version = gitVersion;
+            grunt.file.write('package.json', JSON.stringify(pkg, null, 2) + '\n');
+            grunt.log.ok('Updated version to ' + gitVersion);
+            grunt.config('pkg', pkg);
+        }
+    });
+
+    grunt.registerTask('default', ['git-describe', 'update-version', 'lint', 'unit-test', 'integration-test']);
 };
