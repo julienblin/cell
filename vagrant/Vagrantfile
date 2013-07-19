@@ -21,7 +21,9 @@ Vagrant.configure("2") do |config|
 					"package_version" => "2.4.4"
 				},
 				
-				"npm_packages" => [ "grunt-cli@0.1.9" ]
+				"npm_packages" => [ "grunt-cli@0.1.9" ],
+				
+				"root_src" => "/cell/src"
 			}
 		end
 	end

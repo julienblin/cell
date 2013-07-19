@@ -11,7 +11,6 @@ Just install [Vagrant](http://www.vagrantup.com/) and [VirtualBox](https://www.v
 	cd vagrant
 	vagrant up
 	vagrant ssh
-	npm install --no-bin-links
 	npm start
 	
 Open a browser to [http://localhost:3000/](http://localhost:3000/).
