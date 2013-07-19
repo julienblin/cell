@@ -95,6 +95,7 @@
     };
 
     Handsontable.BlankRenderer = function (instance, TD, row, col, prop, value, cellProperties) {
+        $(TD).html('');
         Handsontable.CustomCellPropertiesRenderer(instance, TD, row, col, prop, value, cellProperties);
     };
 
@@ -181,4 +182,13 @@
             Handsontable.CustomCellPropertiesRenderer(instance, TD, row, col, prop, value, cellProperties);
         }
     };
+
+    Handsontable.cellTypes.cellAutocomplete = {
+        editor: Handsontable.AutocompleteEditor,
+        renderer: function(instance, td, row, col, prop, value, cellProperties) {
+            Handsontable.AutocompleteCell.renderer.apply(this, arguments);
+            Handsontable.CustomCellPropertiesRenderer(instance, td, row, col, prop, value, cellProperties);
+        }
+    };
+
 })(Handsontable);

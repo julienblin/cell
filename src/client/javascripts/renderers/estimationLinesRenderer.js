@@ -82,28 +82,15 @@ var EstimationLinesRenderer = (function() {
                 rowHeaders: true,
                 minSpareRows: 1,
                 columns: [
-                    { data: 'isActive',    type: 'cellCheckbox', readOnly: self.engine.isReadOnly },
-                    { data: 'title',       type: 'title', readOnly: self.engine.isReadOnly },
-                    { data: _dataScale,       type: {
-                        renderer: function(instance, td, row, col, prop, value, cellProperties) {
-                            Handsontable.AutocompleteCell.renderer.apply(this, arguments);
-                            Handsontable.CustomCellPropertiesRenderer(instance, td, row, col, prop, value, cellProperties);
-                        },
-                        editor: Handsontable.AutocompleteEditor,
-                        source: _scalesSource
-                    }, readOnly: self.engine.isReadOnly},
-                    { data: _dataComplexity,  type: {
-                        renderer: function(instance, td, row, col, prop, value, cellProperties) {
-                            Handsontable.AutocompleteCell.renderer.apply(this, arguments);
-                            Handsontable.CustomCellPropertiesRenderer(instance, td, row, col, prop, value, cellProperties);
-                        },
-                        editor: Handsontable.AutocompleteEditor
-                    }, readOnly: self.engine.isReadOnly},
-                    { data: 'coefficient', type: 'cellNumeric', readOnly: self.engine.isReadOnly },
-                    { data: 'computed.lineTotalUT',     type: 'ut', readOnly: true },
-                    { data: 'computed.lineTotalPrice',  type: 'price', readOnly: true }
+                    { data: 'isActive',                 type: 'cellCheckbox',     readOnly: self.engine.isReadOnly },
+                    { data: 'title',                    type: 'title',            readOnly: self.engine.isReadOnly },
+                    { data: _dataScale,                 type: 'cellAutocomplete', readOnly: self.engine.isReadOnly},
+                    { data: _dataComplexity,            type: 'cellAutocomplete', readOnly: self.engine.isReadOnly},
+                    { data: 'coefficient',              type: 'cellNumeric',      readOnly: self.engine.isReadOnly },
+                    { data: 'computed.lineTotalUT',     type: 'ut',               readOnly: true },
+                    { data: 'computed.lineTotalPrice',  type: 'price',            readOnly: true }
                 ],
-                cells: function (row, col, prop) {
+                cells: function(row, col, prop) {
                     var cellProperties = {};
                     var line = self.engine.data.estimationLines[row] || {};
 
@@ -111,9 +98,9 @@ var EstimationLinesRenderer = (function() {
                      ||(line.lineType === 'heading1')
                      ||(line.lineType === 'heading2')) {
                         cellProperties.grandHeading = true;
-                        cellProperties.readOnly = true;
+                    } else {
+                        cellProperties.grandHeading = false;
                     }
-
 
                     if(typeof prop === 'function')
                         prop = prop(null, null, { propertyName: true });
@@ -124,6 +111,10 @@ var EstimationLinesRenderer = (function() {
                              ||(line.lineType === 'heading1')
                              ||(line.lineType === 'heading2')) {
                                 cellProperties.renderer = Handsontable.BlankRenderer;
+                                cellProperties.readOnly = true;
+                            } else {
+                                cellProperties.renderer = Handsontable.cellTypes.cellCheckbox.renderer;
+                                cellProperties.readOnly = self.engine.isReadOnly;
                             }
                             break;
                         case 'title':
@@ -131,15 +122,19 @@ var EstimationLinesRenderer = (function() {
                             switch(line.lineType) {
                                 case 'headingTotal':
                                     cellProperties.paddingLeft = '2px';
+                                    cellProperties.readOnly = true;
                                     break;
                                 case 'heading1':
                                     cellProperties.paddingLeft = '15px';
+                                    cellProperties.readOnly = true;
                                     break;
                                 case 'heading2':
                                     cellProperties.paddingLeft = '30px';
+                                    cellProperties.readOnly = true;
                                     break;
                                 default:
                                     cellProperties.paddingLeft = '45px';
+                                    cellProperties.readOnly = self.engine.isReadOnly;
                                     break;
                             }
                             break;
@@ -147,6 +142,10 @@ var EstimationLinesRenderer = (function() {
                             if(line.lineType) {
                                 cellProperties.renderer = Handsontable.BlankRenderer;
                                 cellProperties.readOnly = true;
+                            } else {
+                                cellProperties.renderer = Handsontable.cellTypes.cellAutocomplete.renderer;
+                                cellProperties.readOnly = self.engine.isReadOnly;
+                                cellProperties.source = _scalesSource();
                             }
                             break;
                         case 'complexity':
@@ -154,6 +153,8 @@ var EstimationLinesRenderer = (function() {
                                 cellProperties.renderer = Handsontable.BlankRenderer;
                                 cellProperties.readOnly = true;
                             } else {
+                                cellProperties.renderer = Handsontable.cellTypes.cellAutocomplete.renderer;
+                                cellProperties.readOnly = self.engine.isReadOnly;
                                 cellProperties.source = _complexitySource(line.scale);
                             }
                             break;
@@ -161,6 +162,9 @@ var EstimationLinesRenderer = (function() {
                             if(line.lineType) {
                                 cellProperties.renderer = Handsontable.BlankRenderer;
                                 cellProperties.readOnly = true;
+                            } else {
+                                cellProperties.renderer = Handsontable.cellTypes.cellNumeric.renderer;
+                                cellProperties.readOnly = self.engine.isReadOnly;
                             }
                             break;
                         case 'computed.lineTotalUT':
@@ -170,7 +174,6 @@ var EstimationLinesRenderer = (function() {
                     }
 
                     cellProperties.muted = (line.id) && !line.isActive;
-
                     return cellProperties;
                 },
                 contextMenu: self.engine.isReadOnly ? null : {
