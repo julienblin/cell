@@ -397,4 +397,50 @@ describe('ProjectCalculator', function(){
         _project.computed.scales[_scaleJava.id].totalUT.should.equal(84);
         _project.computed.scales[_scaleJava.id].totalPrice.should.equal(66500);
     });
+
+    it('should add contingency', function() {
+        _project.contingency = 10;
+        _calc.performCalculations(_project);
+        _project.computed.totalUT.should.equal(136.84);
+        _project.computed.totalPrice.should.equal(105160);
+        _project.computed.profileProjects[_profileProjectDeveloperValid.id].totalUT.should.equal(99);
+        _project.computed.profileProjects[_profileProjectDeveloperValid.id].totalPrice.should.equal(64350);
+        _project.computed.profilePrices[_profilePriceDeveloper.id].totalUT.should.equal(99);
+        _project.computed.profilePrices[_profilePriceDeveloper.id].totalPrice.should.equal(64350);
+
+        _project.computed.scaleLines[_scaleLineSharepointSimple.id].totalUT.should.equal(10.725);
+        _project.computed.scaleLines[_scaleLineSharepointSimple.id].totalPrice.should.equal(7700);
+        _project.computed.scaleLines[_scaleLineSharepointMedium.id].totalUT.should.equal(11.44);
+        _project.computed.scaleLines[_scaleLineSharepointMedium.id].totalPrice.should.equal(8085);
+        _project.computed.scaleLines[_scaleLineSharepointComplex.id].totalUT.should.equal(22.275);
+        _project.computed.scaleLines[_scaleLineSharepointComplex.id].totalPrice.should.equal(16225);
+
+        _project.computed.scales[_scaleSharepoint.id].totalUT.should.equal(44.44);
+        _project.computed.scales[_scaleSharepoint.id].totalPrice.should.equal(32010);
+
+        _project.computed.scales[_scaleJava.id].totalUT.should.equal(92.4);
+        _project.computed.scales[_scaleJava.id].totalPrice.should.equal(73150);
+
+        _project.contingency = -20;
+        _calc.performCalculations(_project);
+        _project.computed.totalUT.should.equal(99.52);
+        _project.computed.totalPrice.should.equal(76480);
+        _project.computed.profileProjects[_profileProjectDeveloperValid.id].totalUT.should.equal(72);
+        _project.computed.profileProjects[_profileProjectDeveloperValid.id].totalPrice.should.equal(46800);
+        _project.computed.profilePrices[_profilePriceDeveloper.id].totalUT.should.equal(72);
+        _project.computed.profilePrices[_profilePriceDeveloper.id].totalPrice.should.equal(46800);
+
+        _project.computed.scaleLines[_scaleLineSharepointSimple.id].totalUT.should.equal(7.8);
+        _project.computed.scaleLines[_scaleLineSharepointSimple.id].totalPrice.should.equal(5600);
+        _project.computed.scaleLines[_scaleLineSharepointMedium.id].totalUT.should.equal(8.32);
+        _project.computed.scaleLines[_scaleLineSharepointMedium.id].totalPrice.should.equal(5880);
+        _project.computed.scaleLines[_scaleLineSharepointComplex.id].totalUT.should.equal(16.2);
+        _project.computed.scaleLines[_scaleLineSharepointComplex.id].totalPrice.should.equal(11800);
+
+        _project.computed.scales[_scaleSharepoint.id].totalUT.should.equal(32.32);
+        _project.computed.scales[_scaleSharepoint.id].totalPrice.should.equal(23280);
+
+        _project.computed.scales[_scaleJava.id].totalUT.should.equal(67.2);
+        _project.computed.scales[_scaleJava.id].totalPrice.should.equal(53200);
+    });
 });

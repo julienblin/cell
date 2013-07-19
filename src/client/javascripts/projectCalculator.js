@@ -188,12 +188,18 @@
                     if(!(scaleLine && scaleLine.isActive)) continue;
 
                     var coefficient = line.coefficient ? self.parseFloat(line.coefficient) : 1;
-                    line.computed.lineTotalUT = scaleLine.computed.lineTotalUT * coefficient;
-                    line.computed.lineTotalPrice = scaleLine.computed.lineTotalPrice * coefficient;
+
+                    var contNumber = self.parseInt(data.contingency);
+                    if(contNumber !== 0) {
+                        coefficient = coefficient + self.handleRounding(coefficient * (contNumber / 100));
+                    }
+
+                    line.computed.lineTotalUT = self.handleRounding(scaleLine.computed.lineTotalUT * coefficient);
+                    line.computed.lineTotalPrice =  self.handleRounding(scaleLine.computed.lineTotalPrice * coefficient);
                     for(profileProjectId in scaleLine.computed.profileProjects) {
                         line.computed.profileProjects[profileProjectId] = {
-                            lineTotalUT: scaleLine.computed.profileProjects[profileProjectId].lineTotalUT * coefficient,
-                            lineTotalPrice: scaleLine.computed.profileProjects[profileProjectId].lineTotalPrice * coefficient
+                            lineTotalUT: self.handleRounding(scaleLine.computed.profileProjects[profileProjectId].lineTotalUT * coefficient),
+                            lineTotalPrice: self.handleRounding(scaleLine.computed.profileProjects[profileProjectId].lineTotalPrice * coefficient)
                         };
                         targetProfile = data.nav.profileProjects[profileProjectId];
                         if(targetProfile && targetProfile.profilePrice) {
@@ -203,8 +209,8 @@
 
                     if(line.isActive) {
                         for(indexHeading in headings) {
-                            headings[indexHeading].lineTotalUT = headings[indexHeading].lineTotalUT + line.computed.lineTotalUT;
-                            headings[indexHeading].lineTotalPrice = headings[indexHeading].lineTotalPrice + line.computed.lineTotalPrice;
+                            headings[indexHeading].lineTotalUT = self.handleRounding(headings[indexHeading].lineTotalUT + line.computed.lineTotalUT);
+                            headings[indexHeading].lineTotalPrice = self.handleRounding(headings[indexHeading].lineTotalPrice + line.computed.lineTotalPrice);
                             for(profileProjectId in line.computed.profileProjects) {
                                 if(!headings[indexHeading].profileProjects[profileProjectId])
                                     headings[indexHeading].profileProjects[profileProjectId] = {
@@ -212,8 +218,8 @@
                                         lineTotalPrice: 0
                                     };
 
-                                headings[indexHeading].profileProjects[profileProjectId].lineTotalUT = headings[indexHeading].profileProjects[profileProjectId].lineTotalUT + line.computed.profileProjects[profileProjectId].lineTotalUT;
-                                headings[indexHeading].profileProjects[profileProjectId].lineTotalPrice = headings[indexHeading].profileProjects[profileProjectId].lineTotalPrice + line.computed.profileProjects[profileProjectId].lineTotalPrice;
+                                headings[indexHeading].profileProjects[profileProjectId].lineTotalUT = self.handleRounding(headings[indexHeading].profileProjects[profileProjectId].lineTotalUT + line.computed.profileProjects[profileProjectId].lineTotalUT);
+                                headings[indexHeading].profileProjects[profileProjectId].lineTotalPrice = self.handleRounding(headings[indexHeading].profileProjects[profileProjectId].lineTotalPrice + line.computed.profileProjects[profileProjectId].lineTotalPrice);
                             }
 
                             for(profilePriceId in line.computed.profilePrices) {
@@ -223,8 +229,8 @@
                                         lineTotalPrice: 0
                                     };
 
-                                headings[indexHeading].profilePrices[profilePriceId].lineTotalUT = headings[indexHeading].profilePrices[profilePriceId].lineTotalUT + line.computed.profilePrices[profilePriceId].lineTotalUT;
-                                headings[indexHeading].profilePrices[profilePriceId].lineTotalPrice = headings[indexHeading].profilePrices[profilePriceId].lineTotalPrice + line.computed.profilePrices[profilePriceId].lineTotalPrice;
+                                headings[indexHeading].profilePrices[profilePriceId].lineTotalUT = self.handleRounding(headings[indexHeading].profilePrices[profilePriceId].lineTotalUT + line.computed.profilePrices[profilePriceId].lineTotalUT);
+                                headings[indexHeading].profilePrices[profilePriceId].lineTotalPrice = self.handleRounding(headings[indexHeading].profilePrices[profilePriceId].lineTotalPrice + line.computed.profilePrices[profilePriceId].lineTotalPrice);
                             }
 
                             if(!headings[indexHeading].scaleLines[scaleLine.id])
@@ -233,8 +239,8 @@
                                     lineTotalPrice: 0
                                 };
 
-                            headings[indexHeading].scaleLines[scaleLine.id].lineTotalUT = headings[indexHeading].scaleLines[scaleLine.id].lineTotalUT + line.computed.lineTotalUT;
-                            headings[indexHeading].scaleLines[scaleLine.id].lineTotalPrice = headings[indexHeading].scaleLines[scaleLine.id].lineTotalPrice + line.computed.lineTotalPrice;
+                            headings[indexHeading].scaleLines[scaleLine.id].lineTotalUT = self.handleRounding(headings[indexHeading].scaleLines[scaleLine.id].lineTotalUT + line.computed.lineTotalUT);
+                            headings[indexHeading].scaleLines[scaleLine.id].lineTotalPrice = self.handleRounding(headings[indexHeading].scaleLines[scaleLine.id].lineTotalPrice + line.computed.lineTotalPrice);
 
                             var scale = data.nav.scales[line.scale];
                             if(scale) {
@@ -244,8 +250,8 @@
                                         lineTotalPrice: 0
                                     };
 
-                                headings[indexHeading].scales[scale.id].lineTotalUT = headings[indexHeading].scales[scale.id].lineTotalUT + line.computed.lineTotalUT;
-                                headings[indexHeading].scales[scale.id].lineTotalPrice = headings[indexHeading].scales[scale.id].lineTotalPrice + line.computed.lineTotalPrice;
+                                headings[indexHeading].scales[scale.id].lineTotalUT = self.handleRounding(headings[indexHeading].scales[scale.id].lineTotalUT + line.computed.lineTotalUT);
+                                headings[indexHeading].scales[scale.id].lineTotalPrice = self.handleRounding(headings[indexHeading].scales[scale.id].lineTotalPrice + line.computed.lineTotalPrice);
                             }
                         }
                     }
@@ -377,6 +383,14 @@
         self.parseFloat = function(value) {
             if (!value) return 0.0;
             return parseFloat(value);
+        };
+
+        /**
+         * A way to handle javascript floating points calculation errors.
+         * The missing decimal type ;-)
+         */
+        self.handleRounding = function(value) {
+            return (Math.round(value * 10000) / 10000);
         };
 
         /**

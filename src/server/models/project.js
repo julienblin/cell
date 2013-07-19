@@ -33,6 +33,7 @@ var ProjectSchema = new Schema({
     projectName: { type: String, required: true, validate: [validations.uniqueFieldInsensitive('Project', 'projectName', 'clientName')], index: true },
     notes: { type: String },
     isLocked: { type: Boolean, default: false },
+    contingency: { type: Number },
 
     usersRead: [{ type: Schema.Types.ObjectId, ref: 'User' }],
     usersWrite: [{ type: Schema.Types.ObjectId, ref: 'User' }],
