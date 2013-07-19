@@ -7,12 +7,6 @@ winston.remove(winston.transports.Console);
 winston.add(winston.transports.Console, { level: 'info', colorize: true });
 
 module.exports = {
-    app: {
-        name: 'Cell',
-        version: 'latest',
-        copyright: '© CGI 2013'
-    },
-
     env: 'production',
 
     web: {

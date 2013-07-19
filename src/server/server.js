@@ -9,7 +9,8 @@ var winston = require('winston'),
     http = require('http'),
     mongoose = require('mongoose'),
     seeds = require('./seeds'),
-    socket = require('./socket');
+    socket = require('./socket'),
+    pkg = require('../package.json');
 
 module.exports = function(config, callback) {
     mongoose.connect(config.db.url, {
@@ -50,7 +51,7 @@ module.exports = function(config, callback) {
         if (err) {
             winston.error(err);
         } else {
-            winston.info('%s (%s) started on port %d.', config.app.name, config.app.version, config.web.port);
+            winston.info('%s (%s) started on port %d.', pkg.name, pkg.version, config.web.port);
         }
 
         callback(err, {

@@ -1,7 +1,8 @@
 {
   "name": "Cell",
   "description": "Next generation estimation web application",
-  "version": "0.1.0-0-gfb539d8",
+  "version": "0.1.0-1-ge03500f",
+  "copyright": "© 2013 CGI. All rights reserved.",
   "author": {
     "name": "Julien Blin",
     "email": "julien.blin@cgi.com"

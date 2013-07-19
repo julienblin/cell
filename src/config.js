@@ -18,12 +18,6 @@ winston.add(MongoDB, {
 
 
 module.exports = {
-    app: {
-        name: 'Cell',
-        version: '0.1.0',
-        copyright: '© CGI 2013'
-    },
-
     env: 'development',
 
     web: {

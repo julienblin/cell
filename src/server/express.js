@@ -59,7 +59,7 @@ module.exports = function (config) {
     app.use(require('connect-flash')());
     app.use(passport.initialize());
     app.use(passport.session());
-    app.use(require('./middlewares/locals')(config));
+    app.use(require('./middlewares/locals'));
     app.use(require('./middlewares/helpers'));
     app.use(app.router);
 
