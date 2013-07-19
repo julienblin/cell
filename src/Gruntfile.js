@@ -7,11 +7,13 @@ module.exports = function(grunt) {
 
     grunt.loadNpmTasks('grunt-git-describe');
     grunt.loadNpmTasks('grunt-contrib-jshint');
+    grunt.loadNpmTasks('grunt-plato');
     grunt.loadNpmTasks('grunt-mocha-test');
     grunt.loadNpmTasks('grunt-cucumber');
 
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
+
         'git-describe': {
             options: {
                 prop: 'git-version',
@@ -20,6 +22,7 @@ module.exports = function(grunt) {
             },
             cell: {}
         },
+
         jshint: {
             options: {
                 strict: true,
@@ -58,6 +61,38 @@ module.exports = function(grunt) {
             }
         },
 
+        plato: {
+            server: {
+                options: {
+                    jshint: {
+                        node:true,
+                        strict: true,
+                        laxbreak: true,
+                        proto: true
+                    }
+                },
+                files: {
+                    '../inspections/server': ['server/**/*.js']
+                }
+            },
+            client: {
+                options: {
+                    jshint: {
+                        browser:true,
+                        jquery: true,
+                        '-W064': true,
+                        '-W007': true,
+                        strict: true,
+                        laxbreak: true,
+                        proto: true
+                    }
+                },
+                files: {
+                    '../inspections/client': ['client/javascripts/**/*.js', '!client/javascripts/lib/**/*.js']
+                }
+            }
+        },
+
         mochaTest: {
             options: {
                 reporter: 'spec',
@@ -91,7 +126,7 @@ module.exports = function(grunt) {
 
     grunt.registerTask('version', ['git-describe', 'write-package-version']);
 
-    grunt.registerTask('lint', 'jshint');
+    grunt.registerTask('inspect', ['jshint', 'plato']);
 
     grunt.registerTask('unit-test', 'mochaTest');
     grunt.registerTask('unit-test:client', 'mochaTest:client');
@@ -99,5 +134,5 @@ module.exports = function(grunt) {
 
     grunt.registerTask('integration-test', 'cucumberjs');
 
-    grunt.registerTask('default', ['version', 'lint', 'unit-test', 'integration-test']);
+    grunt.registerTask('default', ['version', 'inspect', 'unit-test', 'integration-test']);
 };
