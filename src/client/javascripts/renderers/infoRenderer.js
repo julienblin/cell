@@ -32,6 +32,17 @@ var InfoRenderer = (function() {
                 }]);
             });
 
+            $('#infoContingencyInput', self.tabSelector).on('change', function(e) {
+                var target$ = $(this);
+                self.engine.applyModifications([{
+                    model: 'Project',
+                    action: 'update',
+                    property: 'contingency',
+                    oldValue: self.engine.data.contingency,
+                    newValue: target$.val()
+                }]);
+            });
+
             $('#btnLockProject').on('click', function(e) {
                 self.engine.applyModifications([{
                     model: 'Project',
@@ -55,6 +66,7 @@ var InfoRenderer = (function() {
                 projectName: self.engine.data.projectName,
                 clientName: self.engine.data.clientName,
                 notes: self.engine.data.notes,
+                contingency: self.engine.data.contingency,
                 isReadOnly: self.engine.isReadOnly
             }));
 

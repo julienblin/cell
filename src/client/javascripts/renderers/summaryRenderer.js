@@ -21,6 +21,7 @@ var SummaryRenderer = (function() {
         self.on('render', function() {
             $('[data-property="totalUT"]', self.tabSelector).text(numeral(self.engine.data.computed.totalUT).format('0,0') + ' UT');
             $('[data-property="totalPrice"]', self.tabSelector).text(numeral(self.engine.data.computed.totalPrice).format('0,0 $'));
+            $('[data-property="contingency"]', self.tabSelector).text(self.engine.data.contingency ? 'Contingency: ' + self.engine.data.contingency + '%' : '');
 
             var firstVisibleTabContent = $('.tab-pane:visible:first', _summaryTabsContentSelector);
             if(firstVisibleTabContent.length > 0) {

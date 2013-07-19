@@ -26,10 +26,30 @@ script#info-main-template(type="text/x-handlebars-template").
   <h1 {{#unless isReadOnly}}contenteditable{{/unless}} data-property="projectName">{{projectName}}</h1>
   <h3 {{#unless isReadOnly}}contenteditable{{/unless}} data-property="clientName">{{clientName}}</h3>
 
+  <hr>
+
   <row>
     <span12>
-      <label for="infoNotesArea">Notes:</label>
-      <textarea id="infoNotesArea" rows="15" class="span9" {{#if isReadOnly}}readonly{{/if}}>{{notes}}</textarea>
+      <div class="control-group">
+        <label class="control-label" for="infoContingencyInput">Contingency:</label>
+        <div class="controls">
+          <div class="input-append">
+            <input class="span1" id="infoContingencyInput" type="text" value="{{contingency}}">
+            <span class="add-on">%</span>
+          </div>
+        </div>
+      </div>
+    </span12>
+  </row>
+
+  <row>
+    <span12>
+      <div class="control-group">
+        <label class="control-label" for="infoNotesArea">Notes:</label>
+        <div class="controls">
+          <textarea id="infoNotesArea" rows="15" class="span9" {{#if isReadOnly}}readonly{{/if}}>{{notes}}</textarea>
+        </div>
+      </div>
     </span12>
   </row>
 
