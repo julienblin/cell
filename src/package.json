@@ -10,6 +10,10 @@
     "type": "git",
     "url": "https://github.com/julienblin/cell"
   },
+  "bugs": {
+    "url" : "https://github.com/julienblin/cell/issues",
+    "email" : "julien.blin@cgi.com"
+  },
   "readme": "../README.md",
   "private": true,
   "main": "cell.js",
@@ -20,32 +24,32 @@
     "node": ">0.10.11"
   },
   "dependencies": {
-    "express": "3.x",
-    "socket.io": ">0.9",
-    "jade": "*",
-    "underscore": "1.4.x",
-    "winston": "*",
-    "mongoose": "3.x",
-    "mongoose-fakery": "*",
-    "bcrypt": "*",
-    "bundle-up": "*",
-    "passport": "*",
-    "passport-local": "*",
-    "passport.socketio": "*",
-    "connect-mongo": "*",
-    "connect-flash": "*",
-    "validator": "*",
-    "async": "*",
-    "moment": "~2.1.0",
-    "winston-mongodb": "~0.4.0"
+    "express": "~3.3.4",
+    "socket.io": "~0.9.16",
+    "jade": "~0.33.0",
+    "underscore": "~1.4.4",
+    "winston": "~0.7.2",
+    "winston-mongodb": "~0.4.0",
+    "mongoose": "~3.6.14",
+    "mongoose-fakery": "~0.1.7",
+    "bcrypt": "~0.7.6",
+    "bundle-up": "~0.3.5",
+    "passport": "~0.1.17",
+    "passport-local": "~0.1.6",
+    "passport.socketio": "~1.2.1",
+    "connect-mongo": "~0.3.3",
+    "connect-flash": "~0.1.1",
+    "validator": "~1.3.0",
+    "async": "~0.2.9",
+    "moment": "~2.1.0"
   },
   "devDependencies": {
-    "should": "*",
-    "cucumber": "*",
-    "zombie": "*",
-    "grunt": "*",
-    "grunt-contrib-jshint": "*",
-    "grunt-mocha-test": "*",
-    "grunt-cucumber": "*"
+    "should": "~1.2.2",
+    "cucumber": "~0.3.0",
+    "zombie": "~2.0.0",
+    "grunt": "~0.4.1",
+    "grunt-contrib-jshint": "~0.6.0",
+    "grunt-mocha-test": "~0.5.0",
+    "grunt-cucumber": "~0.2.1"
   }
 }
