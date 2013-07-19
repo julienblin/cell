@@ -11,6 +11,38 @@
     exports.ProjectCoherenceKeeper = function() {
         var self = {};
 
+        var _findFirstCreateWithSameLocalTarget = function(modifications, localTarget) {
+            for(var modificationIndex in modifications) {
+                var modif = modifications[modificationIndex];
+                if(modif.action !== 'create') continue;
+                if(!modif.localInfo) continue;
+                if(modif.localInfo.target === localTarget) return modif;
+            }
+            return null;
+        };
+
+        /**
+         * Regroups create modifications that points to the same localInfo.target
+         */
+        var _handleCreateModifications = function(modifications, data) {
+            var modificationsLoop = modifications.slice(0);
+            for(var modificationIndex in modificationsLoop) {
+                var modif = modificationsLoop[modificationIndex];
+                if(modif.action !== 'create') continue;
+                if(!(modif.localInfo && modif.localInfo.target)) continue;
+
+                var previousModif = _findFirstCreateWithSameLocalTarget(modifications, modif.localInfo.target);
+                if(previousModif === modif) continue;
+
+                // Copy new values
+                for(var propKey in modif.values)
+                    previousModif.values[propKey] = modif.values[propKey];
+
+                // Remove modif
+                modifications.splice(modifications.indexOf(modif), 1);
+            }
+        };
+
         var _handleUpdateModifications = function(modifications, data) {
             var affectedEstimationLine, currentScale, targetScale, scaleIndex, newValue, currentComplexityName, scaleLineIndex;
             var newModifications = [];
@@ -177,6 +209,7 @@
          * @param data
          */
         self.maintainCoherence = function(modifications, data) {
+            _handleCreateModifications(modifications, data);
             _handleUpdateModifications(modifications, data);
             _handleDeleteModifications(modifications, data);
         };

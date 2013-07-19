@@ -128,18 +128,20 @@ var ScaleLinesRenderer = (function() {
                 cells: function (row, col, prop) {
                     var cellProperties = {};
                     var scaleLine = self.scale.lines[row];
-                    switch(prop) {
-                        case 'complexity':
-                            if(scaleLine.id) {
-                                cellProperties.invalid = !(scaleLine.complexity);
-                            }
-                            break;
-                        case 'computed.lineTotalUT':
-                        case 'computed.lineTotalPrice':
-                            cellProperties.computed = true;
-                            break;
+                    if(scaleLine) {
+                        switch(prop) {
+                            case 'complexity':
+                                if(scaleLine.id) {
+                                    cellProperties.invalid = !(scaleLine.complexity);
+                                }
+                                break;
+                            case 'computed.lineTotalUT':
+                            case 'computed.lineTotalPrice':
+                                cellProperties.computed = true;
+                                break;
+                        }
+                        cellProperties.muted = !scaleLine.isActive;
                     }
-                    cellProperties.muted = !scaleLine.isActive;
                     return cellProperties;
                 },
                 beforeRender: function() {

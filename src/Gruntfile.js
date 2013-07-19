@@ -76,15 +76,7 @@ module.exports = function(grunt) {
         }
     });
 
-    grunt.registerTask('lint', 'jshint');
-
-    grunt.registerTask('unit-test', 'mochaTest');
-    grunt.registerTask('unit-test:client', 'mochaTest:client');
-    grunt.registerTask('unit-test:server', 'mochaTest:server');
-
-    grunt.registerTask('integration-test', 'cucumberjs');
-
-    grunt.registerTask('update-version', function() {
+    grunt.registerTask('write-package-version', function() {
         grunt.task.requires('git-describe:cell');
         var gitVersion = grunt.config('git-version');
         var pkg = grunt.config('pkg');
@@ -97,5 +89,15 @@ module.exports = function(grunt) {
         }
     });
 
-    grunt.registerTask('default', ['git-describe', 'update-version', 'lint', 'unit-test', 'integration-test']);
+    grunt.registerTask('version', ['git-describe', 'write-package-version']);
+
+    grunt.registerTask('lint', 'jshint');
+
+    grunt.registerTask('unit-test', 'mochaTest');
+    grunt.registerTask('unit-test:client', 'mochaTest:client');
+    grunt.registerTask('unit-test:server', 'mochaTest:server');
+
+    grunt.registerTask('integration-test', 'cucumberjs');
+
+    grunt.registerTask('default', ['version', 'lint', 'unit-test', 'integration-test']);
 };

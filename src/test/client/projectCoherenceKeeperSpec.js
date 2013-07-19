@@ -199,4 +199,64 @@ describe('ProjectCoherenceKeeper', function(){
         modifications[1].property.should.equal('complexity');
         modifications[1].newValue.should.equal(scaleLine3Eq1.id);
     });
+
+    it('should group create messages with the same local target', function() {
+        var estimationLine1 = factory.make('estimationLine').toObject();
+        var estimationLine2 = factory.make('estimationLine').toObject();
+        var modifications = [
+            {
+                model: 'EstimationLine',
+                action: 'create',
+                values: {
+                    isActive: true,
+                    title: 'some title'
+                },
+                localInfo: {
+                    alreadyApplied: true,
+                    target: estimationLine1
+                }
+            },
+            {
+                model: 'EstimationLine',
+                action: 'create',
+                values: {
+                    scale: 'someId'
+                },
+                localInfo: {
+                    alreadyApplied: true,
+                    target: estimationLine1
+                }
+            },
+            {
+                model: 'EstimationLine',
+                action: 'create',
+                values: {
+                    title: 'some title 2'
+                },
+                localInfo: {
+                    alreadyApplied: true,
+                    target: estimationLine2
+                }
+            },
+            {
+                model: 'EstimationLine',
+                action: 'create',
+                values: {
+                    title: 'some title 3'
+                }
+            }
+        ];
+
+        var project = factory.make('project').toObject();
+        project.estimationLines = [ estimationLine1, estimationLine2 ];
+
+        _keeper.maintainCoherence(modifications, project);
+
+        modifications.should.have.lengthOf(3);
+        modifications[0].values.isActive.should.equal(true);
+        modifications[0].values.title.should.equal('some title');
+        modifications[0].values.scale.should.equal('someId');
+        modifications[1].values.title.should.equal('some title 2');
+        modifications[2].values.title.should.equal('some title 3');
+    });
 });
