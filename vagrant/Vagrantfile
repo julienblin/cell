@@ -8,6 +8,7 @@ Vagrant.configure("2") do |config|
 		cell.vm.synced_folder "../", "/cell"
 		
     cell.vm.provider "virtualbox" do |v|
+      v.name = "Cell-dev"
       v.customize ["modifyvm", :id, "--memory", "512"]
     end
     
