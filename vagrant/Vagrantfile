@@ -7,6 +7,10 @@ Vagrant.configure("2") do |config|
 		cell.vm.network :forwarded_port, guest: 28017, host: 28017 # mongodb http console
 		cell.vm.synced_folder "../", "/cell"
 		
+    cell.vm.provider "virtualbox" do |v|
+      v.customize ["modifyvm", :id, "--memory", "512"]
+    end
+    
 		cell.vm.provision :chef_solo do |chef|
 			chef.cookbooks_path = "cookbooks"
 			chef.add_recipe "cell-dev"
