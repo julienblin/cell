@@ -120,18 +120,18 @@ var ProfileProjectsRenderer = (function() {
                                     newValue = profileProject[property];
                                 }
                                 if (profileProject.id) {
-                                    modifications.push({
+                                    var modif = {
                                         model: 'ProfileProject',
                                         id: profileProject.id,
                                         action: 'update',
-                                        property: property,
-                                        oldValue: oldValue,
-                                        newValue: newValue,
+                                        values: {},
                                         localInfo: {
                                             alreadyApplied: true,
                                             target: profileProject
                                         }
-                                    });
+                                    };
+                                    modif.values[property] = [oldValue, newValue];
+                                    modifications.push(modif);
                                 } else {
                                     var createModif = {
                                         model: 'ProfileProject',

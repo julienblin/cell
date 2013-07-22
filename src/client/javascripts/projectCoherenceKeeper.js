@@ -51,10 +51,12 @@
                 var modif = modifications[modificationIndex];
                 if(modif.action !== 'update') continue;
 
+                if(!modif.values) modif.values = {};
+
                 switch(modif.model) {
                     case 'EstimationLine':
-                        if(modif.property !== 'scale') continue;
-                        if(modif.newValue === modif.oldValue) continue;
+                        if(!(modif.values.scale && modif.values.scale.length === 2)) continue;
+                        if(modif.values.scale[0] === modif.values.scale[1]) continue;
 
                         affectedEstimationLine = null;
                         if(modif.localInfo && modif.localInfo.target) {
@@ -71,9 +73,9 @@
                         currentScale = null;
                         targetScale = null;
                         for(scaleIndex in data.scales) {
-                            if(data.scales[scaleIndex].id === modif.oldValue)
+                            if(data.scales[scaleIndex].id === modif.values.scale[0])
                                 currentScale = data.scales[scaleIndex];
-                            if(data.scales[scaleIndex].id === modif.newValue)
+                            if(data.scales[scaleIndex].id === modif.values.scale[1])
                                 targetScale = data.scales[scaleIndex];
                         }
 
@@ -103,9 +105,9 @@
                             model: 'EstimationLine',
                             id: affectedEstimationLine.id,
                             action: 'update',
-                            property: 'complexity',
-                            oldValue: affectedEstimationLine.complexity,
-                            newValue: newValue,
+                            values: {
+                                complexity: [affectedEstimationLine.complexity, newValue]
+                            },
                             localInfo: {
                                 target: affectedEstimationLine
                             }
@@ -137,9 +139,9 @@
                                 model: 'ProfileProject',
                                 id: affectedProfileProject.id,
                                 action: 'update',
-                                property: 'profilePrice',
-                                oldValue: affectedProfileProject.profilePrice,
-                                newValue: null,
+                                values: {
+                                    profilePrice: [affectedProfileProject.profilePrice, null]
+                                },
                                 localInfo: {
                                     target: affectedProfileProject
                                 }
@@ -156,21 +158,10 @@
                                 model: 'EstimationLine',
                                 id: affectedEstimationLine.id,
                                 action: 'update',
-                                property: 'scale',
-                                oldValue: affectedEstimationLine.scale,
-                                newValue: null,
-                                localInfo: {
-                                    target: affectedEstimationLine
-                                }
-                            });
-
-                            newModifications.push({
-                                model: 'EstimationLine',
-                                id: affectedEstimationLine.id,
-                                action: 'update',
-                                property: 'complexity',
-                                oldValue: affectedEstimationLine.complexity,
-                                newValue: null,
+                                values: {
+                                    scale: [affectedEstimationLine.scale, null],
+                                    complexity: [affectedEstimationLine.complexity, null]
+                                },
                                 localInfo: {
                                     target: affectedEstimationLine
                                 }
@@ -187,9 +178,9 @@
                                 model: 'EstimationLine',
                                 id: affectedEstimationLine.id,
                                 action: 'update',
-                                property: 'complexity',
-                                oldValue: affectedEstimationLine.complexity,
-                                newValue: null,
+                                values: {
+                                    complexity: [affectedEstimationLine.complexity, null]
+                                },
                                 localInfo: {
                                     target: affectedEstimationLine
                                 }

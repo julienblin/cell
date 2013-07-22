@@ -219,18 +219,16 @@ var EstimationLinesRenderer = (function() {
                                     model: 'EstimationLine',
                                     action: 'update',
                                     id: line.id,
-                                    property: 'lineType',
-                                    oldValue: line.lineType
+                                    values: {
+                                        lineType: [line.lineType, null]
+                                    }
                                 };
                                 switch(key) {
                                     case 'set_heading1':
-                                        modification.newValue = 'heading1';
+                                        modification.values.lineType[1] = 'heading1';
                                         break;
                                     case 'set_heading2':
-                                        modification.newValue = 'heading2';
-                                        break;
-                                    case 'set_standard':
-                                        modification.newValue = null;
+                                        modification.values.lineType[1] = 'heading2';
                                         break;
                                 }
                                 self.engine.applyModifications([modification]);
@@ -258,18 +256,14 @@ var EstimationLinesRenderer = (function() {
                                     newValue = line[property];
                                 }
                                 if (line.id) {
-                                    modifications.push({
+                                    var modif = {
                                         model: 'EstimationLine',
                                         id: line.id,
                                         action: 'update',
-                                        property: property,
-                                        oldValue: oldValue,
-                                        newValue: newValue,
-                                        localInfo: {
-                                            alreadyApplied: true,
-                                            target: line
-                                        }
-                                    });
+                                        values: {}
+                                    };
+                                    modif.values[property] = [oldValue, newValue];
+                                    modifications.push(modif);
                                 } else {
                                     var createModif = {
                                         model: 'EstimationLine',

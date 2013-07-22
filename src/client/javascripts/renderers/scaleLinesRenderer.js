@@ -156,19 +156,19 @@ var ScaleLinesRenderer = (function() {
                             _.each(changes, function(change) {
                                 var scaleLine = self.scale.lines[change[0]];
                                 if (scaleLine.id) {
-                                    modifications.push({
+                                    var modif = {
                                         model: 'ScaleLine',
                                         id: scaleLine.id,
                                         parentId: self.scale.id,
                                         action: 'update',
-                                        property: change[1],
-                                        oldValue: change[2],
-                                        newValue: change[3],
+                                        values: {},
                                         localInfo: {
                                             alreadyApplied: true,
                                             target: scaleLine
                                         }
-                                    });
+                                    };
+                                    modif.values[change[1]] = [change[2], change[3]];
+                                    modifications.push(modif);
                                 } else {
                                     var createModif = {
                                         model: 'ScaleLine',
@@ -232,9 +232,9 @@ var ScaleLinesRenderer = (function() {
                         id: column.id,
                         parentId: self.scale.id,
                         action: 'update',
-                        property: 'profileProject',
-                        oldValue: column.profileProject,
-                        newValue: profileProjectId,
+                        values: {
+                            profileProject: [column.profileProject, profileProjectId]
+                        },
                         localInfo: {
                             target: column
                         }
@@ -269,9 +269,9 @@ var ScaleLinesRenderer = (function() {
                         id: column.id,
                         parentId: self.scale.id,
                         action: 'update',
-                        property: 'isBaseline',
-                        oldValue: column.isBaseline,
-                        newValue: checked,
+                        values: {
+                            isBaseline: [column.isBaseline, checked]
+                        },
                         localInfo: {
                             target: column
                         }

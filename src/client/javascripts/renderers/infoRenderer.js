@@ -12,13 +12,13 @@ var InfoRenderer = (function() {
         var _attachEventHandlers = function() {
             $('[contenteditable]', self.tabSelector).on('change', function(e) {
                 var target$ = $(this);
-                self.engine.applyModifications([{
+                var modification = {
                     model: 'Project',
                     action: 'update',
-                    property: target$.data('property'),
-                    oldValue: target$.data('before'),
-                    newValue: target$.text()
-                }]);
+                    values: {}
+                };
+                modification.values[target$.data('property')] = [target$.data('before'), target$.text()];
+                self.engine.applyModifications([modification]);
             });
 
             $('#infoNotesArea', self.tabSelector).on('change', function(e) {
@@ -26,9 +26,9 @@ var InfoRenderer = (function() {
                 self.engine.applyModifications([{
                     model: 'Project',
                     action: 'update',
-                    property: 'notes',
-                    oldValue: self.engine.data.notes,
-                    newValue: target$.val()
+                    values: {
+                        notes: [self.engine.data.notes, target$.val()]
+                    }
                 }]);
             });
 
@@ -37,9 +37,9 @@ var InfoRenderer = (function() {
                 self.engine.applyModifications([{
                     model: 'Project',
                     action: 'update',
-                    property: 'contingency',
-                    oldValue: self.engine.data.contingency,
-                    newValue: target$.val()
+                    values: {
+                        contingency: [self.engine.data.contingency, target$.val()]
+                    }
                 }]);
             });
 
@@ -47,9 +47,9 @@ var InfoRenderer = (function() {
                 self.engine.applyModifications([{
                     model: 'Project',
                     action: 'update',
-                    property: 'isLocked',
-                    oldValue: self.engine.data.isLocked,
-                    newValue: !self.engine.data.isLocked
+                    values: {
+                        isLocked: [self.engine.data.isLocked, !self.engine.data.isLocked]
+                    }
                 }]);
                 e.preventDefault();
             });

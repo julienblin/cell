@@ -163,13 +163,22 @@ var ProjectEngine = (function() {
                                 notify.fatal("Unable to apply changes. Reason: unable to find model " + modification.model + " with id " + modification.id);
                                 return;
                             }
-                            var currentValue = _getValueAtPath(targetDoc[0], modification.property);
-                            if(!_valueEquals(currentValue, modification.oldValue)) {
-                                ++self.stats.numberOfDiscardedUpdates;
-                                console.log({ message: "Discarding update because of unmatched previous values", doc: targetDoc, modification: modification });
-                                return;
+
+                            for(var property in modification.values) {
+                                var valuesArray =  modification.values[property];
+                                if(!(valuesArray && valuesArray.length === 2)) return;
+                                var oldValue = valuesArray[0];
+                                var newValue = valuesArray[1];
+
+                                var currentValue = _getValueAtPath(targetDoc[0], property);
+
+                                if(!_valueEquals(currentValue, oldValue)) {
+                                    ++self.stats.numberOfDiscardedUpdates;
+                                    console.log({ message: "Discarding update because of unmatched previous values", doc: targetDoc, modification: modification });
+                                    return;
+                                }
+                                _setValueAtPath(targetDoc[0], property, newValue);
                             }
-                            _setValueAtPath(targetDoc[0], modification.property, modification.newValue);
                             break;
                         case 'delete':
                             targetDoc = _findTargetDoc(modification.model, modification.id, modification.parentId);
@@ -249,8 +258,16 @@ var ProjectEngine = (function() {
                                 case 'update':
                                     var targetDoc = _findTargetDoc(modification.model, modification.id, modification.parentId);
                                     if(targetDoc) {
-                                        if(_valueEquals(targetDoc[0][modification.property], modification.newValue)) {
-                                            targetDoc[0][modification.property] = modification.oldValue;
+
+                                        for(var property in modification.values) {
+                                            var valuesArray =  modification.values[property];
+                                            if(valuesArray && valuesArray.length === 2) {
+                                                var oldValue = valuesArray[0];
+                                                var newValue = valuesArray[1];
+                                                if(_valueEquals(targetDoc[0][property], newValue)) {
+                                                    targetDoc[0][property] = oldValue;
+                                                }
+                                            }
                                         }
                                     }
                                     break;

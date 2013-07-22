@@ -63,18 +63,18 @@ var ProfilePricesRenderer = (function() {
                             _.each(changes, function(change) {
                                 var profilePrice = self.engine.data.profilePrices[change[0]];
                                 if (profilePrice.id) {
-                                    modifications.push({
+                                    var modif = {
                                         model: 'ProfilePrice',
                                         id: profilePrice.id,
                                         action: 'update',
-                                        property: change[1],
-                                        oldValue: change[2],
-                                        newValue: change[3],
+                                        values: {},
                                         localInfo: {
                                             alreadyApplied: true,
                                             target: profilePrice
                                         }
-                                    });
+                                    };
+                                    modif.values[change[1]] = [change[2], change[3]];
+                                    modifications.push(modif);
                                 } else {
                                     var createModif = {
                                         model: 'ProfilePrice',

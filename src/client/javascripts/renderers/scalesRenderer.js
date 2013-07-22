@@ -155,9 +155,9 @@ var ScalesRenderer = (function() {
                     model: 'Scale',
                     action: 'update',
                     id: $('input[name="id"]', _modalRenameScaleSelector).val(),
-                    property: 'name',
-                    oldValue: $('input[name="oldValue"]', _modalRenameScaleSelector).val(),
-                    newValue: scaleName
+                    values: {
+                        name: [$('input[name="oldValue"]', _modalRenameScaleSelector).val(), scaleName]
+                    }
                 }];
                 self.engine.applyModifications(modifications);
                 $(_modalRenameScaleSelector).modal('hide');

@@ -42,7 +42,8 @@ describe('ProjectCoherenceKeeper', function(){
         modifications[1].model.should.equal('ProfileProject');
         modifications[1].id.should.equal(profileProject1.id);
         modifications[1].action.should.equal('update');
-        modifications[1].property.should.equal('profilePrice');
+        modifications[1].values.profilePrice[0].should.equal(profilePrice1.id);
+        should.not.exists(modifications[1].values.profilePrice[1]);
     });
 
     it('should nullify EstimationLine.complexity when ScaleLine is deleted', function() {
@@ -77,7 +78,8 @@ describe('ProjectCoherenceKeeper', function(){
         modifications[1].model.should.equal('EstimationLine');
         modifications[1].id.should.equal(estimationLine1.id);
         modifications[1].action.should.equal('update');
-        modifications[1].property.should.equal('complexity');
+        modifications[1].values.complexity[0].should.equal(scaleLine1.id);
+        should.not.exists(modifications[1].values.complexity[1]);
     });
 
     it('should nullify EstimationLine.scale and EstimationLine.complexity when ScaleLine is deleted', function() {
@@ -109,15 +111,14 @@ describe('ProjectCoherenceKeeper', function(){
 
         _keeper.maintainCoherence(modifications, project);
 
-        modifications.should.have.lengthOf(3);
+        modifications.should.have.lengthOf(2);
         modifications[1].model.should.equal('EstimationLine');
         modifications[1].id.should.equal(estimationLine1.id);
         modifications[1].action.should.equal('update');
-        modifications[1].property.should.equal('scale');
-        modifications[2].model.should.equal('EstimationLine');
-        modifications[2].id.should.equal(estimationLine1.id);
-        modifications[2].action.should.equal('update');
-        modifications[2].property.should.equal('complexity');
+        modifications[1].values.scale[0].should.equal(scale1.id);
+        should.not.exists(modifications[1].values.scale[1]);
+        modifications[1].values.complexity[0].should.equal(scaleLine1.id);
+        should.not.exists(modifications[1].values.complexity[1]);
     });
 
     it('should nullify EstimationLine.complexity when Scale is changed and no equivalent complexity is found', function() {
@@ -139,9 +140,9 @@ describe('ProjectCoherenceKeeper', function(){
                 model: 'EstimationLine',
                 id: estimationLine1.id,
                 action: 'update',
-                property: 'scale',
-                oldValue: estimationLine1.scale,
-                newValue: scale2.id,
+                values: {
+                    scale: [estimationLine1.scale, scale2.id]
+                },
                 localInfo: {
                     alreadyApplied: true,
                     target: estimationLine1
@@ -155,8 +156,8 @@ describe('ProjectCoherenceKeeper', function(){
         modifications[1].model.should.equal('EstimationLine');
         modifications[1].id.should.equal(estimationLine1.id);
         modifications[1].action.should.equal('update');
-        modifications[1].property.should.equal('complexity');
-        should.not.exists(modifications[1].newValue);
+        modifications[1].values.complexity[0].should.equal(scaleLine1.id);
+        should.not.exists(modifications[1].values.complexity[1]);
     });
 
     it('should set new EstimationLine.complexity when Scale is changed and equivalent complexity is found', function() {
@@ -180,9 +181,9 @@ describe('ProjectCoherenceKeeper', function(){
                 model: 'EstimationLine',
                 id: estimationLine1.id,
                 action: 'update',
-                property: 'scale',
-                oldValue: estimationLine1.scale,
-                newValue: scale2.id,
+                values: {
+                    scale: [estimationLine1.scale, scale2.id]
+                },
                 localInfo: {
                     alreadyApplied: true,
                     target: estimationLine1
@@ -196,8 +197,8 @@ describe('ProjectCoherenceKeeper', function(){
         modifications[1].model.should.equal('EstimationLine');
         modifications[1].id.should.equal(estimationLine1.id);
         modifications[1].action.should.equal('update');
-        modifications[1].property.should.equal('complexity');
-        modifications[1].newValue.should.equal(scaleLine3Eq1.id);
+        modifications[1].values.complexity[0].should.equal(scaleLine1.id);
+        modifications[1].values.complexity[1].should.equal(scaleLine3Eq1.id);
     });
 
     it('should group create messages with the same local target', function() {
