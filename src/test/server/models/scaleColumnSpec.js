@@ -120,32 +120,33 @@ describe("ScaleColumns", function(){
                                 model: 'ScaleColumn',
                                 id: scaleColumn.id,
                                 action: 'update',
-                                property: 'isBaseline',
-                                newValue: true,
-                                oldValue: scaleColumn.isBaseline
+                                values: {
+                                    isBaseline: [scaleColumn.isBaseline, true]
+                                }
                             },
                             {
                                 model: 'ScaleColumn',
                                 id: scaleColumn.id,
                                 action: 'update',
-                                property: 'profileProject',
-                                newValue: profileProject1.id
+                                values: {
+                                    profileProject: [null, profileProject1.id]
+                                }
                             },
                             {
                                 model: 'ScaleColumn',
                                 id: scaleColumn.id,
                                 action: 'update',
-                                property: 'profileProject',
-                                newValue: profileProject2.id,
-                                oldValue: profileProject1.id
+                                values: {
+                                    profileProject: [profileProject1.id, profileProject2.id]
+                                }
                             },
                             {
                                 model: 'ScaleColumn',
                                 id: scaleColumn.id,
                                 action: 'update',
-                                property: 'profileProject',
-                                newValue: profileProject3.id,
-                                oldValue: profileProject1.id
+                                values: {
+                                    profileProject: [profileProject1.id, profileProject3.id]
+                                }
                             }
                         ]
                     };

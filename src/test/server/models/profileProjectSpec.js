@@ -108,33 +108,33 @@ describe("ProfileProjects", function(){
                             model: 'ProfileProject',
                             id: profileProject.id,
                             action: 'update',
-                            property: 'isActive',
-                            newValue: true,
-                            oldValue: profileProject.isActive
+                            values: {
+                                isActive: [profileProject.isActive, true]
+                            }
                         },
                         {
                             model: 'ProfileProject',
                             id: profileProject.id,
                             action: 'update',
-                            property: 'title',
-                            newValue: 'Here is the first title',
-                            oldValue: profileProject.title
+                            values: {
+                                title: [profileProject.title, 'Here is the first title']
+                            }
                         },
                         {
                             model: 'ProfileProject',
                             id: profileProject.id,
                             action: 'update',
-                            property: 'title',
-                            newValue: 'Here is the last title',
-                            oldValue: 'Here is the first title'
+                            values: {
+                                title: ['Here is the first title', 'Here is the last title']
+                            }
                         },
                         {
                             model: 'ProfileProject',
                             id: profileProject.id,
                             action: 'update',
-                            property: 'title',
-                            newValue: 'Here is the wrong title',
-                            oldValue: profileProject.title
+                            values: {
+                                title: [profileProject.title, 'Here is the wrong title']
+                            }
                         }
                     ]
                 };

@@ -127,32 +127,33 @@ describe("ScaleLines", function(){
                                 model: 'ScaleLine',
                                 id: scaleLine.id,
                                 action: 'update',
-                                property: 'isActive',
-                                newValue: true,
-                                oldValue: scaleLine.isActive
+                                values: {
+                                    isActive: [scaleLine.isActive, true]
+                                }
                             },
                             {
                                 model: 'ScaleLine',
                                 id: scaleLine.id,
                                 action: 'update',
-                                property: 'values.Developer',
-                                newValue: 1.0
+                                values: {
+                                    'values.Developer': [null, 1.0]
+                                }
                             },
                             {
                                 model: 'ScaleLine',
                                 id: scaleLine.id,
                                 action: 'update',
-                                property: 'values.Developer',
-                                newValue: 1.5,
-                                oldValue: 1.0
+                                values: {
+                                    'values.Developer': [1.0, 1.5]
+                                }
                             },
                             {
                                 model: 'ScaleLine',
                                 id: scaleLine.id,
                                 action: 'update',
-                                property: 'values.Developer',
-                                newValue: 2.5,
-                                oldValue: 1.0
+                                values: {
+                                    'values.Developer': [1.0, 2.5]
+                                }
                             }
                         ]
                     };

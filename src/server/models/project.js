@@ -130,7 +130,9 @@ ProjectSchema.statics.applyModifications = function(modificationLot, callback) {
             if(modificationLot.modifications
                 && (modificationLot.modifications.length === 1)
                 && (modificationLot.modifications[0].action === 'update')
-                && (modificationLot.modifications[0].property === 'isLocked')) {
+                && (modificationLot.modifications[0].values)
+                && (modificationLot.modifications[0].values.isLocked)
+                && (modificationLot.modifications[0].values.isLocked.length === 2)) {
 
             } else {
                 responses.results.push({ status: 'error', statusMessage: 'Project is locked.' });

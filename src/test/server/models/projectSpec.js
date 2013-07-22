@@ -140,9 +140,9 @@ describe("Projects", function(){
                     {
                         model: 'Project',
                         action: 'update',
-                        property: 'clientName',
-                        oldValue: 'CGI',
-                        newValue: 'Logica'
+                        values: {
+                            clientName: ['CGI', 'Logica']
+                        }
                     }
                 ]
             };
@@ -156,9 +156,9 @@ describe("Projects", function(){
                     modificationLot.modifications = [{
                         model: 'Project',
                         action: 'update',
-                        property: 'isLocked',
-                        oldValue: true,
-                        newValue: false
+                        values: {
+                            isLocked: [true, false]
+                        }
                     }];
 
                     Project.applyModifications(modificationLot, function(err, response) {

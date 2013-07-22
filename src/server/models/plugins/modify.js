@@ -104,16 +104,30 @@ module.exports = function modifyPlugin (schema, options) {
                     return callback(null, { status: 'error', statusMessage: 'There seems to be a confusion of projects.' });
             }
 
-            var currentValue = _getValueAtPath(obj, modification.property);
-            if(!_canModify(obj, modification.property, modification.oldValue)) {
-                return callback(null, { status: 'concurrencyError', statusMessage: util.format("Unable to update %s(%s) because the oldValue (%s) doesn't match the current value (%s)", Model.modelName, obj.id, modification.oldValue, currentValue) });
+            if(!modification.values) modification.values = {};
+            var mustSave = false;
+            for(var property in modification.values) {
+                var valuesArray =  modification.values[property];
+                if(valuesArray && valuesArray.length === 2) {
+                    var oldValue = valuesArray[0];
+                    var newValue = valuesArray[1];
+                    var currentValue = _getValueAtPath(obj, property);
+                    if(!_canModify(obj, property, oldValue)) {
+                        return callback(null, { status: 'concurrencyError', statusMessage: util.format("Unable to update %s(%s) because the oldValue (%s) doesn't match the current value (%s)", Model.modelName, obj.id, oldValue, currentValue) });
+                    }
+                    _setValueAtPath(obj, property, newValue);
+                    mustSave = true;
+                }
             }
 
-            _setValueAtPath(obj, modification.property, modification.newValue);
-            obj.save(function(err) {
-                if (err) return callback(null, { status: 'error', statusMessage: err.message });
-                return callback(null, { status: 'success', statusMessage: util.format("Successfully updated %s(%s)", Model.modelName, obj.id) });
-            });
+            if(mustSave) {
+                obj.save(function(err) {
+                    if (err) return callback(null, { status: 'error', statusMessage: err.message });
+                    return callback(null, { status: 'success', statusMessage: util.format("Successfully updated %s(%s)", Model.modelName, obj.id) });
+                });
+            } else {
+                return callback(null, { status: 'error', statusMessage: util.format("Unable to update %s(%s): nothing to change.", Model.modelName, obj.id) });
+            }
         });
     };
 

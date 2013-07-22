@@ -108,33 +108,33 @@ describe("ProfilePrices", function(){
                             model: 'ProfilePrice',
                             id: profilePrice.id,
                             action: 'update',
-                            property: 'isActive',
-                            newValue: true,
-                            oldValue: profilePrice.isActive
+                            values: {
+                                isActive: [profilePrice.isActive, true]
+                            }
                         },
                         {
                             model: 'ProfilePrice',
                             id: profilePrice.id,
                             action: 'update',
-                            property: 'title',
-                            newValue: 'Here is the first title',
-                            oldValue: profilePrice.title
+                            values: {
+                                title: [profilePrice.title, 'Here is the first title']
+                            }
                         },
                         {
                             model: 'ProfilePrice',
                             id: profilePrice.id,
                             action: 'update',
-                            property: 'title',
-                            newValue: 'Here is the last title',
-                            oldValue: 'Here is the first title'
+                            values: {
+                                title: ['Here is the first title', 'Here is the last title']
+                            }
                         },
                         {
                             model: 'ProfilePrice',
                             id: profilePrice.id,
                             action: 'update',
-                            property: 'title',
-                            newValue: 'Here is the wrong title',
-                            oldValue: profilePrice.title
+                            values: {
+                                title: [profilePrice.title, 'Here is the wrong title']
+                            }
                         }
                     ]
                 };

@@ -105,33 +105,33 @@ describe("EstimationLines", function(){
                             model: 'EstimationLine',
                             id: line.id,
                             action: 'update',
-                            property: 'isActive',
-                            newValue: true,
-                            oldValue: line.isActive
+                            values: {
+                                isActive: [line.isActive, true]
+                            }
                         },
                         {
                             model: 'EstimationLine',
                             id: line.id,
                             action: 'update',
-                            property: 'title',
-                            newValue: 'Here is the first title',
-                            oldValue: line.title
+                            values: {
+                                title: [line.title, 'Here is the first title']
+                            }
                         },
                         {
                             model: 'EstimationLine',
                             id: line.id,
                             action: 'update',
-                            property: 'title',
-                            newValue: 'Here is the last title',
-                            oldValue: 'Here is the first title'
+                            values: {
+                                title: ['Here is the first title', 'Here is the last title']
+                            }
                         },
                         {
                             model: 'EstimationLine',
                             id: line.id,
                             action: 'update',
-                            property: 'title',
-                            newValue: 'Here is the wrong title',
-                            oldValue: 'Foo'
+                            values: {
+                                title: ['Foo', 'Here is the wrong title']
+                            }
                         }
                     ]
                 };

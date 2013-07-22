@@ -104,33 +104,33 @@ describe("Scales", function(){
                             model: 'Scale',
                             id: scale.id,
                             action: 'update',
-                            property: 'isActive',
-                            newValue: true,
-                            oldValue: scale.isActive
+                            values: {
+                                isActive: [scale.isActive, true]
+                            }
                         },
                         {
                             model: 'Scale',
                             id: scale.id,
                             action: 'update',
-                            property: 'name',
-                            newValue: 'Here is the first name',
-                            oldValue: scale.name
+                            values: {
+                                name: [scale.name, 'Here is the first name']
+                            }
                         },
                         {
                             model: 'Scale',
                             id: scale.id,
                             action: 'update',
-                            property: 'name',
-                            newValue: 'Here is the last name',
-                            oldValue: 'Here is the first name'
+                            values: {
+                                name: ['Here is the first name', 'Here is the last name']
+                            }
                         },
                         {
                             model: 'Scale',
                             id: scale.id,
                             action: 'update',
-                            property: 'name',
-                            newValue: 'Here is the wrong name',
-                            oldValue: 'Foo'
+                            values: {
+                                name: ['Foo', 'Here is the wrong name']
+                            }
                         }
                     ]
                 };
