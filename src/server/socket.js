@@ -12,7 +12,7 @@ var io = require('socket.io'),
 
 module.exports = function (config, app, server) {
 
-    var filterInfo = /handshake/;
+    var filterInfo = /handshake|transport\send/;
 
     io = io.listen(server, {
         logger: {
