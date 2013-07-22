@@ -16,7 +16,7 @@ ruby_block  "setup .bashrc" do
 		file = Chef::Util::FileEdit.new("/home/vagrant/.bashrc")
 		file.insert_line_if_no_match(
 		  "# Vagrant dev",
-		  "\n# Vagrant dev\neval \"$(grunt --completion=bash)\"\ncd #{node["root_src"]}"
+		  "\n# Vagrant dev\neval \"$(grunt --completion=bash)\"\n. <(npm completion)\ncd #{node["root_src"]}"
 		)
 		file.write_file
 	end
