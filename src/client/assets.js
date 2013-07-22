@@ -29,6 +29,7 @@ module.exports = function(assets) {
     assets.addJs('/javascripts/projectCalculator.js', 'project');
     assets.addJs('/javascripts/renderers/baseRenderer.js', 'project');
     assets.addJs('/javascripts/renderers/baseTabRenderer.js', 'project');
+    assets.addJs('/javascripts/renderers/gridHelper.js', 'project');
     assets.addJs('/javascripts/renderers/infoRenderer.js', 'project');
     assets.addJs('/javascripts/renderers/profilePricesRenderer.js', 'project');
     assets.addJs('/javascripts/renderers/profileProjectsRenderer.js', 'project');

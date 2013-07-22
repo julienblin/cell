@@ -10,11 +10,21 @@ var ProfilePricesRenderer = (function() {
         self.__proto__ = BaseRenderer(engine);
         self.gridSelector = '#profilePricesInputGrid';
 
-        var _cachedGrid;
-        var _shadowData = {};
+        var _cachedGrid, _gridHelper;
 
         // Event subscriptions
         self.on('render', function() {
+            if(!_gridHelper) {
+                _gridHelper = new GridHelper({
+                    engine: self.engine,
+                    modelName: 'ProfilePrice',
+                    dataCollection: self.engine.data.profilePrices,
+                    defaultValues: {
+                        isActive: true
+                    }
+                });
+            }
+
             if(_cachedGrid) {
                 _cachedGrid.render();
                 return;
@@ -51,72 +61,9 @@ var ProfilePricesRenderer = (function() {
                     }
                     return cellProperties;
                 },
-                beforeRender: function() {
-                    _shadowData.profilePrices = _.clone(self.engine.data.profilePrices);
-                },
-                afterChange: function(changes, operation) {
-                    switch(operation) {
-                        case 'edit':
-                        case 'autofill':
-                        case 'paste':
-                            var modifications = [];
-                            _.each(changes, function(change) {
-                                var profilePrice = self.engine.data.profilePrices[change[0]];
-                                if (profilePrice.id) {
-                                    var modif = {
-                                        model: 'ProfilePrice',
-                                        id: profilePrice.id,
-                                        action: 'update',
-                                        values: {},
-                                        localInfo: {
-                                            alreadyApplied: true,
-                                            target: profilePrice
-                                        }
-                                    };
-                                    modif.values[change[1]] = [change[2], change[3]];
-                                    modifications.push(modif);
-                                } else {
-                                    var createModif = {
-                                        model: 'ProfilePrice',
-                                        action: 'create',
-                                        values: {},
-                                        localInfo: {
-                                            alreadyApplied: true,
-                                            target: profilePrice
-                                        }
-                                    };
-                                    createModif.values[change[1]] = change[3];
-                                    if(change[1] === 'title') {
-                                        profilePrice.isActive = true;
-                                        createModif.values.isActive = true;
-                                    }
-                                    if(change[0] > 0) {
-                                        createModif.insertAfter = self.engine.data.profilePrices[change[0] - 1].id;
-                                    }
-                                    modifications.push(createModif);
-                                }
-                            });
-                            self.engine.applyModifications(modifications);
-                            break;
-                    }
-                },
-                afterRemoveRow: function(index, amount) {
-                    var profilePricesToDelete = _shadowData.profilePrices.slice(index, index + amount);
-                    var modifications = [];
-                    _.each(profilePricesToDelete, function(profilePrice, profilePriceIndex) {
-                        modifications.push({
-                            model: 'ProfilePrice',
-                            id: profilePrice.id,
-                            action: 'delete',
-                            localInfo: {
-                                alreadyApplied: true,
-                                target: profilePrice,
-                                position: (index + profilePriceIndex)
-                            }
-                        });
-                    });
-                    self.engine.applyModifications(modifications);
-                }
+                beforeRender: _gridHelper.beforeRender,
+                afterChange: _gridHelper.afterChange,
+                afterRemoveRow: _gridHelper.afterRemoveRow
             });
             _cachedGrid = $(self.gridSelector).data('handsontable');
         });

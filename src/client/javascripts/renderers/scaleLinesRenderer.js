@@ -13,8 +13,8 @@ var ScaleLinesRenderer = (function() {
         if(!self.scale.lines) self.scale.lines = [];
         if(!self.scale.columns) self.scale.columns = [];
         self.gridSelector = '#gridScale' + scale.id;
-        var _cachedGrid = null;
-        var _shadowData = {};
+
+        var _cachedGrid, _gridHelper;
 
         var _getColHeaders = function() {
             var headers = [ "Act.", "Complexity" ];
@@ -50,6 +50,19 @@ var ScaleLinesRenderer = (function() {
         };
 
         self.on('render', function() {
+            if(!_gridHelper) {
+                _gridHelper = new GridHelper({
+                    engine: self.engine,
+                    modelName: 'ScaleLine',
+                    dataCollection: self.scale.lines,
+                    parentId: self.scale.id,
+                    defaultValues: {
+                        isActive: true,
+                        values: {}
+                    }
+                });
+            }
+
             if(_cachedGrid) {
                 $(self.gridSelector).handsontable("updateSettings", {
                     colHeaders: _getColHeaders(),
@@ -144,76 +157,9 @@ var ScaleLinesRenderer = (function() {
                     }
                     return cellProperties;
                 },
-                beforeRender: function() {
-                    _shadowData.lines = _.clone(self.scale.lines);
-                },
-                afterChange: function(changes, operation) {
-                    switch(operation) {
-                        case 'edit':
-                        case 'autofill':
-                        case 'paste':
-                            var modifications = [];
-                            _.each(changes, function(change) {
-                                var scaleLine = self.scale.lines[change[0]];
-                                if (scaleLine.id) {
-                                    var modif = {
-                                        model: 'ScaleLine',
-                                        id: scaleLine.id,
-                                        parentId: self.scale.id,
-                                        action: 'update',
-                                        values: {},
-                                        localInfo: {
-                                            alreadyApplied: true,
-                                            target: scaleLine
-                                        }
-                                    };
-                                    modif.values[change[1]] = [change[2], change[3]];
-                                    modifications.push(modif);
-                                } else {
-                                    var createModif = {
-                                        model: 'ScaleLine',
-                                        action: 'create',
-                                        parentId: self.scale.id,
-                                        values: {},
-                                        localInfo: {
-                                            alreadyApplied: true,
-                                            target: scaleLine
-                                        }
-                                    };
-                                    createModif.values[change[1]] = change[3];
-                                    if(change[1] !== 'isActive') {
-                                        scaleLine.isActive = true;
-                                        scaleLine.values = {};
-                                        createModif.values.isActive = true;
-                                    }
-                                    if(change[0] > 0) {
-                                        createModif.insertAfter = self.scale.lines[change[0] - 1].id;
-                                    }
-                                    modifications.push(createModif);
-                                }
-                            });
-                            self.engine.applyModifications(modifications);
-                            break;
-                    }
-                },
-                afterRemoveRow: function(index, amount) {
-                    var linesToDelete = _shadowData.lines.slice(index, index + amount);
-                    var modifications = [];
-                    _.each(linesToDelete, function(scale, scaleIndex) {
-                        modifications.push({
-                            model: 'ScaleLine',
-                            id: scale.id,
-                            parentId: self.scale.id,
-                            action: 'delete',
-                            localInfo: {
-                                alreadyApplied: true,
-                                target: scale,
-                                position: (index + scaleIndex)
-                            }
-                        });
-                    });
-                    self.engine.applyModifications(modifications);
-                }
+                beforeRender: _gridHelper.beforeRender,
+                afterChange: _gridHelper.afterChange,
+                afterRemoveRow: _gridHelper.afterRemoveRow
             });
             _cachedGrid = $(self.gridSelector).data('handsontable');
         });

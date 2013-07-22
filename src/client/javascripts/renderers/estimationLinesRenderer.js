@@ -10,8 +10,7 @@ var EstimationLinesRenderer = (function() {
         self.__proto__ = BaseTabRenderer('#estimations', engine);
         self.gridSelector = '#estimationsGrid';
 
-        var _cachedGrid, _currentPopoverCell;
-        var _shadowData = {};
+        var _cachedGrid, _gridHelper, _currentPopoverCell;
 
         var _scalesSource = function() {
             return _.pluck(_.filter(self.engine.data.scales, function(value) { return value.id; }), 'name');
@@ -24,35 +23,29 @@ var EstimationLinesRenderer = (function() {
             return _.pluck(_.filter(scale.lines, function(value) { return value.id; }), 'complexity');
         };
 
-        var _dataScale = function(line, value, options) {
-            var scale;
-            if (options) {
-                if (options.propertyName) return 'scale';
-                if (options.inverseGet) {
-                    scale = _.findWhere(self.engine.data.scales, { name: value });
-                    return scale ? scale.id : null;
-                }
+        var _dataScale = function scale(line, value, inverseGet) {
+            var targetScale;
+            if (inverseGet) {
+                targetScale = _.findWhere(self.engine.data.scales, { name: value });
+                return targetScale ? targetScale.id : null;
             }
             if(!line) line = {};
             if(typeof value === 'undefined') {
-                scale = self.engine.data.nav.scales[line.scale];
-                return scale ? scale.name : null;
+                targetScale = self.engine.data.nav.scales[line.scale];
+                return targetScale ? targetScale.name : null;
             } else {
-                scale = _.findWhere(self.engine.data.scales, { name: value });
-                line.scale = scale ? scale.id : null;
+                targetScale = _.findWhere(self.engine.data.scales, { name: value });
+                line.scale = targetScale ? targetScale.id : null;
             }
         };
 
-        var _dataComplexity = function(line, value, options) {
+        var _dataComplexity = function complexity(line, value, inverseGet) {
             var scale, scaleLine;
-            if (options) {
-                if (options.propertyName) return 'complexity';
-                if (options.inverseGet) {
-                    scale = self.engine.data.nav.scales[line.scale];
-                    if(!scale) return null;
-                    scaleLine = _.findWhere(scale.lines, { complexity: value });
-                    return scaleLine ? scaleLine.id : null;
-                }
+            if (inverseGet) {
+                scale = self.engine.data.nav.scales[line.scale];
+                if(!scale) return null;
+                scaleLine = _.findWhere(scale.lines, { complexity: value });
+                return scaleLine ? scaleLine.id : null;
             }
             if(!line) line = {};
             if(typeof value === 'undefined') {
@@ -68,6 +61,17 @@ var EstimationLinesRenderer = (function() {
 
         // Event subscriptions
         self.on('render', function() {
+            if(!_gridHelper) {
+                _gridHelper = new GridHelper({
+                    engine: self.engine,
+                    modelName: 'EstimationLine',
+                    dataCollection: self.engine.data.estimationLines,
+                    defaultValues: {
+                        isActive: true
+                    }
+                });
+            }
+
             if(_cachedGrid) {
                 _cachedGrid.render();
                 return;
@@ -103,7 +107,7 @@ var EstimationLinesRenderer = (function() {
                     }
 
                     if(typeof prop === 'function')
-                        prop = prop(null, null, { propertyName: true });
+                        prop = prop.name;
 
                     switch(prop) {
                         case 'isActive':
@@ -236,76 +240,9 @@ var EstimationLinesRenderer = (function() {
                         }
                     }
                 },
-                beforeRender: function() {
-                    _shadowData.estimationLines = _.clone(self.engine.data.estimationLines);
-                },
-                afterChange: function(changes, operation) {
-                    switch(operation) {
-                        case 'edit':
-                        case 'autofill':
-                        case 'paste':
-                            var modifications = [];
-                            _.each(changes, function(change) {
-                                var line = self.engine.data.estimationLines[change[0]];
-                                var property = change[1];
-                                var oldValue = change[2];
-                                var newValue = change[3];
-                                if(typeof change[1] === 'function') {
-                                    property = change[1](null, null, { propertyName: true });
-                                    oldValue = change[1](line, change[2], { inverseGet: true });
-                                    newValue = line[property];
-                                }
-                                if (line.id) {
-                                    var modif = {
-                                        model: 'EstimationLine',
-                                        id: line.id,
-                                        action: 'update',
-                                        values: {}
-                                    };
-                                    modif.values[property] = [oldValue, newValue];
-                                    modifications.push(modif);
-                                } else {
-                                    var createModif = {
-                                        model: 'EstimationLine',
-                                        action: 'create',
-                                        values: {},
-                                        localInfo: {
-                                            alreadyApplied: true,
-                                            target: line
-                                        }
-                                    };
-                                    createModif.values[property] = newValue;
-                                    if(property !== 'isActive') {
-                                        line.isActive = true;
-                                        createModif.values.isActive = true;
-                                    }
-                                    if(change[0] > 0) {
-                                        createModif.insertAfter = self.engine.data.estimationLines[change[0] - 1].id;
-                                    }
-                                    modifications.push(createModif);
-                                }
-                            });
-                            self.engine.applyModifications(modifications);
-                            break;
-                    }
-                },
-                afterRemoveRow: function(index, amount) {
-                    var linesToDelete = _shadowData.estimationLines.slice(index, index + amount);
-                    var modifications = [];
-                    _.each(linesToDelete, function(line, lineIndex) {
-                        modifications.push({
-                            model: 'EstimationLine',
-                            id: line.id,
-                            action: 'delete',
-                            localInfo: {
-                                alreadyApplied: true,
-                                target: line,
-                                position: (index + lineIndex)
-                            }
-                        });
-                    });
-                    self.engine.applyModifications(modifications);
-                },
+                beforeRender: _gridHelper.beforeRender,
+                afterChange: _gridHelper.afterChange,
+                afterRemoveRow: _gridHelper.afterRemoveRow,
                 afterSelectionEnd: function(row, col, endRow, endCol) {
                     if(_currentPopoverCell) {
                         $(_currentPopoverCell).popover('destroy');

@@ -11,20 +11,17 @@ var ProfileProjectsRenderer = (function() {
         self.gridSelector = '#profileProjectsInputGrid';
 
         var _calculator = new ProjectCalculator();
-        var _cachedGrid;
-        var _shadowData = {};
+        var _cachedGrid, _gridHelper;
 
         var _profilePricesSource = function() {
             return _.pluck(_.filter(self.engine.data.profilePrices, function(value) { return value.id; }), 'title');
         };
 
-        var _dataProfilePrice = function profilePrice(profileProject, value, options) {
+        var _dataProfilePrice = function profilePrice(profileProject, value, inverseGet) {
             var targetProfilePrice;
-            if (options) {
-                if (options.inverseGet) {
-                    targetProfilePrice = _.findWhere(self.engine.data.profilePrices, { title: value });
-                    return targetProfilePrice ? targetProfilePrice.id : null;
-                }
+            if (inverseGet) {
+                targetProfilePrice = _.findWhere(self.engine.data.profilePrices, { title: value });
+                return targetProfilePrice ? targetProfilePrice.id : null;
             }
             if(!profileProject) profileProject = {};
             if(typeof value === 'undefined') {
@@ -38,6 +35,20 @@ var ProfileProjectsRenderer = (function() {
 
         // Event subscriptions
         self.on('render', function() {
+            if(!_gridHelper) {
+                _gridHelper = new GridHelper({
+                    engine: self.engine,
+                    modelName: 'ProfileProject',
+                    dataCollection: self.engine.data.profileProjects,
+                    defaultValues: {
+                        isActive: true,
+                        percentageJunior: 25,
+                        percentageIntermediary: 50,
+                        percentageSenior: 25
+                    }
+                });
+            }
+
             if(_cachedGrid) {
                 _cachedGrid.render();
                 return;
@@ -100,86 +111,9 @@ var ProfileProjectsRenderer = (function() {
                     }
                     return cellProperties;
                 },
-                beforeRender: function() {
-                    _shadowData.profileProjects = _.clone(self.engine.data.profileProjects);
-                },
-                afterChange: function(changes, operation) {
-                    switch(operation) {
-                        case 'edit':
-                        case 'autofill':
-                        case 'paste':
-                            var modifications = [];
-                            _.each(changes, function(change) {
-                                var profileProject = self.engine.data.profileProjects[change[0]];
-                                var property = change[1];
-                                var oldValue = change[2];
-                                var newValue = change[3];
-                                if(typeof change[1] === 'function') {
-                                    property = change[1].name;
-                                    oldValue = change[1](profileProject, change[2], { inverseGet: true });
-                                    newValue = profileProject[property];
-                                }
-                                if (profileProject.id) {
-                                    var modif = {
-                                        model: 'ProfileProject',
-                                        id: profileProject.id,
-                                        action: 'update',
-                                        values: {},
-                                        localInfo: {
-                                            alreadyApplied: true,
-                                            target: profileProject
-                                        }
-                                    };
-                                    modif.values[property] = [oldValue, newValue];
-                                    modifications.push(modif);
-                                } else {
-                                    var createModif = {
-                                        model: 'ProfileProject',
-                                        action: 'create',
-                                        values: {},
-                                        localInfo: {
-                                            alreadyApplied: true,
-                                            target: profileProject
-                                        }
-                                    };
-                                    createModif.values[property] = newValue;
-                                    if(change[1] === 'title') {
-                                        profileProject.isActive = true;
-                                        profileProject.percentageJunior = 25;
-                                        profileProject.percentageIntermediary = 50;
-                                        profileProject.percentageSenior = 25;
-                                        createModif.values.isActive = true;
-                                        createModif.values.percentageJunior = 25;
-                                        createModif.values.percentageIntermediary = 50;
-                                        createModif.values.percentageSenior = 25;
-                                    }
-                                    if(change[0] > 0) {
-                                        createModif.insertAfter = self.engine.data.profileProjects[change[0] - 1].id;
-                                    }
-                                    modifications.push(createModif);
-                                }
-                            });
-                            self.engine.applyModifications(modifications);
-                            break;
-                    }
-                },
-                afterRemoveRow: function(index, amount) {
-                    var profileProjectsToDelete = _shadowData.profileProjects.slice(index, index + amount);
-                    var modifications = [];
-                    _.each(profileProjectsToDelete, function(profileProject, profileProjectIndex) {
-                        modifications.push({
-                            model: 'ProfileProject',
-                            id: profileProject.id,
-                            action: 'delete',
-                            localInfo: {
-                                alreadyApplied: true,
-                                target: profileProject,
-                                position: (index + profileProjectIndex)
-                            }
-                        });
-                    });
-                    self.engine.applyModifications(modifications);
-                }
+                beforeRender: _gridHelper.beforeRender,
+                afterChange: _gridHelper.afterChange,
+                afterRemoveRow: _gridHelper.afterRemoveRow
             });
             _cachedGrid = $(self.gridSelector).data('handsontable');
         });
