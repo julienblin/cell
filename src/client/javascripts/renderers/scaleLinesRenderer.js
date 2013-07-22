@@ -57,8 +57,7 @@ var ScaleLinesRenderer = (function() {
                     dataCollection: self.scale.lines,
                     parentId: self.scale.id,
                     defaultValues: {
-                        isActive: true,
-                        values: {}
+                        isActive: true
                     }
                 });
             }
@@ -143,6 +142,8 @@ var ScaleLinesRenderer = (function() {
                     var scaleLine = self.scale.lines[row];
                     if(scaleLine) {
                         switch(prop) {
+                            case 'isActive':
+                                break;
                             case 'complexity':
                                 if(scaleLine.id) {
                                     cellProperties.invalid = !(scaleLine.complexity);
@@ -151,6 +152,15 @@ var ScaleLinesRenderer = (function() {
                             case 'computed.lineTotalUT':
                             case 'computed.lineTotalPrice':
                                 cellProperties.computed = true;
+                                break;
+                            default:
+                                if(col >= 2 ) {
+                                    var column = self.scale.columns[col - 2];
+                                    if(column)
+                                        cellProperties.readOnly = self.engine.isReadOnly;
+                                    else
+                                        cellProperties.readOnly = true;
+                                    }
                                 break;
                         }
                         cellProperties.muted = !scaleLine.isActive;
