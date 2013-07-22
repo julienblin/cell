@@ -16,10 +16,26 @@ var ModificationSchema = new Schema({
 }, { capped: 10000 });
 
 ModificationSchema.statics.createFromResponses = function(responses, callback) {
+    var data = _.omit(responses, 'projectId', 'user');
+    // properties cannot contain "." - replacing with "_".
+    if(data.modifications) {
+        for(var modificationIndex in data.modifications) {
+            var modification = data.modifications[modificationIndex];
+            if(modification.values) {
+                for(var property in modification.values) {
+                    if(property.indexOf('.') !== -1) {
+                        modification.values[property.replace('.', '_')] = modification.values[property];
+                        delete modification.values[property];
+                    }
+                }
+            }
+        }
+    }
+
     mongoose.model('Modification').create({
         project: responses.projectId,
         user: responses.user,
-        data: _.omit(responses, 'projectId', 'user')
+        data: data
     }, callback);
 };
 
