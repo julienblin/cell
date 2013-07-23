@@ -11,7 +11,8 @@ var auth = require('./middlewares/authorizations'),
     projects = require('./controllers/projects'),
     users = require('./controllers/system/users'),
     logs = require('./controllers/system/logs'),
-    modifications = require('./controllers/system/modifications');
+    modifications = require('./controllers/system/modifications'),
+    utilities = require('./controllers/utilities');
 
 module.exports = function (app, passport) {
     app.get(auth.LOGIN_ROUTE, login.login);
@@ -49,6 +50,10 @@ module.exports = function (app, passport) {
 
     app.get('/system/logs', auth.admin, logs.index);
     app.get('/system/modifications', auth.admin, modifications.index);
+
+    // Utilities
+    app.get('/version', utilities.version);
+    app.get('/ping', utilities.ping);
 
     app.get('/', auth.requiresLogin, index.index);
 };
