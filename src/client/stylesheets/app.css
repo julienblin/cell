@@ -111,3 +111,8 @@ a.cellLink {
     margin-left:10px;
     margin-right:0;
 }
+
+#estimations .popover {
+    max-width: 400px;
+    width: 400px;
+}

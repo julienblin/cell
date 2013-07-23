@@ -210,7 +210,13 @@
                             };
                             targetProfile = data.nav.profileProjects[profileProjectId];
                             if(targetProfile && targetProfile.profilePrice) {
-                                line.computed.profilePrices[targetProfile.profilePrice] = line.computed.profileProjects[profileProjectId];
+                                if(!line.computed.profilePrices[targetProfile.profilePrice])
+                                    line.computed.profilePrices[targetProfile.profilePrice] = {
+                                        lineTotalUT: 0,
+                                        lineTotalPrice: 0
+                                    };
+                                line.computed.profilePrices[targetProfile.profilePrice].lineTotalUT = line.computed.profilePrices[targetProfile.profilePrice].lineTotalUT + line.computed.profileProjects[profileProjectId].lineTotalUT;
+                                line.computed.profilePrices[targetProfile.profilePrice].lineTotalPrice = line.computed.profilePrices[targetProfile.profilePrice].lineTotalPrice + line.computed.profileProjects[profileProjectId].lineTotalPrice;
                             }
                         }
                     }

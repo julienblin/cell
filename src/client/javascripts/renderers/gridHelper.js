@@ -108,6 +108,29 @@ window.GridHelper = (function() {
             options.engine.applyModifications(modifications);
         };
 
+        self.afterSelectionEndPopover = function(gridCallback, callback) {
+            return function(row, col, endRow, endCol) {
+                if(self.currentPopoverCell) {
+                    $(self.currentPopoverCell).popover('destroy');
+                    self.currentPopoverCell = null;
+                }
+
+                var cell = gridCallback().getCell(row, col);
+                var popover = callback(cell, row, col, endRow, endCol);
+                if(popover) {
+                    $(cell).popover(popover);
+                    self.currentPopoverCell = cell;
+                }
+            };
+        };
+
+        self.afterDeselectPopover = function() {
+            if(self.currentPopoverCell) {
+                $(self.currentPopoverCell).popover('destroy');
+                self.currentPopoverCell = null;
+            }
+        };
+
         return self;
     };
 })();

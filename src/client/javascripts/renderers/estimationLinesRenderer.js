@@ -171,11 +171,11 @@ var EstimationLinesRenderer = (function() {
                                     break;
                                 case 'heading1':
                                     cellProperties.paddingLeft = '15px';
-                                    cellProperties.readOnly = true;
+                                    cellProperties.readOnly = self.engine.isReadOnly;
                                     break;
                                 case 'heading2':
                                     cellProperties.paddingLeft = '30px';
-                                    cellProperties.readOnly = true;
+                                    cellProperties.readOnly = self.engine.isReadOnly;
                                     break;
                                 default:
                                     cellProperties.paddingLeft = '45px';
@@ -305,42 +305,63 @@ var EstimationLinesRenderer = (function() {
                 beforeRender: _gridHelper.beforeRender,
                 afterChange: _gridHelper.afterChange,
                 afterRemoveRow: _gridHelper.afterRemoveRow,
-                afterSelectionEnd: function(row, col, endRow, endCol) {
-                    if(_currentPopoverCell) {
-                        $(_currentPopoverCell).popover('destroy');
-                        _currentPopoverCell = null;
-                    }
+                afterSelectionEnd: _gridHelper.afterSelectionEndPopover(
+                    function() { return _cachedGrid; },
+                    function(cell, row, col, endRow, endCol) {
+                        if(row !== endRow) return; // multiple rows selected;
+                        if(col !== endCol) return; // multiple columns selected;
 
-                    if(((col === 5) || (col === 6)) && (col === endCol)) {
-                        var cell = _cachedGrid.getCell(row, col);
-                        var line = self.engine.data.estimationLines[row];
-                        if(!line.id && !line.lineType) return;
-                        var profileProjects = _.map(self.engine.data.profileProjects, function(profileProject) {
-                            if(!(profileProject.id && profileProject.title)) return;
+                        var line, profiles;
+
+                        if(col === 5) {
+                            line = self.engine.data.estimationLines[row];
+                            if(!(line && (line.id || line.lineType === 'headingTotal'))) return;
+                            if(line.lineType === 'fixedPrice') return;
+
+                            profiles = _.compact(_.map(self.engine.data.profileProjects, function(profileProject) {
+                                if(!(profileProject && profileProject.id && profileProject.title)) return;
+                                return {
+                                    title: profileProject.title,
+                                    lineTotalUT: line.computed.profileProjects[profileProject.id] ? numeral(line.computed.profileProjects[profileProject.id].lineTotalUT).format('0.0') : 0,
+                                    lineTotalPrice: line.computed.profileProjects[profileProject.id] ? numeral(line.computed.profileProjects[profileProject.id].lineTotalPrice).format('0,0.0') : 0
+                                };
+                            }));
+                            if(profiles.length === 0) return;
+
                             return {
-                                title: profileProject.title,
-                                lineTotalUT: line.computed.profileProjects[profileProject.id] ? numeral(line.computed.profileProjects[profileProject.id].lineTotalUT).format('0.0') : 0,
-                                lineTotalPrice: line.computed.profileProjects[profileProject.id] ? numeral(line.computed.profileProjects[profileProject.id].lineTotalPrice).format('0,0.0') : 0
+                                title: line.title,
+                                content: self.getTemplate('#estimationLines-details-template')({ profiles: profiles }),
+                                placement: 'left',
+                                container: self.tabSelector,
+                                html: true
                             };
-                        });
-                        if(profileProjects.length === 0) return;
+                        }
 
-                        $(cell).popover({
-                            title: line.title,
-                            content: self.getTemplate('#estimationLines-details-template')({ profileProjects: profileProjects }),
-                            placement: 'left',
-                            container: self.tabSelector,
-                            html: true
-                        });
-                        _currentPopoverCell = cell;
-                    }
-                },
-                afterDeselect: function() {
-                    if(_currentPopoverCell) {
-                        $(_currentPopoverCell).popover('destroy');
-                        _currentPopoverCell = null;
-                    }
-                }
+                        if(col === 6) {
+                            line = self.engine.data.estimationLines[row];
+                            if(!(line && (line.id || line.lineType === 'headingTotal'))) return;
+                            if(line.lineType === 'fixedPrice') return;
+
+                            profiles = _.compact(_.map(self.engine.data.profilePrices, function(profilePrice) {
+                                if(!(profilePrice && profilePrice.id && profilePrice.title)) return;
+                                return {
+                                    title: profilePrice.title,
+                                    lineTotalUT: line.computed.profilePrices[profilePrice.id] ? numeral(line.computed.profilePrices[profilePrice.id].lineTotalUT).format('0.0') : 0,
+                                    lineTotalPrice: line.computed.profilePrices[profilePrice.id] ? numeral(line.computed.profilePrices[profilePrice.id].lineTotalPrice).format('0,0.0') : 0
+                                };
+                            }));
+                            if(profiles.length === 0) return;
+
+                            return {
+                                title: line.title,
+                                content: self.getTemplate('#estimationLines-details-template')({ profiles: profiles }),
+                                placement: 'left',
+                                container: self.tabSelector,
+                                html: true
+                            };
+                        }
+                }),
+                afterDeselect: _gridHelper.afterDeselectPopover
             });
             _cachedGrid = $(self.gridSelector).data('handsontable');
         });
