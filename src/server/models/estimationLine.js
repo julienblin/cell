@@ -19,6 +19,7 @@ var EstimationLineSchema = new Schema({
     scale: { type: Schema.Types.ObjectId, ref: 'Scale' },
     complexity: { type: Schema.Types.ObjectId, ref: 'ScaleLine' },
     coefficient: { type: Number },
+    fixedPriceScale: { type: String },
     fixedPrice:  { type: Number }
 });
 

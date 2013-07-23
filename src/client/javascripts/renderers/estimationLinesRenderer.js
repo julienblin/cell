@@ -23,19 +23,32 @@ var EstimationLinesRenderer = (function() {
             return _.pluck(_.filter(scale.lines, function(value) { return value.id; }), 'complexity');
         };
 
+        // Can bind to either scale or fixedPriceScale
         var _dataScale = function scale(line, value, inverseGet) {
             var targetScale;
-            if (inverseGet) {
-                targetScale = _.findWhere(self.engine.data.scales, { name: value });
-                return targetScale ? targetScale.id : null;
-            }
             if(!line) line = {};
+            if (inverseGet) {
+                if(line.lineType === 'fixedPrice') {
+                    return value;
+                } else {
+                    targetScale = _.findWhere(self.engine.data.scales, { name: value });
+                    return targetScale ? targetScale.id : null;
+                }
+            }
             if(typeof value === 'undefined') {
-                targetScale = self.engine.data.nav.scales[line.scale];
-                return targetScale ? targetScale.name : null;
+                if(line.lineType === 'fixedPrice') {
+                    return line.fixedPriceScale;
+                } else {
+                    targetScale = self.engine.data.nav.scales[line.scale];
+                    return targetScale ? targetScale.name : null;
+                }
             } else {
-                targetScale = _.findWhere(self.engine.data.scales, { name: value });
-                line.scale = targetScale ? targetScale.id : null;
+                if(line.lineType === 'fixedPrice') {
+                    line.fixedPriceScale = value;
+                } else {
+                    targetScale = _.findWhere(self.engine.data.scales, { name: value });
+                    line.scale = targetScale ? targetScale.id : null;
+                }
             }
         };
 
@@ -85,15 +98,17 @@ var EstimationLinesRenderer = (function() {
                     },
                     beforeCreateModifications: function(change, target, property, oldValue, newValue) {
                         // We must alter the complexity property to bind to fixed price when needed.
+                        // Ditto for scale
                         if(!target) return [target, property, oldValue, newValue];
                         if(target.lineType !== 'fixedPrice') return [target, property, oldValue, newValue];
-                        if(property !== 'complexity') return [target, property, oldValue, newValue];
-                        return [
-                            target,
-                            'fixedPrice',
-                            oldValue,
-                            target.fixedPrice
-                        ];
+                        switch(property) {
+                            case 'scale':
+                                return [ target, 'fixedPriceScale', oldValue, target.fixedPriceScale ];
+                            case 'complexity':
+                                return [ target, 'fixedPrice', oldValue, target.fixedPrice ];
+                            default:
+                                return [target, property, oldValue, newValue];
+                        }
                     }
                 });
             }
@@ -170,11 +185,14 @@ var EstimationLinesRenderer = (function() {
                             break;
                         case 'scale':
                             if(line.lineType) {
-                                cellProperties.grandHeading = true;
-                                cellProperties.renderer = Handsontable.BlankRenderer;
-                                cellProperties.readOnly = true;
+                                if(line.lineType === 'fixedPrice') {
+                                    cellProperties.renderer = Handsontable.cellTypes.title.renderer;
+                                    cellProperties.readOnly = self.engine.isReadOnly;
+                                } else {
+                                    cellProperties.renderer = Handsontable.BlankRenderer;
+                                    cellProperties.readOnly = true;
+                                }
                             } else {
-                                cellProperties.grandHeading = false;
                                 cellProperties.renderer = Handsontable.cellTypes.cellAutocomplete.renderer;
                                 cellProperties.readOnly = self.engine.isReadOnly;
                                 cellProperties.source = _scalesSource();

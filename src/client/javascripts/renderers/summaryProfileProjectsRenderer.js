@@ -206,11 +206,7 @@ var SummaryProfileProjectsRenderer = (function() {
                     ],
                     cells: function (row, col, prop) {
                         var cellProperties = {};
-                        if(row === self.engine.data.profileProjects.length)
-                            cellProperties.grandHeading = true;
-                        if(/Aggregate/.test(prop)) {
-                            cellProperties.grandHeading = true;
-                        }
+                        cellProperties.grandHeading = ((row === self.engine.data.profileProjects.length) || /Aggregate/.test(prop));
                         return cellProperties;
                     }
                 });

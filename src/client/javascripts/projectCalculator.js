@@ -164,12 +164,13 @@
                     profileProjects: {},
                     profilePrices: {},
                     scales: {},
-                    scaleLines: {}
+                    scaleLines: {},
+                    fixedScales: {}
                 };
 
             // We process backwards for headings accumulation
             for(var lineIndex = data.estimationLines.length - 1; lineIndex >= 0; --lineIndex) {
-                var profileProjectId, profilePriceId, targetProfile, scaleId, scaleLineId, scaleLine;
+                var profileProjectId, profilePriceId, targetProfile, scaleId, scaleLineId, scaleLine, fixedScale;
                 var line = data.estimationLines[lineIndex];
                 line.computed = {
                     lineTotalUT: undefined,
@@ -177,7 +178,8 @@
                     profileProjects: {},
                     profilePrices: {},
                     scales: {},
-                    scaleLines: {}
+                    scaleLines: {},
+                    fixedScales: {}
                 };
 
                 if(!line.id) continue;
@@ -188,6 +190,7 @@
                     if(line.lineType === 'fixedPrice') {
                         line.computed.lineTotalUT = 0;
                         line.computed.lineTotalPrice = line.fixedPrice ? self.handleRounding(line.fixedPrice * coefficient) : 0;
+                        line.computed.fixedScales[line.fixedPriceScale] = { lineTotalPrice: line.computed.lineTotalPrice };
                     } else {
                         if(!(line.scale && line.complexity)) continue;
                         scaleLine = data.nav.scaleLines[line.complexity];
@@ -215,49 +218,57 @@
                         for(indexHeading in headings) {
                             headings[indexHeading].lineTotalUT = self.handleRounding(headings[indexHeading].lineTotalUT + line.computed.lineTotalUT);
                             headings[indexHeading].lineTotalPrice = self.handleRounding(headings[indexHeading].lineTotalPrice + line.computed.lineTotalPrice);
-                            for(profileProjectId in line.computed.profileProjects) {
-                                if(!headings[indexHeading].profileProjects[profileProjectId])
-                                    headings[indexHeading].profileProjects[profileProjectId] = {
-                                        lineTotalUT: 0,
-                                        lineTotalPrice: 0
-                                    };
 
-                                headings[indexHeading].profileProjects[profileProjectId].lineTotalUT = self.handleRounding(headings[indexHeading].profileProjects[profileProjectId].lineTotalUT + line.computed.profileProjects[profileProjectId].lineTotalUT);
-                                headings[indexHeading].profileProjects[profileProjectId].lineTotalPrice = self.handleRounding(headings[indexHeading].profileProjects[profileProjectId].lineTotalPrice + line.computed.profileProjects[profileProjectId].lineTotalPrice);
-                            }
+                            if(line.lineType === 'fixedPrice') {
+                                for(fixedScale in line.computed.fixedScales) {
+                                    if(!headings[indexHeading].fixedScales[fixedScale]) headings[indexHeading].fixedScales[fixedScale] = { lineTotalPrice: 0 };
+                                    headings[indexHeading].fixedScales[fixedScale].lineTotalPrice = self.handleRounding(headings[indexHeading].fixedScales[fixedScale].lineTotalPrice + line.computed.fixedScales[fixedScale].lineTotalPrice);
+                                }
+                            } else {
+                                for(profileProjectId in line.computed.profileProjects) {
+                                    if(!headings[indexHeading].profileProjects[profileProjectId])
+                                        headings[indexHeading].profileProjects[profileProjectId] = {
+                                            lineTotalUT: 0,
+                                            lineTotalPrice: 0
+                                        };
 
-                            for(profilePriceId in line.computed.profilePrices) {
-                                if(!headings[indexHeading].profilePrices[profilePriceId])
-                                    headings[indexHeading].profilePrices[profilePriceId] = {
-                                        lineTotalUT: 0,
-                                        lineTotalPrice: 0
-                                    };
+                                    headings[indexHeading].profileProjects[profileProjectId].lineTotalUT = self.handleRounding(headings[indexHeading].profileProjects[profileProjectId].lineTotalUT + line.computed.profileProjects[profileProjectId].lineTotalUT);
+                                    headings[indexHeading].profileProjects[profileProjectId].lineTotalPrice = self.handleRounding(headings[indexHeading].profileProjects[profileProjectId].lineTotalPrice + line.computed.profileProjects[profileProjectId].lineTotalPrice);
+                                }
 
-                                headings[indexHeading].profilePrices[profilePriceId].lineTotalUT = self.handleRounding(headings[indexHeading].profilePrices[profilePriceId].lineTotalUT + line.computed.profilePrices[profilePriceId].lineTotalUT);
-                                headings[indexHeading].profilePrices[profilePriceId].lineTotalPrice = self.handleRounding(headings[indexHeading].profilePrices[profilePriceId].lineTotalPrice + line.computed.profilePrices[profilePriceId].lineTotalPrice);
-                            }
+                                for(profilePriceId in line.computed.profilePrices) {
+                                    if(!headings[indexHeading].profilePrices[profilePriceId])
+                                        headings[indexHeading].profilePrices[profilePriceId] = {
+                                            lineTotalUT: 0,
+                                            lineTotalPrice: 0
+                                        };
 
-                            if(scaleLine) {
-                                if(!headings[indexHeading].scaleLines[scaleLine.id])
-                                    headings[indexHeading].scaleLines[scaleLine.id] = {
-                                        lineTotalUT: 0,
-                                        lineTotalPrice: 0
-                                    };
+                                    headings[indexHeading].profilePrices[profilePriceId].lineTotalUT = self.handleRounding(headings[indexHeading].profilePrices[profilePriceId].lineTotalUT + line.computed.profilePrices[profilePriceId].lineTotalUT);
+                                    headings[indexHeading].profilePrices[profilePriceId].lineTotalPrice = self.handleRounding(headings[indexHeading].profilePrices[profilePriceId].lineTotalPrice + line.computed.profilePrices[profilePriceId].lineTotalPrice);
+                                }
 
-                                headings[indexHeading].scaleLines[scaleLine.id].lineTotalUT = self.handleRounding(headings[indexHeading].scaleLines[scaleLine.id].lineTotalUT + line.computed.lineTotalUT);
-                                headings[indexHeading].scaleLines[scaleLine.id].lineTotalPrice = self.handleRounding(headings[indexHeading].scaleLines[scaleLine.id].lineTotalPrice + line.computed.lineTotalPrice);
-                            }
+                                if(scaleLine) {
+                                    if(!headings[indexHeading].scaleLines[scaleLine.id])
+                                        headings[indexHeading].scaleLines[scaleLine.id] = {
+                                            lineTotalUT: 0,
+                                            lineTotalPrice: 0
+                                        };
 
-                            var scale = data.nav.scales[line.scale];
-                            if(scale) {
-                                if(!headings[indexHeading].scales[scale.id])
-                                    headings[indexHeading].scales[scale.id] = {
-                                        lineTotalUT: 0,
-                                        lineTotalPrice: 0
-                                    };
+                                    headings[indexHeading].scaleLines[scaleLine.id].lineTotalUT = self.handleRounding(headings[indexHeading].scaleLines[scaleLine.id].lineTotalUT + line.computed.lineTotalUT);
+                                    headings[indexHeading].scaleLines[scaleLine.id].lineTotalPrice = self.handleRounding(headings[indexHeading].scaleLines[scaleLine.id].lineTotalPrice + line.computed.lineTotalPrice);
+                                }
 
-                                headings[indexHeading].scales[scale.id].lineTotalUT = self.handleRounding(headings[indexHeading].scales[scale.id].lineTotalUT + line.computed.lineTotalUT);
-                                headings[indexHeading].scales[scale.id].lineTotalPrice = self.handleRounding(headings[indexHeading].scales[scale.id].lineTotalPrice + line.computed.lineTotalPrice);
+                                var scale = data.nav.scales[line.scale];
+                                if(scale) {
+                                    if(!headings[indexHeading].scales[scale.id])
+                                        headings[indexHeading].scales[scale.id] = {
+                                            lineTotalUT: 0,
+                                            lineTotalPrice: 0
+                                        };
+
+                                    headings[indexHeading].scales[scale.id].lineTotalUT = self.handleRounding(headings[indexHeading].scales[scale.id].lineTotalUT + line.computed.lineTotalUT);
+                                    headings[indexHeading].scales[scale.id].lineTotalPrice = self.handleRounding(headings[indexHeading].scales[scale.id].lineTotalPrice + line.computed.lineTotalPrice);
+                                }
                             }
                         }
                     }
@@ -289,6 +300,11 @@
                             lineTotalPrice: headings[line.lineType].scaleLines[scaleLineId].lineTotalPrice
                         };
                     }
+                    for(fixedScale in headings[line.lineType].fixedScales) {
+                        line.computed.fixedScales[fixedScale] = {
+                            lineTotalPrice: headings[line.lineType].fixedScales[fixedScale].lineTotalPrice
+                        };
+                    }
 
                     headings[line.lineType] = {
                         lineTotalUT: 0,
@@ -296,7 +312,8 @@
                         profileProjects: {},
                         profilePrices: {},
                         scales: {},
-                        scaleLines: {}
+                        scaleLines: {},
+                        fixedScales: {}
                     };
 
                     if(line.lineType === 'heading1')
@@ -306,7 +323,8 @@
                             profileProjects: {},
                             profilePrices: {},
                             scales: {},
-                            scaleLines: {}
+                            scaleLines: {},
+                            fixedScales: {}
                         };
                 }
             }
@@ -336,7 +354,8 @@
                 profileProjects: {},
                 profilePrices: {},
                 scales: {},
-                scaleLines: {}
+                scaleLines: {},
+                fixedScales: {}
             };
 
             if(data.estimationLines.length > 0) {
@@ -367,7 +386,11 @@
                         totalPrice: grandTotal.computed.scaleLines[scaleLineId].lineTotalPrice
                     };
                 }
-
+                for(var fixedScale in grandTotal.computed.fixedScales) {
+                    data.computed.fixedScales[fixedScale] = {
+                        totalPrice: grandTotal.computed.fixedScales[fixedScale].lineTotalPrice
+                    };
+                }
             }
         };
 

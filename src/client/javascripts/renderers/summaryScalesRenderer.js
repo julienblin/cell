@@ -10,7 +10,8 @@ var SummaryScalesRenderer = (function() {
         self.__proto__ = BaseRenderer(engine);
 
         self.gridSelector = '#summaryScalesGrid';
-        self.chartSelector = '#summaryScalesChart';
+        self.chartUTSelector = '#summaryScalesUTChart';
+        self.chartPriceSelector = '#summaryScalesPriceChart';
 
         var _calculator = new ProjectCalculator();
         var _cachedGrid;
@@ -37,6 +38,17 @@ var SummaryScalesRenderer = (function() {
                     line.totalPrice = computedScale.totalPrice;
                     totals.totalPrice = totals.totalPrice + line.totalPrice;
                 }
+
+                result.push(line);
+            });
+            _.each(self.engine.data.computed.fixedScales, function(values, name) {
+                var line = {
+                    isActive: true,
+                    name: (name && name !== 'undefined') ? name : '(Unassigned fixed price)',
+                    totalPrice: values.totalPrice
+                };
+
+                totals.totalPrice = totals.totalPrice + line.totalPrice;
 
                 result.push(line);
             });
@@ -68,7 +80,7 @@ var SummaryScalesRenderer = (function() {
                 });
             });
 
-            $(self.chartSelector).highcharts({
+            $(self.chartUTSelector).highcharts({
                 chart: {
                     type: 'pie'
                 },
@@ -113,6 +125,51 @@ var SummaryScalesRenderer = (function() {
             });
         };
 
+        var _renderChartsScalesPrices = function(data) {
+            // Remove total line
+            data = data.length > 0 ? data.slice(0, -1) : data;
+
+            var colors = Highcharts.getOptions().colors;
+            var scalesData = [];
+
+            _.each(data, function(dataLine, index) {
+                scalesData.push({
+                    name: dataLine.name,
+                    y: dataLine.totalPrice,
+                    color: colors[index]
+                });
+            });
+
+            $(self.chartPriceSelector).highcharts({
+                chart: {
+                    type: 'pie'
+                },
+                credits: {
+                    enabled: false
+                },
+                plotOptions: {
+                    pie: {
+                        shadow: false,
+                        animation: false
+                    }
+                },
+                title: {
+                    text: 'Repartition of price per scale'
+                },
+                series: [
+                    {
+                        name: 'Price',
+                        data: scalesData,
+                        dataLabels: {
+                            formatter: function() {
+                                return this.y > 5 ? this.point.name : null;
+                            }
+                        }
+                    }
+                ]
+            });
+        };
+
         // Event subscriptions
         self.on('render', function() {
             var scalesData = _computeScalesData();
@@ -136,11 +193,7 @@ var SummaryScalesRenderer = (function() {
                     ],
                     cells: function (row, col, prop) {
                         var cellProperties = {};
-                        if(row === self.engine.data.scales.length)
-                            cellProperties.grandHeading = true;
-                        if(/Aggregate/.test(prop)) {
-                            cellProperties.grandHeading = true;
-                        }
+                        cellProperties.grandHeading = (row === (scalesData.length - 1));
                         return cellProperties;
                     }
                 });
@@ -148,6 +201,7 @@ var SummaryScalesRenderer = (function() {
             }
 
             _renderChartsScalesEfforts();
+            _renderChartsScalesPrices(scalesData);
         });
 
         return self;

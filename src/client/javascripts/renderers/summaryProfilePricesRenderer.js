@@ -208,11 +208,7 @@ var SummaryProfilePricesRenderer = (function() {
                     ],
                     cells: function (row, col, prop) {
                         var cellProperties = {};
-                        if(row === self.engine.data.profilePrices.length)
-                            cellProperties.grandHeading = true;
-                        if(/Aggregate/.test(prop)) {
-                            cellProperties.grandHeading = true;
-                        }
+                        cellProperties.grandHeading = ((row === self.engine.data.profilePrices.length) || /Aggregate/.test(prop));
                         return cellProperties;
                     }
                 });
