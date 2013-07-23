@@ -19,16 +19,12 @@ var SummaryProfileProjectsRenderer = (function() {
             var totals = {
                 title: 'Total',
                 totalJuniorUT: 0,
-                percentageUTJunior: 0,
                 priceJunior: 0,
                 totalIntermediaryUT: 0,
-                percentageUTIntermediary: 0,
                 priceIntermediary: 0,
                 totalSeniorUT: 0,
-                percentageUTSenior: 0,
                 priceSenior: 0,
                 totalAggregateUT: 0,
-                percentageUTAggregate: 0,
                 priceAggregate: 0
             };
             _.each(self.engine.data.profileProjects, function(profileProject) {
@@ -41,45 +37,37 @@ var SummaryProfileProjectsRenderer = (function() {
 
                 var computedProfile = self.engine.data.computed.profileProjects[profileProject.id];
                 if(computedProfile) {
-                    // Junior
-                    line.totalJuniorUT = computedProfile.totalUT * (profileProject.percentageJunior / 100);
-                    totals.totalJuniorUT = totals.totalJuniorUT + line.totalJuniorUT;
+                    if(computedProfile.totalUT) {
+                        line.totalJuniorUT = computedProfile.totalUT * (profileProject.percentageJunior / 100);
+                        totals.totalJuniorUT = totals.totalJuniorUT + line.totalJuniorUT;
+                        line.totalIntermediaryUT = computedProfile.totalUT * (profileProject.percentageIntermediary / 100);
+                        totals.totalIntermediaryUT = totals.totalIntermediaryUT + line.totalIntermediaryUT;
+                        line.totalSeniorUT = computedProfile.totalUT * (profileProject.percentageSenior / 100);
+                        totals.totalSeniorUT = totals.totalSeniorUT + line.totalSeniorUT;
+                        line.totalAggregateUT = line.totalJuniorUT + line.totalIntermediaryUT + line.totalSeniorUT;
+                        totals.totalAggregateUT = totals.totalAggregateUT + line.totalAggregateUT;
+                    } else {
+                        line.totalJuniorUT = undefined;
+                        line.totalIntermediaryUT = undefined;
+                        line.totalSeniorUT = undefined;
+                        line.totalAggregateUT = undefined;
+                    }
 
-                    line.percentageUTJunior = computedProfile.percentUT * (profileProject.percentageJunior / 100);
-                    totals.percentageUTJunior = totals.percentageUTJunior + line.percentageUTJunior;
-
-                    line.priceJunior = computedProfile.totalPrice * (profileProject.computed.profilePercentPriceJunior / 100);
-                    totals.priceJunior = totals.priceJunior + line.priceJunior;
-
-                    // Intermediary
-                    line.totalIntermediaryUT = computedProfile.totalUT * (profileProject.percentageIntermediary / 100);
-                    totals.totalIntermediaryUT = totals.totalIntermediaryUT + line.totalIntermediaryUT;
-
-                    line.percentageUTIntermediary = computedProfile.percentUT * (profileProject.percentageIntermediary / 100);
-                    totals.percentageUTIntermediary = totals.percentageUTIntermediary + line.percentageUTIntermediary;
-
-                    line.priceIntermediary = computedProfile.totalPrice * (profileProject.computed.profilePercentPriceIntermediary / 100);
-                    totals.priceIntermediary = totals.priceIntermediary + line.priceIntermediary;
-
-                    // Senior
-                    line.totalSeniorUT = computedProfile.totalUT * (profileProject.percentageSenior / 100);
-                    totals.totalSeniorUT = totals.totalSeniorUT + line.totalSeniorUT;
-
-                    line.percentageUTSenior = computedProfile.percentUT * (profileProject.percentageSenior / 100);
-                    totals.percentageUTSenior = totals.percentageUTSenior + line.percentageUTSenior;
-
-                    line.priceSenior = computedProfile.totalPrice * (profileProject.computed.profilePercentPriceSenior / 100);
-                    totals.priceSenior = totals.priceSenior + line.priceSenior;
-
-                    // Aggregate
-                    line.totalAggregateUT = line.totalJuniorUT + line.totalIntermediaryUT + line.totalSeniorUT;
-                    totals.totalAggregateUT = totals.totalAggregateUT + line.totalAggregateUT;
-
-                    line.percentageUTAggregate = line.percentageUTJunior + line.percentageUTIntermediary + line.percentageUTSenior;
-                    totals.percentageUTAggregate = totals.percentageUTAggregate + line.percentageUTAggregate;
-
-                    line.priceAggregate = line.priceJunior + line.priceIntermediary + line.priceSenior;
-                    totals.priceAggregate = totals.priceAggregate + line.priceAggregate;
+                    if(computedProfile.totalPrice) {
+                        line.priceJunior = computedProfile.totalPrice * (profileProject.computed.profilePercentPriceJunior / 100);
+                        totals.priceJunior = totals.priceJunior + line.priceJunior;
+                        line.priceIntermediary = computedProfile.totalPrice * (profileProject.computed.profilePercentPriceIntermediary / 100);
+                        totals.priceIntermediary = totals.priceIntermediary + line.priceIntermediary;
+                        line.priceSenior = computedProfile.totalPrice * (profileProject.computed.profilePercentPriceSenior / 100);
+                        totals.priceSenior = totals.priceSenior + line.priceSenior;
+                        line.priceAggregate = line.priceJunior + line.priceIntermediary + line.priceSenior;
+                        totals.priceAggregate = totals.priceAggregate + line.priceAggregate;
+                    } else {
+                        line.priceJunior = undefined;
+                        line.priceIntermediary = undefined;
+                        line.priceSenior = undefined;
+                        line.priceAggregate = undefined;
+                    }
                 }
 
                 result.push(line);

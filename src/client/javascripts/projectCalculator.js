@@ -204,6 +204,8 @@
                         line.computed.lineTotalUT = self.handleRounding(scaleLine.computed.lineTotalUT * coefficient);
                         line.computed.lineTotalPrice =  self.handleRounding(scaleLine.computed.lineTotalPrice * coefficient);
                         for(profileProjectId in scaleLine.computed.profileProjects) {
+
+
                             line.computed.profileProjects[profileProjectId] = {
                                 lineTotalUT: self.handleRounding(scaleLine.computed.profileProjects[profileProjectId].lineTotalUT * coefficient),
                                 lineTotalPrice: self.handleRounding(scaleLine.computed.profileProjects[profileProjectId].lineTotalPrice * coefficient)
