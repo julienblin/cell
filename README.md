@@ -8,7 +8,6 @@ Getting started
 
 Just install [Vagrant](http://www.vagrantup.com/) and [VirtualBox](https://www.virtualbox.org/), then open a command prompt and:
 
-	cd vagrant
 	vagrant up
 	vagrant ssh
 	npm start

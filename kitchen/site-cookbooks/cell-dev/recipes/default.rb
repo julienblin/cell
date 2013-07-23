@@ -4,6 +4,8 @@ include_recipe "nodejs"
 include_recipe "mongodb::10gen_repo"
 include_recipe "mongodb"
 
+gem_package "knife-solo"
+
 node["npm_packages"].each do |npm_package|
 	execute "install global npm package #{npm_package}" do
 		command "npm -g install #{npm_package}"

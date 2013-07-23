@@ -5,7 +5,7 @@ Vagrant.configure("2") do |config|
 		cell.vm.box_url = "http://files.vagrantup.com/precise64.box"
 		cell.vm.network :forwarded_port, guest: 3000, host: 3000   # cell app
 		cell.vm.network :forwarded_port, guest: 28017, host: 28017 # mongodb http console
-		cell.vm.synced_folder "../", "/cell"
+		cell.vm.synced_folder ".", "/cell"
 		
     cell.vm.provider "virtualbox" do |v|
       v.name = "Cell-dev"
@@ -13,7 +13,7 @@ Vagrant.configure("2") do |config|
     end
     
 		cell.vm.provision :chef_solo do |chef|
-			chef.cookbooks_path = "cookbooks"
+			chef.cookbooks_path = ["kitchen/cookbooks", "kitchen/site-cookbooks"]
 			chef.add_recipe "cell-dev"
 			chef.json = {
 				"nodejs" => {
