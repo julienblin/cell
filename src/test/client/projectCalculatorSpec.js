@@ -48,6 +48,10 @@ describe('ProjectCalculator', function(){
         if(arguments.length === 1)
             return factory.make('estimationLine', { lineType: arguments[0] }).toObject();
 
+        if((arguments.length === 2) && (arguments[0] === 'fixedPrice')) {
+            return factory.make('estimationLine', { lineType: 'fixedPrice', fixedPrice: arguments[1] }).toObject();
+        }
+
         return factory.make('estimationLine', {
             scale: arguments[0].id,
             complexity: arguments[1].id,
@@ -74,6 +78,9 @@ describe('ProjectCalculator', function(){
 
     var _lineHeading1Web, _lineHeading2WebFront, _lineHeading2WebBack,
         _lineWebFrontUIDesign, _lineWebFrontMainPage, _lineWebBackUserMgtNoScale, _lineWebBackCompute, _lineWebBackDisabled;
+
+    var _lineHeading1Licences,
+        _lineLicence1, _lineLicence2Disabled;
 
     var _project;
 
@@ -142,6 +149,11 @@ describe('ProjectCalculator', function(){
         _lineWebBackDisabled = _makeLine(_scaleJava, _scaleLineJavaComplex);
         _lineWebBackDisabled.isActive = false;
 
+        _lineHeading1Licences = _makeLine('heading1');
+        _lineLicence1 = _makeLine('fixedPrice', 2500);
+        _lineLicence2Disabled = _makeLine('fixedPrice', 40000);
+        _lineLicence2Disabled.isActive = false;
+
         // Project
         _project = factory.make('project').toObject();
         _project.profilePrices = [ _profilePriceDeveloper, _profilePriceAnalyst, _profilePriceArchitect, _profilePricePM, _profilePriceNoPrice ];
@@ -165,7 +177,11 @@ describe('ProjectCalculator', function(){
                 _lineHeading2WebBack,
                     _lineWebBackUserMgtNoScale,
                     _lineWebBackCompute,
-                    _lineWebBackDisabled
+                    _lineWebBackDisabled,
+
+            _lineHeading1Licences,
+                _lineLicence1,
+                _lineLicence2Disabled
         ];
     });
 
@@ -310,6 +326,11 @@ describe('ProjectCalculator', function(){
         _lineWebBackDisabled.computed.profileProjects[_profileProjectDeveloperValid.id].lineTotalPrice.should.equal(13000);
         _lineWebBackDisabled.computed.profilePrices[_profilePriceDeveloper.id].lineTotalPrice.should.equal(13000);
 
+        _lineLicence1.computed.lineTotalUT.should.equal(0);
+        _lineLicence1.computed.lineTotalPrice.should.equal(2500);
+        _lineLicence2Disabled.computed.lineTotalUT.should.equal(0);
+        _lineLicence2Disabled.computed.lineTotalPrice.should.equal(40000);
+
         _lineHeading2DocWorkflows.computed.lineTotalUT.should.equal(20.25);
         _lineHeading2DocWorkflows.computed.lineTotalPrice.should.equal(14750);
         _lineHeading2DocWorkflows.computed.profileProjects[_profileProjectArchitectValid.id].lineTotalUT.should.equal(2.25);
@@ -352,10 +373,15 @@ describe('ProjectCalculator', function(){
         _lineHeading1Web.computed.profilePrices[_profilePriceDeveloper.id].lineTotalUT.should.equal(70);
         _lineHeading1Web.computed.profilePrices[_profilePriceDeveloper.id].lineTotalPrice.should.equal(45500);
 
+        _lineHeading1Licences.computed.lineTotalUT.should.equal(0);
+        _lineHeading1Licences.computed.lineTotalPrice.should.equal(2500);
+        Object.getOwnPropertyNames(_lineHeading1Licences.computed.profileProjects).should.have.lengthOf(0);
+        Object.getOwnPropertyNames(_lineHeading1Licences.computed.profilePrices).should.have.lengthOf(0);
+
         var headingTotal = _project.estimationLines[0];
         headingTotal.lineType.should.equal('headingTotal');
         headingTotal.computed.lineTotalUT.should.equal(124.4);
-        headingTotal.computed.lineTotalPrice.should.equal(95600);
+        headingTotal.computed.lineTotalPrice.should.equal(98100);
         headingTotal.computed.profileProjects[_profileProjectDeveloperValid.id].lineTotalUT.should.equal(90);
         headingTotal.computed.profileProjects[_profileProjectDeveloperValid.id].lineTotalPrice.should.equal(58500);
         headingTotal.computed.profilePrices[_profilePriceDeveloper.id].lineTotalUT.should.equal(90);
@@ -378,7 +404,7 @@ describe('ProjectCalculator', function(){
     it('should report results on project', function() {
         _calc.performCalculations(_project);
         _project.computed.totalUT.should.equal(124.4);
-        _project.computed.totalPrice.should.equal(95600);
+        _project.computed.totalPrice.should.equal(98100);
         _project.computed.profileProjects[_profileProjectDeveloperValid.id].totalUT.should.equal(90);
         _project.computed.profileProjects[_profileProjectDeveloperValid.id].totalPrice.should.equal(58500);
         _project.computed.profilePrices[_profilePriceDeveloper.id].totalUT.should.equal(90);
@@ -402,7 +428,7 @@ describe('ProjectCalculator', function(){
         _project.contingency = 10;
         _calc.performCalculations(_project);
         _project.computed.totalUT.should.equal(136.84);
-        _project.computed.totalPrice.should.equal(105160);
+        _project.computed.totalPrice.should.equal(107660);
         _project.computed.profileProjects[_profileProjectDeveloperValid.id].totalUT.should.equal(99);
         _project.computed.profileProjects[_profileProjectDeveloperValid.id].totalPrice.should.equal(64350);
         _project.computed.profilePrices[_profilePriceDeveloper.id].totalUT.should.equal(99);
@@ -424,7 +450,7 @@ describe('ProjectCalculator', function(){
         _project.contingency = -20;
         _calc.performCalculations(_project);
         _project.computed.totalUT.should.equal(99.52);
-        _project.computed.totalPrice.should.equal(76480);
+        _project.computed.totalPrice.should.equal(78980);
         _project.computed.profileProjects[_profileProjectDeveloperValid.id].totalUT.should.equal(72);
         _project.computed.profileProjects[_profileProjectDeveloperValid.id].totalPrice.should.equal(46800);
         _project.computed.profilePrices[_profilePriceDeveloper.id].totalUT.should.equal(72);

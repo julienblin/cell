@@ -12,12 +12,13 @@ var mongoose = require('mongoose'),
 
 var EstimationLineSchema = new Schema({
     project: { type: Schema.Types.ObjectId, ref: 'Project' },
-    lineType: { type: String },
+    lineType: { type: String, enum: [ 'heading1', 'heading2', 'fixedPrice' ] },
     isActive: { type: Boolean },
     title: { type: String },
     scale: { type: Schema.Types.ObjectId, ref: 'Scale' },
     complexity: { type: Schema.Types.ObjectId, ref: 'ScaleLine' },
-    coefficient: { type: Number }
+    coefficient: { type: Number },
+    fixedPrice:  { type: Number }
 });
 
 EstimationLineSchema.plugin(require('./plugins/paginate'));

@@ -169,7 +169,7 @@
 
             // We process backwards for headings accumulation
             for(var lineIndex = data.estimationLines.length - 1; lineIndex >= 0; --lineIndex) {
-                var profileProjectId, profilePriceId, targetProfile, scaleId, scaleLineId;
+                var profileProjectId, profilePriceId, targetProfile, scaleId, scaleLineId, scaleLine;
                 var line = data.estimationLines[lineIndex];
                 line.computed = {
                     lineTotalUT: undefined,
@@ -182,31 +182,35 @@
 
                 if(!line.id) continue;
 
-                if(!line.lineType) {
-                    if(!(line.scale && line.complexity)) continue;
-                    var scaleLine = data.nav.scaleLines[line.complexity];
-                    if(!(scaleLine && scaleLine.isActive)) continue;
-
+                if((!line.lineType) || (line.lineType === 'fixedPrice')) {
                     var coefficient = line.coefficient ? self.parseFloat(line.coefficient) : 1;
 
-                    var contNumber = self.parseInt(data.contingency);
-                    if(contNumber !== 0) {
-                        coefficient = coefficient + self.handleRounding(coefficient * (contNumber / 100));
-                    }
+                    if(line.lineType === 'fixedPrice') {
+                        line.computed.lineTotalUT = 0;
+                        line.computed.lineTotalPrice = line.fixedPrice ? self.handleRounding(line.fixedPrice * coefficient) : 0;
+                    } else {
+                        if(!(line.scale && line.complexity)) continue;
+                        scaleLine = data.nav.scaleLines[line.complexity];
+                        if(!(scaleLine && scaleLine.isActive)) continue;
 
-                    line.computed.lineTotalUT = self.handleRounding(scaleLine.computed.lineTotalUT * coefficient);
-                    line.computed.lineTotalPrice =  self.handleRounding(scaleLine.computed.lineTotalPrice * coefficient);
-                    for(profileProjectId in scaleLine.computed.profileProjects) {
-                        line.computed.profileProjects[profileProjectId] = {
-                            lineTotalUT: self.handleRounding(scaleLine.computed.profileProjects[profileProjectId].lineTotalUT * coefficient),
-                            lineTotalPrice: self.handleRounding(scaleLine.computed.profileProjects[profileProjectId].lineTotalPrice * coefficient)
-                        };
-                        targetProfile = data.nav.profileProjects[profileProjectId];
-                        if(targetProfile && targetProfile.profilePrice) {
-                            line.computed.profilePrices[targetProfile.profilePrice] = line.computed.profileProjects[profileProjectId];
+                        var contNumber = self.parseInt(data.contingency);
+                        if(contNumber !== 0) {
+                            coefficient = coefficient + self.handleRounding(coefficient * (contNumber / 100));
+                        }
+
+                        line.computed.lineTotalUT = self.handleRounding(scaleLine.computed.lineTotalUT * coefficient);
+                        line.computed.lineTotalPrice =  self.handleRounding(scaleLine.computed.lineTotalPrice * coefficient);
+                        for(profileProjectId in scaleLine.computed.profileProjects) {
+                            line.computed.profileProjects[profileProjectId] = {
+                                lineTotalUT: self.handleRounding(scaleLine.computed.profileProjects[profileProjectId].lineTotalUT * coefficient),
+                                lineTotalPrice: self.handleRounding(scaleLine.computed.profileProjects[profileProjectId].lineTotalPrice * coefficient)
+                            };
+                            targetProfile = data.nav.profileProjects[profileProjectId];
+                            if(targetProfile && targetProfile.profilePrice) {
+                                line.computed.profilePrices[targetProfile.profilePrice] = line.computed.profileProjects[profileProjectId];
+                            }
                         }
                     }
-
                     if(line.isActive) {
                         for(indexHeading in headings) {
                             headings[indexHeading].lineTotalUT = self.handleRounding(headings[indexHeading].lineTotalUT + line.computed.lineTotalUT);
@@ -233,14 +237,16 @@
                                 headings[indexHeading].profilePrices[profilePriceId].lineTotalPrice = self.handleRounding(headings[indexHeading].profilePrices[profilePriceId].lineTotalPrice + line.computed.profilePrices[profilePriceId].lineTotalPrice);
                             }
 
-                            if(!headings[indexHeading].scaleLines[scaleLine.id])
-                                headings[indexHeading].scaleLines[scaleLine.id] = {
-                                    lineTotalUT: 0,
-                                    lineTotalPrice: 0
-                                };
+                            if(scaleLine) {
+                                if(!headings[indexHeading].scaleLines[scaleLine.id])
+                                    headings[indexHeading].scaleLines[scaleLine.id] = {
+                                        lineTotalUT: 0,
+                                        lineTotalPrice: 0
+                                    };
 
-                            headings[indexHeading].scaleLines[scaleLine.id].lineTotalUT = self.handleRounding(headings[indexHeading].scaleLines[scaleLine.id].lineTotalUT + line.computed.lineTotalUT);
-                            headings[indexHeading].scaleLines[scaleLine.id].lineTotalPrice = self.handleRounding(headings[indexHeading].scaleLines[scaleLine.id].lineTotalPrice + line.computed.lineTotalPrice);
+                                headings[indexHeading].scaleLines[scaleLine.id].lineTotalUT = self.handleRounding(headings[indexHeading].scaleLines[scaleLine.id].lineTotalUT + line.computed.lineTotalUT);
+                                headings[indexHeading].scaleLines[scaleLine.id].lineTotalPrice = self.handleRounding(headings[indexHeading].scaleLines[scaleLine.id].lineTotalPrice + line.computed.lineTotalPrice);
+                            }
 
                             var scale = data.nav.scales[line.scale];
                             if(scale) {
