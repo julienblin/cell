@@ -39,23 +39,37 @@ var EstimationLinesRenderer = (function() {
             }
         };
 
+        // Can bind to either complexity or fixedPrice, depending on the lineType.
         var _dataComplexity = function complexity(line, value, inverseGet) {
             var scale, scaleLine;
-            if (inverseGet) {
-                scale = self.engine.data.nav.scales[line.scale];
-                if(!scale) return null;
-                scaleLine = _.findWhere(scale.lines, { complexity: value });
-                return scaleLine ? scaleLine.id : null;
-            }
             if(!line) line = {};
+
+            if (inverseGet) {
+                if(line.lineType === 'fixedPrice') {
+                    return value;
+                } else {
+                    scale = self.engine.data.nav.scales[line.scale];
+                    if(!scale) return null;
+                    scaleLine = _.findWhere(scale.lines, { complexity: value });
+                    return scaleLine ? scaleLine.id : null;
+                }
+            }
             if(typeof value === 'undefined') {
-                scaleLine = self.engine.data.nav.scaleLines[line.complexity];
-                return scaleLine ? scaleLine.complexity : null;
+                if(line.lineType === 'fixedPrice') {
+                    return line.fixedPrice;
+                } else {
+                    scaleLine = self.engine.data.nav.scaleLines[line.complexity];
+                    return scaleLine ? scaleLine.complexity : null;
+                }
             } else {
-                scale = self.engine.data.nav.scales[line.scale];
-                if(!scale) return null;
-                scaleLine = _.findWhere(scale.lines, { complexity: value });
-                line.complexity = scaleLine ? scaleLine.id : null;
+                if(line.lineType === 'fixedPrice') {
+                    line.fixedPrice = value;
+                } else {
+                    scale = self.engine.data.nav.scales[line.scale];
+                    if(!scale) return null;
+                    scaleLine = _.findWhere(scale.lines, { complexity: value });
+                    line.complexity = scaleLine ? scaleLine.id : null;
+                }
             }
         };
 
@@ -68,6 +82,18 @@ var EstimationLinesRenderer = (function() {
                     dataCollection: self.engine.data.estimationLines,
                     defaultValues: {
                         isActive: true
+                    },
+                    beforeCreateModifications: function(change, target, property, oldValue, newValue) {
+                        // We must alter the complexity property to bind to fixed price when needed.
+                        if(!target) return [target, property, oldValue, newValue];
+                        if(target.lineType !== 'fixedPrice') return [target, property, oldValue, newValue];
+                        if(property !== 'complexity') return [target, property, oldValue, newValue];
+                        return [
+                            target,
+                            'fixedPrice',
+                            oldValue,
+                            target.fixedPrice
+                        ];
                     }
                 });
             }
@@ -144,9 +170,11 @@ var EstimationLinesRenderer = (function() {
                             break;
                         case 'scale':
                             if(line.lineType) {
+                                cellProperties.grandHeading = true;
                                 cellProperties.renderer = Handsontable.BlankRenderer;
                                 cellProperties.readOnly = true;
                             } else {
+                                cellProperties.grandHeading = false;
                                 cellProperties.renderer = Handsontable.cellTypes.cellAutocomplete.renderer;
                                 cellProperties.readOnly = self.engine.isReadOnly;
                                 cellProperties.source = _scalesSource();
@@ -154,8 +182,13 @@ var EstimationLinesRenderer = (function() {
                             break;
                         case 'complexity':
                             if(line.lineType) {
-                                cellProperties.renderer = Handsontable.BlankRenderer;
-                                cellProperties.readOnly = true;
+                                if(line.lineType === 'fixedPrice') {
+                                    cellProperties.renderer = Handsontable.cellTypes.price.renderer;
+                                    cellProperties.readOnly = self.engine.isReadOnly;
+                                } else {
+                                    cellProperties.renderer = Handsontable.BlankRenderer;
+                                    cellProperties.readOnly = true;
+                                }
                             } else {
                                 cellProperties.renderer = Handsontable.cellTypes.cellAutocomplete.renderer;
                                 cellProperties.readOnly = self.engine.isReadOnly;
@@ -164,8 +197,13 @@ var EstimationLinesRenderer = (function() {
                             break;
                         case 'coefficient':
                             if(line.lineType) {
-                                cellProperties.renderer = Handsontable.BlankRenderer;
-                                cellProperties.readOnly = true;
+                                if(line.lineType === 'fixedPrice') {
+                                    cellProperties.renderer = Handsontable.cellTypes.cellNumeric.renderer;
+                                    cellProperties.readOnly = self.engine.isReadOnly;
+                                } else {
+                                    cellProperties.renderer = Handsontable.BlankRenderer;
+                                    cellProperties.readOnly = true;
+                                }
                             } else {
                                 cellProperties.renderer = Handsontable.cellTypes.cellNumeric.renderer;
                                 cellProperties.readOnly = self.engine.isReadOnly;
@@ -198,6 +236,9 @@ var EstimationLinesRenderer = (function() {
                         'set_heading2': {
                             name: 'Set as heading 2'
                         },
+                        'set_fixedPrice': {
+                            name: 'Set as fixed price'
+                        },
                         'set_standard': {
                             name: 'Set as standard line'
                         },
@@ -212,7 +253,7 @@ var EstimationLinesRenderer = (function() {
                         }
                     },
                     callback: function (key, options) {
-                        if ((key === 'set_heading1') || (key === 'set_heading2') || (key === 'set_standard')) {
+                        if ((key === 'set_heading1') || (key === 'set_heading2') || (key === 'set_fixedPrice') || (key === 'set_standard')) {
                             var row = $(self.gridSelector).handsontable('getSelected');
                             if(!row) return true;
                             row = row[0];
@@ -233,6 +274,9 @@ var EstimationLinesRenderer = (function() {
                                         break;
                                     case 'set_heading2':
                                         modification.values.lineType[1] = 'heading2';
+                                        break;
+                                    case 'set_fixedPrice':
+                                        modification.values.lineType[1] = 'fixedPrice';
                                         break;
                                 }
                                 self.engine.applyModifications([modification]);

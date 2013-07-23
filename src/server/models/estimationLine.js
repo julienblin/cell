@@ -1,6 +1,7 @@
 /**
  * The EstimationLine model.
- * A project is composed of many estimation lines, each one refers to a specific scale and complexity.
+ * A project is composed of many estimation lines, each one refers to a specific scale and complexity,
+ * or a fixed price.
  */
 
 "use strict";
@@ -12,7 +13,7 @@ var mongoose = require('mongoose'),
 
 var EstimationLineSchema = new Schema({
     project: { type: Schema.Types.ObjectId, ref: 'Project' },
-    lineType: { type: String, enum: [ 'heading1', 'heading2', 'fixedPrice' ] },
+    lineType: { type: String, enum: [ null, undefined, 'heading1', 'heading2', 'fixedPrice' ] },
     isActive: { type: Boolean },
     title: { type: String },
     scale: { type: Schema.Types.ObjectId, ref: 'Scale' },

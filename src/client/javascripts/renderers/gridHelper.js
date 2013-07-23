@@ -31,6 +31,15 @@ window.GridHelper = (function() {
                             oldValue = change[1](target, change[2], true);
                             newValue = target[property];
                         }
+
+                        if(options.beforeCreateModifications) {
+                            var values = options.beforeCreateModifications(change, target, property, oldValue, newValue);
+                            target = values[0];
+                            property = values[1];
+                            oldValue = values[2];
+                            newValue = values[3];
+                        }
+
                         if (target.id) {
                             var modif = {
                                 model: options.modelName,
