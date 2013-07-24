@@ -25,9 +25,3 @@ ruby_block  "setup .bashrc" do
 		file.write_file
 	end
 end
-
-execute "install project npm packages" do
-	command "cd #{node["root_src"]} && npm install --no-bin-links"
-	timeout 72000
-	not_if { File.exists?("#{node["root_src"]}/node_modules") }
-end
