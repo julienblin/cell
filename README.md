@@ -14,11 +14,14 @@ Just install [Vagrant](http://www.vagrantup.com/) and [VirtualBox](https://www.v
 	
 Open a browser to [http://localhost:3000/](http://localhost:3000/).
 
-To launch the complete test suite (inside the vagrant vm):
+To launch the complete test suite
+---------------------------------
 
 	grunt
 
-To prepare the deployment on a target server:
+To deploy on a target server
+----------------------------
+
 * install [Precise Pangolin x64](http://releases.ubuntu.com/precise/) minimal with an OpenSSH server
 * in the VM run:
 
