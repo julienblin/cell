@@ -1,0 +1,14 @@
+description "Cell <%= @name %>"
+author "Julien Blin <julien.blin@cgi.com>"
+
+# Automatic start
+start on (local-filesystems and net-device-up IFACE=eth0)
+stop on shutdown
+
+# Restart if it dies
+respawn
+
+script
+  cd "<%= @src_dir %>"
+  exec sudo -u "<%= @username %>" /usr/local/bin/npm start >> "/var/log/cell-<%= @name %>.log" 2>&1
+end script
