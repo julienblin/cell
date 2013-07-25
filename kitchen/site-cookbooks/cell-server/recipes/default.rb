@@ -33,6 +33,7 @@ node["cell"].each do |name, values|
   
   app_path = "/opt/cell/#{name}"
   src_dir = "#{app_path}/current/src"
+  presentation_base_dir = "#{app_path}/current"
   
   user app_name do
     comment "User for cell application #{name}"
@@ -54,7 +55,10 @@ node["cell"].each do |name, values|
       template "nginx_load_balancer.conf.erb"
       server_name values["server_name"] if values["server_name"]
       application_port node_port
-      static_files "root" => "#{src_dir}/public"
+      static_files({
+        "app" => "#{src_dir}/public",
+        "presentation_base" => presentation_base_dir
+      })
 	  ssl true
 	  ssl_certificate certificate
 	  ssl_certificate_key certificate_key

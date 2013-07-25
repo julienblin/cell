@@ -2,7 +2,7 @@ server {
   listen 80;
   listen 443 ssl;
   server_name <%= @resource.server_name.is_a?(Array) ? @resource.server_name.join(' ') : @resource.server_name %>;
-  root <%= @resource.static_files["root"] %>;
+  root <%= @resource.static_files["app"] %>;
   
   <% if @resource.ssl %>
   ssl_certificate <%= @resource.ssl_certificate %>;
@@ -12,6 +12,10 @@ server {
   # Redirect all non-SSL traffic to SSL.
   if ($ssl_protocol = "") {
     rewrite ^ https://$host$request_uri? permanent;
+  }
+  
+  location /presentation {
+	  root <%= @resource.static_files["presentation_base"] %>;
   }
   
   location / {
