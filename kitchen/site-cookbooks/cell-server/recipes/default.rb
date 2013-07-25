@@ -3,7 +3,7 @@ include_recipe "git"
 include_recipe "nodejs"
 include_recipe "mongodb::10gen_repo"
 include_recipe "mongodb"
-include_recipe "nginx"
+include_recipe "nginx::repo"
 include_recipe "application"
 include_recipe "application_nginx"
 
@@ -42,7 +42,7 @@ node["cell"].each do |name, values|
       template "nginx_load_balancer.conf.erb"
       server_name values["server_name"] if values["server_name"]
       port values["port"] if values["port"]
-      application_port 3000
+      application_port node_port
       static_files "root" => "#{src_dir}/public"
     end
   end
@@ -89,4 +89,13 @@ node["cell"].each do |name, values|
     provider Chef::Provider::Service::Upstart
     action :restart
   end
+end
+
+# Delete default nginx site (because we are using repo instead of package).
+file "/etc/nginx/conf.d/default.conf" do
+  action :delete
+end
+
+service "nginx" do
+  action :restart
 end
