@@ -1,0 +1,34 @@
+
+/**
+ * Configuration parameters
+ */
+
+var winston = require('winston'),
+    MongoDB = require('winston-mongodb').MongoDB;
+
+winston.remove(winston.transports.Console);
+winston.add(winston.transports.Console, { level: 'info', colorize: false });
+winston.add(MongoDB, {
+    level: 'info',
+    host: '<%= @mongo_host %>',
+    db: '<%= @mongo_db %>',
+    collection: 'logs',
+    safe: false
+});
+
+
+module.exports = {
+    env: '<%= @node_env %>',
+
+    web: {
+        port : <%= @node_port %>,
+        sessionSecret : '<%= @session_secret %>'
+    },
+
+    db: {
+        url: 'mongodb://<%= @mongo_host %>/<%= @mongo_db %>',
+        keepAlive: 1,
+        poolSize: 10,
+        seed: true
+    }
+};
