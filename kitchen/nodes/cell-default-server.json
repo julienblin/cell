@@ -6,7 +6,12 @@
 	"firewall": {
 		"rules": [
 			{"http": {
-				"port": "80"
+				"port": "80",
+				"protocol": "tcp"
+			}},
+			{"https": {
+				"port": "443",
+				"protocol": "tcp"
 			}}
 		]
 	},

@@ -13,13 +13,24 @@ execute "locale-gen en_US" do
 end
 
 node["cell"].each do |name, values|
-  
   app_name = "cell-#{name}"
   node_env = values["node_env"] || "production"
   node_port = values["node_port"] || 3000
   session_secret = values["session_secret"] || Digest::SHA1.hexdigest(app_name)
   mongo_host = values["mongo_host"] || "localhost"
   mongo_db = values["mongo_db"] || name
+  certificate = values["ssl_certificate"]
+  certificate_key = values["ssl_certificate_key"]
+  
+  if(!certificate)
+	# We use default certificate provided by Ubuntu.
+	package "ssl-cert" do
+      action :install
+    end
+	certificate = "/etc/ssl/certs/ssl-cert-snakeoil.pem"
+	certificate_key = "/etc/ssl/private/ssl-cert-snakeoil.key"
+  end
+  
   app_path = "/opt/cell/#{name}"
   src_dir = "#{app_path}/current/src"
   
@@ -42,9 +53,11 @@ node["cell"].each do |name, values|
     nginx_load_balancer do
       template "nginx_load_balancer.conf.erb"
       server_name values["server_name"] if values["server_name"]
-      port values["port"] if values["port"]
       application_port node_port
       static_files "root" => "#{src_dir}/public"
+	  ssl true
+	  ssl_certificate certificate
+	  ssl_certificate_key certificate_key
     end
   end
   

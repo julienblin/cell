@@ -1,30 +1,34 @@
 server {
-  listen <%= @resource.port %>;
+  listen 80;
+  listen 443 ssl;
   server_name <%= @resource.server_name.is_a?(Array) ? @resource.server_name.join(' ') : @resource.server_name %>;
+  root <%= @resource.static_files["root"] %>;
+  
   <% if @resource.ssl %>
-  ssl on;
   ssl_certificate <%= @resource.ssl_certificate %>;
   ssl_certificate_key <%= @resource.ssl_certificate_key %>;
   <% end %>
   
+  # Redirect all non-SSL traffic to SSL.
+  if ($ssl_protocol = "") {
+    rewrite ^ https://$host$request_uri? permanent;
+  }
+  
   location / {
-	  root <%= @resource.static_files["root"] %>;
-	  proxy_set_header X-Real-IP $remote_addr;
-	  proxy_set_header Host $host;
-	  proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-	  proxy_set_header Upgrade $http_upgrade;
-	  proxy_set_header Connection "upgrade";
-	  proxy_http_version 1.1;
-	  proxy_redirect off;
-	  
-	  if (-f $request_filename) {
-		  expires max;
-		  access_log off;
-		  break;
-	  }
-	  
-	  if (!-f $request_filename) {
-		  proxy_pass http://localhost:<%= @resource.application_port %>;
-	  }
+	try_files $uri @node;
+
+    expires max;
+    access_log off;
+  }
+  
+  location @node {
+	proxy_set_header X-Real-IP $remote_addr;
+	proxy_set_header Host $host;
+	proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+	proxy_set_header Upgrade $http_upgrade;
+	proxy_set_header Connection "upgrade";
+	proxy_http_version 1.1;
+	proxy_redirect off;
+	proxy_pass http://localhost:<%= @resource.application_port %>;
   }
 }
