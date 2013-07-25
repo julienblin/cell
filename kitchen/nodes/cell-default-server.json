@@ -3,6 +3,14 @@
         "recipe[cell-server]"
     ],
 	
+	"firewall": {
+		"rules": [
+			{"http": {
+				"port": "80"
+			}}
+		]
+	},
+	
 	"nodejs": {
 		"version": "0.10.11",
 		"install_method": "binary",
