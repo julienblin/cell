@@ -8,13 +8,6 @@ stop on shutdown
 # Restart if it dies
 respawn
 
-# Configuration variables
-env NODE_ENV=<%= @node_env %>
-env PORT=<%= @node_port %>
-env SESSION_SECRET=<%= @session_secret %>
-env MONGO_HOST=<%= @mongo_host %>
-env MONGO_DB=<%= @mongo_db %>
-
 script
   cd "<%= @src_dir %>"
   exec sudo -u "<%= @username %>" /usr/local/bin/npm start >> "/var/log/cell-<%= @name %>.log" 2>&1

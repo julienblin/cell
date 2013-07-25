@@ -1,5 +1,3 @@
-require 'digest/sha1'
-
 include_recipe "build-essential"
 include_recipe "git"
 include_recipe "nodejs"
@@ -16,11 +14,7 @@ end
 node["cell"].each do |name, values|
   
   app_name = "cell-#{name}"
-  node_env = values["node_env"] || "production"
   node_port = values["node_port"] || 3000
-  session_secret = values["session_secret"] || Digest::SHA1.hexdigest(app_name)
-  mongo_host = values["mongo_host"] || "localhost"
-  mongo_db = values["mongo_db"] || name
   app_path = "/opt/cell/#{name}"
   src_dir = "#{app_path}/current/src"
   
@@ -44,7 +38,7 @@ node["cell"].each do |name, values|
       template "nginx_load_balancer.conf.erb"
       server_name values["server_name"] if values["server_name"]
       port values["port"] if values["port"]
-      application_port node_port
+      application_port 3000
       static_files "root" => "#{src_dir}/public"
     end
   end
@@ -69,12 +63,7 @@ node["cell"].each do |name, values|
     variables({
       :name => name,
       :src_dir => src_dir,
-      :username => app_name,
-      :node_env => node_env,
-      :port => node_port,
-      :session_secret => session_secret,
-      :mongo_host => mongo_host,
-      :mongo_db => mongo_db,
+      :username => app_name
     })
   end
   
