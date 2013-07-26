@@ -10,5 +10,5 @@ respawn
 
 script
   cd "<%= @src_dir %>"
-  exec sudo -u "<%= @username %>" /usr/local/bin/npm start >> "/var/log/cell-<%= @name %>.log" 2>&1
+  exec sudo -u "<%= @username %>" /usr/local/bin/node cell.js >> "/var/log/cell-<%= @name %>.log" 2>&1
 end script

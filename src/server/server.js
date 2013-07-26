@@ -47,6 +47,11 @@ module.exports = function(config, callback) {
     var httpServer = http.createServer(app);
     socket(config, app, httpServer);
 
+    httpServer.on('close', function() {
+        winston.info("Closing server.");
+        mongoose.connection.close();
+    });
+
     httpServer.listen(config.web.port, function(err){
         if (err) {
             winston.error(err);
@@ -54,12 +59,6 @@ module.exports = function(config, callback) {
             winston.info('%s (%s) started on port %d.', pkg.name, pkg.version, config.web.port);
         }
 
-        callback(err, {
-            close: function(cb) {
-                httpServer.close(function() {
-                    mongoose.connection.close(cb);
-                });
-            }
-        });
+        callback(err, httpServer);
     });
 };
