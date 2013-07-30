@@ -21,10 +21,14 @@ block container
         tr
           td.span2= moment(modification.createdAt).calendar()
           td.span2
-            = modification.project.clientName
-            | &nbsp;-&nbsp;
-            = modification.project.projectName
-          td.span2= modification.user.username
+            if modification.project
+              = modification.project.clientName
+              | &nbsp;-&nbsp;
+              = modification.project.projectName
+
+          td.span2
+            if modification.user
+              = modification.user.username
           td.span6
             pre(style="background-color: inherit; border:0; padding: 0")= JSON.stringify(modification.data, undefined, 2)
 
