@@ -26,5 +26,6 @@ var ProfileProjectSchema = new Schema({
 ProfileProjectSchema.plugin(require('./plugins/paginate'));
 ProfileProjectSchema.plugin(require('./plugins/modify'), { parentModel: 'Project', parentProperty: 'profileProjects' });
 ProfileProjectSchema.plugin(require('./plugins/serialize'), { remove: [ 'project' ] });
+ProfileProjectSchema.plugin(require('./plugins/duplicateInProject'), { model: 'ProfileProject', projectCollection: 'profileProjects', mapPropertyIds: [ 'profilePrice' ] });
 
 module.exports = mongoose.model('ProfileProject', ProfileProjectSchema);

@@ -99,7 +99,64 @@ ProjectSchema.statics.create = function(values, user, callback) {
     var newProject = new Project(values);
     newProject.setAuth('write', user);
     newProject.save(function(err) {
-        return callback(err, newProject);
+        if(err) return callback(err, null);
+        return callback(null, newProject);
+    });
+};
+
+ProjectSchema.statics.CopyParam = {
+    ProfilePrices: 1,
+    ProfileProjects: 2
+};
+
+ProjectSchema.statics.copy = function(values, user, origProject, copyParams, callback) {
+    var Project = mongoose.model('Project');
+    var newProject = new Project(values);
+    newProject.setAuth('write', user);
+
+    origProject.populate('profilePrices')
+               .populate('profileProjects')
+               .populate(function(err, origProject) {
+        if(err) return callback(err, null);
+
+        if(copyParams) {
+            var idMap = {};
+            if(copyParams >= Project.CopyParam.ProfilePrices) {
+                async.eachSeries(
+                origProject.profilePrices,
+                function(origProfilePrice, cb) {
+                    origProfilePrice.duplicateIn(newProject, idMap, cb);
+                },
+                function(err) {
+                    if(err) return callback(err, null);
+
+                    if(copyParams >= Project.CopyParam.ProfileProjects) {
+                        async.eachSeries(
+                        origProject.profileProjects,
+                        function(origProfileProject, cb) {
+                            origProfileProject.duplicateIn(newProject, idMap, cb);
+                        },
+                        function(err) {
+                            if(err) return callback(err, null);
+                            newProject.save(function(err) {
+                                if(err) return callback(err, null);
+                                return callback(null, newProject);
+                            });
+                        });
+                    } else {
+                        newProject.save(function(err) {
+                            if(err) return callback(err, null);
+                            return callback(null, newProject);
+                        });
+                    }
+                });
+            }
+        } else {
+            newProject.save(function(err) {
+                if(err) return callback(err, null);
+                return callback(null, newProject);
+            });
+        }
     });
 };
 

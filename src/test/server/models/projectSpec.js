@@ -173,4 +173,88 @@ describe("Projects", function(){
             });
         });
     });
+
+    var makeReferenceProject = function(callback) {
+        var project = factory.make('project');
+        var profilePrice = factory.makeAndSave('profilePrice', { project: project}, function() {
+            project.profilePrices = [ profilePrice ];
+            var profileProject = factory.makeAndSave('profileProject', { project: project, profilePrice: profilePrice }, function() {
+                project.profileProjects = [ profileProject ];
+                project.save(function(err) {
+                    should.not.exists(err);
+                    callback({
+                        project: project,
+                        profilePrice: profilePrice,
+                        profileProject: profileProject
+                    });
+                });
+            });
+        });
+    };
+
+    it('should copy project', function(done) {
+        var user = factory.make('user');
+        makeReferenceProject(function(ref) {
+            Project.copy({ clientName: 'CGI', projectName: 'Cell' }, user, ref.project, null, function(err, newProject) {
+                should.not.exists(err);
+                newProject.clientName.should.equal('CGI');
+                newProject.projectName.should.equal('Cell');
+                newProject.isAuth('read', user).should.be.ok;
+                newProject.profilePrices.should.have.lengthOf(0);
+                newProject.profileProjects.should.have.lengthOf(0);
+                newProject.scales.should.have.lengthOf(0);
+                newProject.estimationLines.should.have.lengthOf(0);
+                done();
+            });
+        });
+    });
+
+    it('should copy prices profiles', function(done) {
+        var user = factory.make('user');
+        makeReferenceProject(function(ref) {
+            Project.copy({ clientName: 'CGI', projectName: 'Cell' }, user, ref.project, Project.CopyParam.ProfilePrices, function(err, newProject) {
+                should.not.exists(err);
+                newProject.populate('profilePrices', function(err) {
+                    should.not.exists(err);
+                    newProject.profilePrices.should.have.lengthOf(1);
+                    newProject.profilePrices[0].id.should.not.equal(ref.profilePrice);
+                    newProject.profilePrices[0].isActive.should.equal(ref.profilePrice.isActive);
+                    newProject.profilePrices[0].title.should.equal(ref.profilePrice.title);
+                    newProject.profilePrices[0].priceJunior.should.equal(ref.profilePrice.priceJunior);
+                    newProject.profilePrices[0].priceIntermediary.should.equal(ref.profilePrice.priceIntermediary);
+                    newProject.profilePrices[0].priceSenior.should.equal(ref.profilePrice.priceSenior);
+
+                    newProject.profileProjects.should.have.lengthOf(0);
+                    newProject.scales.should.have.lengthOf(0);
+                    newProject.estimationLines.should.have.lengthOf(0);
+                    done();
+                });
+            });
+        });
+    });
+
+    it('should copy project profiles', function(done) {
+        var user = factory.make('user');
+        makeReferenceProject(function(ref) {
+            Project.copy({ clientName: 'CGI', projectName: 'Cell' }, user, ref.project, Project.CopyParam.ProfileProjects, function(err, newProject) {
+                should.not.exists(err);
+                newProject.populate('profileProjects', function(err) {
+                    should.not.exists(err);
+                    newProject.profilePrices.should.have.lengthOf(1);
+                    newProject.profileProjects.should.have.lengthOf(1);
+                    newProject.profileProjects[0].id.should.not.equal(ref.profileProject);
+                    newProject.profileProjects[0].isActive.should.equal(ref.profileProject.isActive);
+                    newProject.profileProjects[0].title.should.equal(ref.profileProject.title);
+                    newProject.profileProjects[0].percentageJunior.should.equal(ref.profileProject.percentageJunior);
+                    newProject.profileProjects[0].percentageIntermediary.should.equal(ref.profileProject.percentageIntermediary);
+                    newProject.profileProjects[0].percentageSenior.should.equal(ref.profileProject.percentageSenior);
+                    newProject.profileProjects[0].profilePrice.toString().should.equal(newProject.profilePrices[0].toString());
+
+                    newProject.scales.should.have.lengthOf(0);
+                    newProject.estimationLines.should.have.lengthOf(0);
+                    done();
+                });
+            });
+        });
+    });
 });
