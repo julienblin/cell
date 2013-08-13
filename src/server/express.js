@@ -41,7 +41,7 @@ module.exports = function (config) {
         staticUrlRoot: '/',
         bundle: (config.env !== 'development'),
         minifyCss: true,
-        minifyJs: true
+        minifyJs: false
     });
 
     app.use(require('./middlewares/staticExpiration'));
